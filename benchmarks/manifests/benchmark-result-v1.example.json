@@ -1,0 +1,571 @@
+{
+  "schema_version": "xoas.benchmark-result.v1",
+  "protocol_version": "xoas-benchmark-protocol-v1",
+  "run_id": "xoas-run-20260828T220000Z-8e59bab97edb",
+  "created_at_utc": "2026-08-28T22:00:00Z",
+  "evidence_class": "smoke",
+  "claim": {
+    "performance_claim": false,
+    "claim_kind": "none",
+    "threshold": null,
+    "description": "Synthetic schema example only; no values in this record came from an executed benchmark."
+  },
+  "source_state": {
+    "repository": "https://github.com/ShaiKKO/XOAS.git",
+    "commit_sha": "0000000000000000000000000000000000000001",
+    "tree_state": "clean",
+    "diff_sha256": null
+  },
+  "preregistration": {
+    "manifest_uri": "benchmarks/manifests/synthetic-schema-example.json",
+    "manifest_sha256": "f80d522fd79b30b145711543725451a1c12ea76234abe622e98376f84f59c23a",
+    "frozen_at_utc": "2026-08-28T21:59:00Z",
+    "holdout_access": "not_applicable"
+  },
+  "instance": {
+    "case_id": "schema-example-random-m8-k8-n4",
+    "manifest_uri": "benchmarks/manifests/synthetic-schema-example.json",
+    "manifest_sha256": "f80d522fd79b30b145711543725451a1c12ea76234abe622e98376f84f59c23a",
+    "instance_sha256": "8e59bab97edb90c75f0c4e483613366aa45ac799c1486c33a36e70dd60a6630a",
+    "shape": {
+      "m": 8,
+      "k": 8,
+      "n": 4
+    },
+    "scalar_type": "f32",
+    "lhs_layout": {
+      "order": "row_major",
+      "contiguous": true,
+      "alignment_bytes": 64
+    },
+    "rhs_layout": {
+      "order": "row_major",
+      "contiguous": true,
+      "alignment_bytes": 64
+    },
+    "output_layout": {
+      "order": "row_major",
+      "contiguous": true,
+      "alignment_bytes": 64
+    },
+    "support_sha256": "c05b56ab6d3d07ccca6778ebd799bf98dfa2b7f10dd43601f0938f04e5070878",
+    "stored_coordinate_count": 16,
+    "expected_invocations": 1000000,
+    "input_seed": "5f8d3c2a1907e6d4b28173645a9c0fed"
+  },
+  "numerical_contract": {
+    "mode": "contracted",
+    "reduction_order": "Increasing k over every structurally present coordinate in canonical row order.",
+    "fma_contraction": "permitted",
+    "nan_behavior": "Synthetic example declaration: compare according to the future contracted reference policy.",
+    "infinity_behavior": "Synthetic example declaration: compare according to the future contracted reference policy.",
+    "signed_zero_behavior": "Synthetic example declaration: retain the future contracted reference policy.",
+    "subnormal_behavior": "Synthetic example declaration: gradual underflow with FTZ and DAZ disabled.",
+    "ftz": false,
+    "daz": false,
+    "comparison_policy": "Synthetic illustrative reference policy for schema shape only; not executable evidence."
+  },
+  "target": {
+    "manifest_id": "synthetic-target-example",
+    "manifest_sha256": "c97ecfda4d205190b973232dcfdb0c29748521c2534dd866bcc782f30b086738",
+    "target_triple": "x86_64-unknown-linux-gnu",
+    "cpu_fingerprint_sha256": "ac9ea037179811d0e44d1c2d594551a0d016931a38a4aad414297831e3ab5c97",
+    "qualification_state": "candidate",
+    "compatibility_checks": [
+      {
+        "check_id": "synthetic-target-only",
+        "status": "unavailable",
+        "evidence_uri": null,
+        "detail": "This example does not describe a real host."
+      }
+    ]
+  },
+  "toolchain": {
+    "compiler": {
+      "name": "synthetic-clang++",
+      "version": "0.0-example",
+      "path": "/synthetic/clang++",
+      "sha256": "850d9371d0ce2cb083d4075d7eec49f2f6f3c2bee5b58d0226b36028ae84efe0"
+    },
+    "linker": {
+      "name": "synthetic-ld.lld",
+      "version": "0.0-example",
+      "path": "/synthetic/ld.lld",
+      "sha256": "820652c0fe158c00963215d5b221ceed6e2da9bfe5551f9f8acfc1110949a7b5"
+    },
+    "standard_library": "synthetic-libc++",
+    "compile_flags": [
+      "-O3",
+      "-ffp-contract=fast"
+    ],
+    "link_flags": [],
+    "libraries": []
+  },
+  "implementations": [
+    {
+      "implementation_id": "oracle-scalar",
+      "role": "oracle",
+      "family": "independent scalar reference",
+      "version": "synthetic-example",
+      "eligible": true,
+      "applicability": "applicable",
+      "configuration": [],
+      "artifact_sha256": null,
+      "setup_state": "none"
+    },
+    {
+      "implementation_id": "candidate-example",
+      "role": "candidate",
+      "family": "synthetic generated scalar exact-support",
+      "version": "synthetic-example",
+      "eligible": true,
+      "applicability": "applicable",
+      "configuration": [
+        {
+          "name": "unroll",
+          "value": "1",
+          "source": "synthetic example"
+        }
+      ],
+      "artifact_sha256": "1e81270f1a47dce22a2e4985250c74b2e3374443734f1492b03ea2cd2af4ec48",
+      "setup_state": "warm"
+    },
+    {
+      "implementation_id": "csr-generic",
+      "role": "baseline",
+      "family": "synthetic generic CSR SpMM",
+      "version": "synthetic-example",
+      "eligible": true,
+      "applicability": "applicable",
+      "configuration": [
+        {
+          "name": "index_width",
+          "value": "32",
+          "source": "synthetic example"
+        }
+      ],
+      "artifact_sha256": "4b654bd1437066b13498661f3ca14774daf1066d072036beffaf06f0c014250e",
+      "setup_state": "warm"
+    }
+  ],
+  "verification": {
+    "oracle_implementation_id": "oracle-scalar",
+    "overall_status": "pass",
+    "checks": [
+      {
+        "check_id": "synthetic-instance-validation",
+        "status": "pass",
+        "evidence_uri": "artifacts/synthetic/verification.json",
+        "detail": "Synthetic example check only."
+      },
+      {
+        "check_id": "synthetic-target-compatibility",
+        "status": "unavailable",
+        "evidence_uri": null,
+        "detail": "No real target is represented by this example."
+      }
+    ],
+    "cases": [
+      {
+        "case_kind": "finite_random",
+        "seed": "1a2b3c4d5e6f708192837465aabbccdd",
+        "implementation_id": "candidate-example",
+        "status": "pass",
+        "comparison": "Synthetic example comparison marked pass for schema illustration only.",
+        "failure_artifact_uri": null
+      },
+      {
+        "case_kind": "finite_random",
+        "seed": "1a2b3c4d5e6f708192837465aabbccdd",
+        "implementation_id": "csr-generic",
+        "status": "pass",
+        "comparison": "Synthetic example comparison marked pass for schema illustration only.",
+        "failure_artifact_uri": null
+      }
+    ],
+    "eligible_implementation_ids": [
+      "candidate-example",
+      "csr-generic"
+    ]
+  },
+  "environment": {
+    "os": "synthetic-linux",
+    "kernel": "0.0-example",
+    "libc": "synthetic-libc",
+    "virtualization": "synthetic",
+    "affinity": {
+      "status": "observed",
+      "value": "cpu-example-0",
+      "evidence_source": "synthetic example"
+    },
+    "numa": {
+      "status": "not_applicable",
+      "value": "single synthetic node",
+      "evidence_source": "synthetic example"
+    },
+    "smt_sibling": {
+      "status": "unavailable",
+      "value": "unknown",
+      "evidence_source": "synthetic example"
+    },
+    "thread_count": {
+      "status": "observed",
+      "value": "1",
+      "evidence_source": "synthetic example"
+    },
+    "frequency_policy": {
+      "status": "unavailable",
+      "value": "unknown",
+      "evidence_source": "synthetic example"
+    },
+    "turbo": {
+      "status": "unavailable",
+      "value": "unknown",
+      "evidence_source": "synthetic example"
+    },
+    "thermal": {
+      "status": "unavailable",
+      "value": "unknown",
+      "evidence_source": "synthetic example"
+    },
+    "exclusive_use": {
+      "status": "unavailable",
+      "value": "unknown",
+      "evidence_source": "synthetic example"
+    },
+    "pmu": {
+      "status": "unavailable",
+      "value": "not collected",
+      "evidence_source": "synthetic example"
+    },
+    "additional_facts": []
+  },
+  "measurement": {
+    "clock": "synthetic monotonic clock",
+    "order_prng": "PCG-XSL-RR-128-64",
+    "order_seed": "f0e1d2c3b4a5968778695a4b3c2d1e0f",
+    "campaign_count": 1,
+    "process_count": 1,
+    "rounds_per_process": 5,
+    "calibration": [
+      {
+        "implementation_id": "candidate-example",
+        "iterations_per_sample": 200000,
+        "estimated_sample_ns": 21000000,
+        "timer_overhead_fraction": 0.0001
+      },
+      {
+        "implementation_id": "csr-generic",
+        "iterations_per_sample": 200000,
+        "estimated_sample_ns": 22000000,
+        "timer_overhead_fraction": 0.0001
+      }
+    ],
+    "warmup": [
+      {
+        "campaign_index": 0,
+        "process_index": 0,
+        "implementation_id": "candidate-example",
+        "sample_count": 5,
+        "stability_fraction": 0.01,
+        "status": "stable"
+      },
+      {
+        "campaign_index": 0,
+        "process_index": 0,
+        "implementation_id": "csr-generic",
+        "sample_count": 5,
+        "stability_fraction": 0.01,
+        "status": "stable"
+      }
+    ],
+    "raw_samples": [
+      {
+        "sequence": 0,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 0,
+        "order_index": 0,
+        "implementation_id": "csr-generic",
+        "iterations": 200000,
+        "elapsed_ns": 22000000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      },
+      {
+        "sequence": 1,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 0,
+        "order_index": 1,
+        "implementation_id": "candidate-example",
+        "iterations": 200000,
+        "elapsed_ns": 21000000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      },
+      {
+        "sequence": 2,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 1,
+        "order_index": 0,
+        "implementation_id": "candidate-example",
+        "iterations": 200000,
+        "elapsed_ns": 21100000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      },
+      {
+        "sequence": 3,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 1,
+        "order_index": 1,
+        "implementation_id": "csr-generic",
+        "iterations": 200000,
+        "elapsed_ns": 22100000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      },
+      {
+        "sequence": 4,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 2,
+        "order_index": 0,
+        "implementation_id": "csr-generic",
+        "iterations": 200000,
+        "elapsed_ns": 21900000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      },
+      {
+        "sequence": 5,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 2,
+        "order_index": 1,
+        "implementation_id": "candidate-example",
+        "iterations": 200000,
+        "elapsed_ns": 20900000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      },
+      {
+        "sequence": 6,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 3,
+        "order_index": 0,
+        "implementation_id": "candidate-example",
+        "iterations": 200000,
+        "elapsed_ns": 21000000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      },
+      {
+        "sequence": 7,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 3,
+        "order_index": 1,
+        "implementation_id": "csr-generic",
+        "iterations": 200000,
+        "elapsed_ns": 22000000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      },
+      {
+        "sequence": 8,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 4,
+        "order_index": 0,
+        "implementation_id": "csr-generic",
+        "iterations": 200000,
+        "elapsed_ns": 22200000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      },
+      {
+        "sequence": 9,
+        "campaign_index": 0,
+        "reboot_index": 0,
+        "process_index": 0,
+        "round_index": 4,
+        "order_index": 1,
+        "implementation_id": "candidate-example",
+        "iterations": 200000,
+        "elapsed_ns": 21200000,
+        "checksum": "f32:8a31c291",
+        "valid": true,
+        "invalid_reason": null,
+        "counters": []
+      }
+    ]
+  },
+  "statistics": {
+    "primary_estimator": "median_of_process_medians_ns_per_invocation",
+    "dispersion_estimators": [
+      "MAD",
+      "IQR"
+    ],
+    "confidence_level": 0.95,
+    "bootstrap_method": "two_level_process_then_paired_round_percentile",
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": "0123456789abcdeffedcba9876543210",
+    "noise_floor": 0.02,
+    "implementation_summaries": [
+      {
+        "implementation_id": "candidate-example",
+        "valid_sample_count": 5,
+        "process_count": 1,
+        "median_ns_per_invocation": 105.0,
+        "process_median_mad_ns": 0.0,
+        "process_median_iqr_ns": 0.0,
+        "minimum_ns_per_invocation": 104.5,
+        "maximum_ns_per_invocation": 106.0
+      },
+      {
+        "implementation_id": "csr-generic",
+        "valid_sample_count": 5,
+        "process_count": 1,
+        "median_ns_per_invocation": 110.0,
+        "process_median_mad_ns": 0.0,
+        "process_median_iqr_ns": 0.0,
+        "minimum_ns_per_invocation": 109.5,
+        "maximum_ns_per_invocation": 111.0
+      }
+    ],
+    "comparisons": [
+      {
+        "candidate_id": "candidate-example",
+        "baseline_id": "csr-generic",
+        "paired_speedup": 1.0476,
+        "confidence_lower": 1.01,
+        "confidence_upper": 1.08,
+        "noise_floor": 0.02,
+        "outcome": "tie"
+      }
+    ]
+  },
+  "lifecycle": {
+    "costs": [
+      {
+        "implementation_id": "candidate-example",
+        "analysis_ns": 100000,
+        "search_ns": 0,
+        "codegen_ns": 200000,
+        "compile_ns": 700000,
+        "setup_ns": 0,
+        "prepack_ns": 0,
+        "execution_ns_per_invocation": 105.0
+      },
+      {
+        "implementation_id": "csr-generic",
+        "analysis_ns": 0,
+        "search_ns": 0,
+        "codegen_ns": 0,
+        "compile_ns": 0,
+        "setup_ns": 10000,
+        "prepack_ns": 0,
+        "execution_ns_per_invocation": 110.0
+      }
+    ],
+    "resources": [
+      {
+        "implementation_id": "candidate-example",
+        "generated_source_bytes": 2048,
+        "object_bytes": 4096,
+        "executable_code_bytes": 512,
+        "scratch_bytes": 0,
+        "prepack_bytes": 0
+      },
+      {
+        "implementation_id": "csr-generic",
+        "generated_source_bytes": 0,
+        "object_bytes": 4096,
+        "executable_code_bytes": 256,
+        "scratch_bytes": 0,
+        "prepack_bytes": 160
+      }
+    ],
+    "break_even": [
+      {
+        "candidate_id": "candidate-example",
+        "fallback_id": "csr-generic",
+        "invocations": 198000,
+        "reason": "Synthetic arithmetic example only; not an executed or supported estimate."
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "role": "manifest",
+      "uri": "artifacts/synthetic/manifest.json",
+      "sha256": "7021e610a5f62eefd01830fea68e5fa180e8cf017c08ea0890c326b2854ebc96",
+      "size_bytes": 1
+    },
+    {
+      "role": "raw_samples",
+      "uri": "artifacts/synthetic/raw-samples.json",
+      "sha256": "2e589abdc8dde7c62304b1e0a1549f1b1ba8093a492ca772ce88d14acd7e37bc",
+      "size_bytes": 1
+    },
+    {
+      "role": "verification",
+      "uri": "artifacts/synthetic/verification.json",
+      "sha256": "8a5debbf9777437138d24d421f4dbd4bfe23473c7cb0a621599e43172d736958",
+      "size_bytes": 1
+    },
+    {
+      "role": "environment",
+      "uri": "artifacts/synthetic/environment.json",
+      "sha256": "2699ff265931c5ccc111fd51ab8228c40e390afb0445c2102a45844af02bcd4c",
+      "size_bytes": 1
+    }
+  ],
+  "decision": {
+    "outcome": "smoke_only",
+    "winner_implementation_id": null,
+    "fastest_fallback_id": "csr-generic",
+    "gate_status": "not_evaluated",
+    "reason": "This is a synthetic schema example and cannot support a performance decision."
+  },
+  "limitations": [
+    {
+      "limitation_id": "synthetic-example",
+      "severity": "claim_blocker",
+      "detail": "The entire record is illustrative and was not produced by the benchmark harness.",
+      "impact": "No correctness, compatibility, performance, or lifecycle claim may cite this file."
+    }
+  ]
+}

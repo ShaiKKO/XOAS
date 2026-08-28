@@ -19,7 +19,7 @@ If two sources conflict, stop work affected by the conflict, quote the exact sec
 | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------- |
 | [`../exact_instance_matrix_kernel_synthesizer_build_plan.md`](../exact_instance_matrix_kernel_synthesizer_build_plan.md) | Approved execution authority by the user's 2026-08-28 handoff; front-matter label remains historically unreconciled | Full research architecture, milestone dependencies, gates, IR boundaries, Target 0 | Approved architecture change                  |
 | [`000-charter.md`](000-charter.md)                                                                                       | M0 locked contract; M0 gate remains open until its acceptance record closes                                         | Product mission, v0 claim, Target 0, non-goals, numerical boundary, falsification  | Approved scope, semantics, or gate change     |
-| [`050-benchmark-protocol.md`](050-benchmark-protocol.md)                                                                 | Planned by the active M0 implementation plan; does not yet exist                                                    | Measurement and performance-claim contract                                         | Creation and later approved protocol revision |
+| [`050-benchmark-protocol.md`](050-benchmark-protocol.md)                                                                 | M0 locked measurement contract; not yet exercised by a harness                                                      | Eligibility, environment, sampling, statistics, lifecycle, holdout, and claim rules | Approved protocol revision or evidence-driven correction |
 
 ## Architecture proposals
 
@@ -52,8 +52,10 @@ No IDR exists. Use `../adr/IDR-####-short-title.md` for durable, semantics-neutr
 |---|---|---|
 | [`../experiments/prior-art-matrix.md`](../experiments/prior-art-matrix.md) | M0 reviewed-source matrix; executable reproduction remains later work | Capability boundary, closest prior systems, constrained XOAS differentiator |
 | [`../experiments/baseline-matrix.md`](../experiments/baseline-matrix.md) | M0 admission policy; host availability remains open | Serious baseline candidates, configuration search, cost accounting, disqualification |
+| [`../../schemas/benchmark-result-v1.schema.json`](../../schemas/benchmark-result-v1.schema.json) | M0 JSON Schema draft 2020-12 contract; syntax checked, full validator unavailable | Immutable result, environment, raw-sample, lifecycle, artifact, and decision fields |
+| [`../../benchmarks/manifests/benchmark-result-v1.example.json`](../../benchmarks/manifests/benchmark-result-v1.example.json) | Explicitly synthetic, non-claiming example | Demonstrates the result shape; never benchmark evidence |
 
-The corpus policy, result schema, benchmark manifests, and candidate-target manifest are M0 work in progress. Add each path here only after it exists and passes its plan checks.
+The corpus policy, corpus manifests, and candidate-target manifest are M0 work in progress. Add each path here only after it exists and passes its plan checks.
 
 Performance results do not become architectural authority. They may motivate a proposal, support a gate decision, or falsify a claim.
 

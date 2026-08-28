@@ -17,9 +17,9 @@ This is the canonical frontier ledger. Update it whenever a milestone changes st
 
 ## Current frontier
 
-M0 is the earliest open milestone. The repository-discovery checkpoint has been performed in an unborn `main` branch, but M0 is not closed.
+M0 is the earliest open milestone. The repository-discovery checkpoint was performed before the first commit; `main` now contains the published foundation and prior-art checkpoints, but M0 is not closed.
 
-M0 Task 1 is closed at commit `60044e8`: the architecture index and Target 0 charter exist and passed their documentation checks. Task 2 prior-art and baseline matrices are implemented in the working tree and awaiting their scoped commit. The remaining M0 evidence is still open.
+M0 Task 1 is closed at commit `60044e8`. Task 2 prior-art and baseline policy is closed at `30616bc`. Task 3 benchmark protocol, result schema, and synthetic example are implemented in the working tree and awaiting their scoped commit. Corpus and target evidence remain open.
 
 Work that can proceed after checkpoint review:
 
@@ -38,7 +38,7 @@ Load-bearing decision before the reference-target manifest can be locked:
 
 | Milestone | State | Implementing commits | Evidence | Open gate items |
 |---|---|---|---|---|
-| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation, charter, index) | Build plan; discovery report; candidate-host snapshot; Target 0 charter; working-tree prior-art and baseline matrices | Commit Task 2; benchmark protocol/schema; frozen corpus manifests; target qualification decision; acceptance review |
+| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines) | Build plan; discovery report; candidate-host snapshot; charter; prior-art/baseline matrices; working-tree benchmark protocol/schema/example | Commit Task 3; frozen corpus manifests; target qualification decision; acceptance review |
 | M1 — Core types and canonical identity | Not started | None | None | M0 gate must close first |
 | M2 — Reference semantics and honest baselines | Not started | None | None | M1 gate and target/baseline setup |
 | M3 — Contribution graph and scalar code generation | Not started | None | None | M2 gate |
@@ -55,7 +55,7 @@ Load-bearing decision before the reference-target manifest can be locked:
 
 ## Dependency audit
 
-- No product code, tests, build system, schemas, benchmark harness, generated artifacts, database, or cached plans exist.
+- No product code, tests, build system, executable benchmark harness, generated kernel artifacts, database, or cached plans exist. An M0 benchmark-result schema and synthetic example now exist as evidence contracts only.
 - No later-milestone code currently depends on an open earlier gate.
 - The only repository document present before discovery was the build plan; its front matter says “Proposed architectural program,” while the user's handoff treats the architecture as approved and locked for execution. The user instruction controls current work. The M0 architecture index and charter now record that authority distinction without editing the build plan's technical semantics.
 
