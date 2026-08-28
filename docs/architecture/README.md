@@ -23,7 +23,9 @@ If two sources conflict, stop work affected by the conflict, quote the exact sec
 
 ## Architecture proposals
 
-No architecture proposal exists yet. M0 plans `proposals/AR-0001-target-0-host-qualification.md` because reference-host selection affects compatibility identity and benchmark claims.
+| Document | State | Requested decision |
+|---|---|---|
+| [`proposals/AR-0001-target-0-host-qualification.md`](proposals/AR-0001-target-0-host-qualification.md) | Proposed; user decision required | Keep `gpu-2` development-only, conditionally qualify it after controls, or approve a narrower VM measurement claim |
 
 Approved proposals override the affected sections of lower-authority documents only to the extent their requested decision says so. Rejected and superseded proposals remain evidence and must be labeled accordingly.
 
@@ -37,7 +39,7 @@ No IDR exists. Use `../adr/IDR-####-short-title.md` for durable, semantics-neutr
 | ------------------------------------------------------------------------------------ | --------------------------- | --------------------------------------------------------- |
 | [`../milestones/status.md`](../milestones/status.md)                                 | Canonical live ledger       | Current frontier, gate state, dependencies, evidence gaps |
 | [`../milestones/M0-implementation-plan.md`](../milestones/M0-implementation-plan.md) | Active                      | Exact M0 files, checks, evidence, and commit boundaries   |
-| `../milestones/M0-acceptance.md`                                                     | Planned; does not yet exist | M0 traceability, commands, review, and gate decision      |
+| [`../milestones/M0-acceptance.md`](../milestones/M0-acceptance.md)                   | Draft acceptance record; gate OPEN | M0 traceability, commands, evidence gaps, review, and gate decision |
 
 ## Repository operating evidence
 
@@ -58,8 +60,9 @@ No IDR exists. Use `../adr/IDR-####-short-title.md` for durable, semantics-neutr
 | [`../../benchmarks/manifests/synthetic-target-v0.json`](../../benchmarks/manifests/synthetic-target-v0.json) | Frozen, not materialized | 25 visible smoke/design/proof/product synthetic cases |
 | [`../../benchmarks/manifests/application-target-v0.json`](../../benchmarks/manifests/application-target-v0.json) | Frozen sources, not materialized | Six visible NIST-derived product cases, including one proof target |
 | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen and not measured; measurements sealed until M7 | Six NIST-derived holdout cases and early-access invalidation rule |
+| [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Candidate development-host capture; not qualified for measurement | Non-secret CPU/OS/topology/timer/PMU/toolchain evidence and qualification blockers |
 
-The candidate-target manifest is M0 work in progress. Add its path here only after it exists and passes its plan checks.
+No qualified Target 0 manifest exists. The candidate manifest cannot satisfy plan or runtime compatibility.
 
 Performance results do not become architectural authority. They may motivate a proposal, support a gate decision, or falsify a claim.
 
