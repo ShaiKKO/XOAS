@@ -6,9 +6,9 @@
 
 **Evaluation date:** 2026-08-28
 
-**Last committed input:** `8a7032b` (`bench: freeze initial Target 0 corpus manifests`)
+**Last committed input:** `6e6adf3` (`docs: record Target 0 host qualification decision`)
 
-**Working-tree state for this draft:** Dirty by construction; candidate-target evidence, AR-0001, this acceptance record, index, ledger, and manual integration have not yet been bound to the next commit.
+**Working-tree state for this integration pass:** Dirty by construction; the operating-manual reconciliation and final M0 document audit have not yet been bound to a tested integration commit.
 
 ## Controlling requirements
 
@@ -32,8 +32,8 @@ The user has not yet approved the server as the Target 0 measurement host.
 | Result schema | [`../../schemas/benchmark-result-v1.schema.json`](../../schemas/benchmark-result-v1.schema.json) and non-claiming example | JSON syntax and custom invariants checked; full JSON Schema validator unavailable |
 | Synthetic and application sources | [`../experiments/corpus-policy.md`](../experiments/corpus-policy.md) and three corpus manifests | Frozen and committed at `8a7032b`; M1 materialization not implemented |
 | Holdout | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen, public identity, no measurements, design use prohibited |
-| Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Candidate capture complete; qualification and approval open |
-| Architecture index | [`../architecture/README.md`](../architecture/README.md) | Exists; final M0 integration update pending |
+| Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Candidate capture committed at `6e6adf3`; qualification and approval open |
+| Architecture index | [`../architecture/README.md`](../architecture/README.md) | Exists and includes all current M0 evidence; final audit pending |
 
 ## Exit-gate statement
 
@@ -118,9 +118,9 @@ M0 remains **OPEN**. Closing it requires:
 2. qualified, approved Target 0 manifest satisfying the selected option;
 3. exact installed compiler and serious baseline-library identities on that target;
 4. full schema/example validation with the approved M1-or-earlier validator tool;
-5. final cross-document and secret/link checks;
+5. final Task 6 cross-document, secret, link, and invariant checks and a clean integration commit;
 6. independent review or explicit user acceptance of the documented review model;
-7. a clean exact commit and updated acceptance record.
+7. an updated acceptance record bound to the exact verified integration commit.
 
 ## Earliest executable next slice
 

@@ -19,16 +19,9 @@ This is the canonical frontier ledger. Update it whenever a milestone changes st
 
 M0 is the earliest open milestone. The repository-discovery checkpoint was performed before the first commit; `main` now contains the published foundation and prior-art checkpoints, but M0 is not closed.
 
-M0 Task 1 is closed at commit `60044e8`; Task 2 prior-art/baseline policy at `30616bc`; Task 3 benchmark contract at `00afbf7`; and Task 4 corpus policy/manifests at `8a7032b`. Task 5 candidate-target capture, AR-0001, and draft acceptance record are implemented in the working tree. Target qualification remains open.
+M0 Task 1 is closed at commit `60044e8`; Task 2 prior-art/baseline policy at `30616bc`; Task 3 benchmark contract at `00afbf7`; Task 4 corpus policy/manifests at `8a7032b`; and Task 5 candidate-target capture/decision record at `6e6adf3`. Task 6 manual integration and verification are in progress in the primary checkout. Target qualification remains open.
 
-Work that can proceed after checkpoint review:
-
-- the M0 charter and non-goals;
-- the prior-art comparison matrix;
-- the benchmark protocol and result schema;
-- corpus-source selection and initial manifests;
-- baseline selection;
-- reference-target qualification and manifest capture.
+The named M0 document, policy, schema, corpus, and candidate-capture deliverables now exist. Work that can proceed without widening scope is limited to integrating and verifying those records, resolving the target-host decision, provisioning the selected host, qualifying measurement controls and baseline availability, validating the schema with a pinned full validator, and completing review/acceptance.
 
 Load-bearing decision before the reference-target manifest can be locked:
 
@@ -38,7 +31,7 @@ Load-bearing decision before the reference-target manifest can be locked:
 
 | Milestone | State | Implementing commits | Evidence | Open gate items |
 |---|---|---|---|---|
-| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines); `00afbf7` (benchmark contract); `8a7032b` (corpus) | All named documents/manifests exist; working-tree candidate target, AR-0001, and acceptance draft record why the gate is open | Commit Task 5; approve/execute target qualification; provision baselines; schema validation; independent review; clean acceptance commit |
+| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines); `00afbf7` (benchmark contract); `8a7032b` (corpus); `6e6adf3` (candidate target/decision) | All named M0 documents/manifests exist; Task 6 final integration is in progress; acceptance record explains the open gate | Complete Task 6 verification; decide AR-0001; qualify/provision target and baselines; full schema validation; independent review; clean acceptance record |
 | M1 — Core types and canonical identity | Not started | None | None | M0 gate must close first |
 | M2 — Reference semantics and honest baselines | Not started | None | None | M1 gate and target/baseline setup |
 | M3 — Contribution graph and scalar code generation | Not started | None | None | M2 gate |

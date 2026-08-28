@@ -317,7 +317,7 @@ Map every M0 build-plan work item and deliverable to a file and section. Check t
 python3 -m json.tool schemas/benchmark-result-v1.schema.json >/dev/null
 find benchmarks/manifests -name '*.json' -print0 | xargs -0 -n1 python3 -m json.tool >/dev/null
 git diff --check
-rg -n "TODO|TBD|FIXME|PLACEHOLDER" AGENTS.md docs benchmarks schemas
+rg -n "TO""DO|T""BD|FIX""ME|PLACE""HOLDER" AGENTS.md docs benchmarks schemas
 ! rg -n "ssh""pass|([0-9]{1,3}[.]){3}[0-9]{1,3}|[.]pem|password[[:space:]]*[:=]|BEGIN [A-Z ]*PRIVATE KEY" . -g '!.git/**'
 git status --short --branch
 ```

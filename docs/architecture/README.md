@@ -39,7 +39,7 @@ No IDR exists. Use `../adr/IDR-####-short-title.md` for durable, semantics-neutr
 | ------------------------------------------------------------------------------------ | --------------------------- | --------------------------------------------------------- |
 | [`../milestones/status.md`](../milestones/status.md)                                 | Canonical live ledger       | Current frontier, gate state, dependencies, evidence gaps |
 | [`../milestones/M0-implementation-plan.md`](../milestones/M0-implementation-plan.md) | Active                      | Exact M0 files, checks, evidence, and commit boundaries   |
-| [`../milestones/M0-acceptance.md`](../milestones/M0-acceptance.md)                   | Draft acceptance record; gate OPEN | M0 traceability, commands, evidence gaps, review, and gate decision |
+| [`../milestones/M0-acceptance.md`](../milestones/M0-acceptance.md)                   | Open acceptance record; gate OPEN | M0 traceability, commands, evidence gaps, review, and gate decision |
 
 ## Repository operating evidence
 

@@ -32,10 +32,14 @@ Empirical target measurement is part of compilation because static models only p
 Read these files before working:
 
 1. [`docs/exact_instance_matrix_kernel_synthesizer_build_plan.md`](docs/exact_instance_matrix_kernel_synthesizer_build_plan.md) — controlling architecture, milestones, gates, IR model, Target 0, and research program.
-2. [`docs/milestones/status.md`](docs/milestones/status.md) — canonical current frontier and gate state.
-3. [`docs/repository_discovery_and_project_understanding_report.md`](docs/repository_discovery_and_project_understanding_report.md) — point-in-time repository, host, toolchain, and evidence gaps.
-4. Any approved architecture proposal, specification, milestone acceptance record, implementation plan, or IDR that scopes the task. These paths will be added to the architecture index when M0 establishes it.
-5. The nearest scoped `AGENTS.md` if nested instructions are added later.
+2. [`docs/architecture/README.md`](docs/architecture/README.md) — actual architecture/decision/evidence inventory and approval state.
+3. [`docs/architecture/000-charter.md`](docs/architecture/000-charter.md) — locked v0 claim, Target 0, numerical boundary, non-goals, and falsification.
+4. [`docs/milestones/status.md`](docs/milestones/status.md) and the active milestone acceptance/implementation plan — canonical frontier, gate state, exact evidence, and current task contract.
+5. For benchmark, corpus, or performance work: [`docs/architecture/050-benchmark-protocol.md`](docs/architecture/050-benchmark-protocol.md), [`docs/experiments/baseline-matrix.md`](docs/experiments/baseline-matrix.md), and [`docs/experiments/corpus-policy.md`](docs/experiments/corpus-policy.md).
+6. For research-claim work: [`docs/experiments/prior-art-matrix.md`](docs/experiments/prior-art-matrix.md).
+7. For target/toolchain work: [`docs/architecture/proposals/AR-0001-target-0-host-qualification.md`](docs/architecture/proposals/AR-0001-target-0-host-qualification.md) and the candidate/approved target manifest. AR-0001 is proposed, not approved.
+8. [`docs/repository_discovery_and_project_understanding_report.md`](docs/repository_discovery_and_project_understanding_report.md) — point-in-time repository, host, toolchain, and evidence gaps; refresh drift-prone facts.
+9. The nearest scoped `AGENTS.md` if nested instructions are added later.
 
 Precedence:
 
@@ -90,9 +94,20 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `AGENTS.md` — this repository-wide operating manual.
 - `docs/exact_instance_matrix_kernel_synthesizer_build_plan.md` — controlling program.
 - `docs/repository_discovery_and_project_understanding_report.md` — discovery evidence snapshot.
+- `docs/architecture/README.md` — architecture, decision, and evidence index.
+- `docs/architecture/000-charter.md` — locked Target 0 product/research charter.
+- `docs/architecture/050-benchmark-protocol.md` — locked v1 benchmark and evidence protocol.
+- `docs/architecture/proposals/AR-0001-target-0-host-qualification.md` — proposed load-bearing target-host decision.
+- `docs/experiments/prior-art-matrix.md` — required and direct-comparator capability review.
+- `docs/experiments/baseline-matrix.md` — baseline admission/configuration/cost policy.
+- `docs/experiments/corpus-policy.md` — deterministic corpus generation, normalization, partition, and holdout policy.
+- `docs/milestones/M0-implementation-plan.md` — executable M0 plan and commit boundaries.
+- `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
+- `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, and the unqualified `gpu-2` candidate-target capture. It contains no executable harness or measured performance result.
+- `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; syntax checked, full validator execution still open.
 
-There is currently no source, public include tree, build system, test tree, benchmark tree, schema, database, artifact store, script, README, or dependency manifest.
+There is currently no product source/public include tree, build system, test tree, executable benchmark harness, database, artifact store, script directory, repository README, or dependency manifest.
 
 ### Planned paths
 
@@ -130,11 +145,11 @@ Structural optimization and algebraic optimization are separate pipelines with s
 
 ### Current verified state
 
-The repository has no build system or product code. Therefore no configure, build, format, lint, static-analysis, sanitizer, benchmark, or generated-artifact cleanup command exists yet.
+The repository has no build system or product code. Therefore no configure, product build, formatter, C++ lint/static-analysis, sanitizer, executable benchmark, or generated-artifact cleanup command exists yet. Do not substitute a guessed generic command.
 
 The primary Linux development server is `gpu-2`, Ubuntu 24.04.4 LTS on x86-64 KVM/OpenStack. It is a development host and only a candidate measurement host until Target 0 qualification closes. Access credentials and network coordinates are external secrets and must never be committed.
 
-At the discovery snapshot, `gpu-2` has Git 2.43.0 and Python 3.12.3, but lacks CMake, Ninja, GCC/G++, Clang/Clang++, SQLite development tooling, `pkg-config`, and detected BLAS packages. Do not claim the host is build-ready until provisioning is approved, performed, and recorded.
+The fresh M0 capture at `2026-08-28T23:01:51Z` records `gpu-2` in `benchmarks/manifests/target-gpu-2-candidate.json`: Git 2.43.0 and Python 3.12.3 are present; CMake, Ninja, GCC/G++, Clang/Clang++, SQLite CLI/development tooling, `pkg-config`, OpenBLAS, oneMKL, and LIBXSMM are absent. PMU cycles/instructions are unavailable to the unprivileged guest. Do not claim the host is build-ready or measurement-qualified until AR-0001, provisioning, and qualification close.
 
 The local Apple M4/macOS machine is not valid for Target 0 performance evidence.
 
@@ -146,9 +161,14 @@ git branch --show-current
 git remote -v
 git worktree list --porcelain
 rg --files -uu -g '!.git/**'
+git diff --check
+python3 -m json.tool schemas/benchmark-result-v1.schema.json >/dev/null
+find benchmarks/manifests -name '*.json' -print0 | xargs -0 -n1 python3 -m json.tool >/dev/null
 ```
 
-These are inspection commands, not a product verification suite.
+These are inspection/document-syntax commands, not a product verification suite. The M0 plan and acceptance record contain the exact cross-manifest assertions and source-hash checks used for their checkpoint.
+
+Python module `jsonschema` was unavailable at the M0 snapshot. Do not claim draft-2020-12 schema or example validation until a pinned validator is installed and the exact command is added here.
 
 ### Required future toolchain direction
 
@@ -163,6 +183,8 @@ When M1 creates the build system, add the exact version floors, install provenan
 No test harness or executable exists. Unit, property, differential, numerical, code-generation, artifact/serialization, regression, and benchmark-smoke commands are currently **unavailable**.
 
 A successful no-op or missing-test invocation is not evidence. The change that introduces each harness must add its exact invocation here and to the relevant acceptance record.
+
+M0 documentation/evidence checks currently consist of the JSON commands in section 6, `git diff --check`, the relative-link/secret/placeholder audit in `docs/milestones/M0-implementation-plan.md`, and its standard-library cross-manifest assertions. They do not qualify product behavior.
 
 ### Required taxonomy
 
@@ -202,11 +224,11 @@ A successful no-op or missing-test invocation is not evidence. The change that i
 
 ## 9. Benchmark and evidence protocol
 
-No performance claim is accepted without a versioned manifest and raw samples.
+[`docs/architecture/050-benchmark-protocol.md`](docs/architecture/050-benchmark-protocol.md) is the controlling v1 workflow and statistical contract. [`docs/experiments/baseline-matrix.md`](docs/experiments/baseline-matrix.md) controls baseline admission/configuration and cost accounting. No performance claim is accepted without a schema-valid versioned manifest and retained raw samples.
 
 Before broadening the system, the proof gate requires at least one pre-registered nontrivial workload at least 2x faster than the best applicable generic baseline. Target 0 product-class success additionally requires at least 1.5x geometric-mean speedup on the pre-registered target subset and at least 2x on one real or application-derived structure. These are research gates, not promised outcomes. A failed gate produces a written no-go or explicitly approved narrower claim; it does not authorize silent scope expansion.
 
-The future Target 0 workflow must:
+The Target 0 workflow must:
 
 1. validate candidate correctness and compatibility before timing;
 2. bind the process/thread to a selected core;
@@ -218,10 +240,10 @@ The future Target 0 workflow must:
 8. retain every raw sample and sample ordering;
 9. repeat after process restart and, for gate evidence, system reboot;
 10. record median, dispersion, sample count, and the confidence/noise rule used to select or reject a winner;
-11. collect cycles, instructions, cache/branch/stall/vector evidence where the host exposes trustworthy counters;
+11. collect at least cycles and instructions, plus cache/branch/stall/vector evidence where the qualified host exposes trustworthy counters;
 12. retain failed, tied, losing, and regressed experiments when analytically useful.
 
-Always compare with the fastest correct configuration of every applicable serious baseline. Never compare only with a naive loop.
+Admitted baseline families are the independent scalar oracle/fallback, compiler-optimized dense C++ fallback, OpenBLAS/oneMKL dense SGEMM when installed and applicable, oneMKL Sparse BLAS when installed and semantically compatible, inspector/executor CSR and alternative traversal paths, and LIBXSMM dense/generated paths when installed and applicable. Always compare with the fastest correct admitted configuration that passes the protocol. Never compare only with a naive loop.
 
 Report analysis, search, compile, and tuning time; generated code size; scratch/prepack requirements; kernel and fallback time; speedup; variability; and break-even invocation count.
 
@@ -231,7 +253,9 @@ Use:
 
 for lifecycle comparison. Never deploy a generated plan that loses to the measured fallback.
 
-Pre-register target and holdout subsets before milestone claims. If confidence intervals overlap materially or the delta is below the accepted noise floor, report a tie—not a win.
+The v1 protocol fixes smoke at one process/five rounds, search at three fresh processes/fifteen rounds, and gate evidence at two reboot-separated campaigns with five processes per campaign and thirty rounds per process. Use deterministic paired interleaving, the median of process medians, MAD/IQR, and the specified two-level 10,000-replicate percentile bootstrap. A winner requires the speedup confidence-interval lower bound above `1.02`; otherwise report a tie. The proof workload requires a lower bound of at least `2.0`; product-class evidence requires a geometric-mean lower bound of at least `1.5` plus one application-derived case at least `2.0`.
+
+Pre-register target and holdout subsets before milestone claims. Do not delete timing outliers based on duration; invalidate a whole process only for the objective failures named by the protocol. The current `gpu-2` candidate cannot provide the build-plan-minimum cycles/instructions evidence and is not a qualified measurement target.
 
 ## 10. Canonical identity and artifact rules
 
@@ -291,7 +315,7 @@ Before a multi-step coding slice, write a task-level implementation plan with ex
 Every delegated task has:
 
 - exactly one owner;
-- one isolated worktree and task branch, or an explicitly documented shared-branch policy;
+- an explicit primary-checkout, task-branch, or shared-branch policy;
 - a precise contract and controlling requirement;
 - explicit inputs and outputs;
 - explicit non-goals;
@@ -302,13 +326,15 @@ Every delegated task has:
 
 The head engineering agent owns integration and reconciliation against controlling documents. Do not give multiple agents overlapping architectural or file ownership without one integration owner and ordered handoffs.
 
+Work in the primary checkout by default for the current greenfield stage. Use a linked worktree only when isolation is genuinely required—for example, concurrent overlapping implementation streams, a long-lived risky experiment, or a release/maintenance branch that cannot safely share the checkout. Do not create worktrees as routine ceremony.
+
 Agents must not make architecture decisions on behalf of the integration owner, rewrite unrelated dirty work, or claim a milestone gate from their subtask. The integration owner reviews exact diffs, verification evidence, generated artifacts, and dependency assumptions before integration.
 
 ## 13. Change control
 
 ### Architecture proposals
 
-Use `docs/architecture/proposals/AR-####-short-title.md` for material semantic or architecture changes. The first proposal number is `AR-0001`.
+Use `docs/architecture/proposals/AR-####-short-title.md` for material semantic or architecture changes. `AR-0001` exists; allocate the next unused number.
 
 Each proposal includes:
 
@@ -334,18 +360,18 @@ An IDR records context, decision, alternatives, consequences, affected files/int
 ## 14. Git and commit discipline
 
 - Inspect branch, HEAD, worktrees, remotes, and dirty state before work.
-- The repository was initialized on `main` with no commits at the discovery snapshot.
-- Use `milestone/mN-short-name` for milestone branches and `task/mN-short-name` for bounded task branches.
-- The primary worktree is owned by the integration agent. Delegated implementation uses non-overlapping linked worktrees unless a shared policy is explicit.
+- `main` is the published integration branch and tracks `origin/main`. The discovery report's unborn-repository statement is historical snapshot evidence, not current state.
+- Work directly in the primary checkout for the current stage. Use `milestone/mN-short-name` or `task/mN-short-name` when a bounded branch materially improves isolation or review; do not create a branch or linked worktree without a concrete need.
+- Normal scoped commits and pushes are part of the authorized engineering workflow. Review and verify the exact staged paths before committing, then push the tested integration state.
 - Preserve all user and agent work. Never reset, clean, checkout over, or delete unrelated changes.
 - Do not broadly stage. Stage exact reviewed paths.
 - Keep commits single-purpose and bind acceptance claims to exact commits.
 - Do not commit `.DS_Store`, credentials, private keys, public server coordinates, build caches, or unowned temporary output.
 - Generated source, objects, disassembly, and benchmark data follow the retention policy established by the relevant milestone. Do not discard useful failures; do not put large binary evidence in Git without an approved storage policy.
 - Do not hand-edit generated files.
-- Do not push, merge, rewrite history, tag, or create releases outside the explicit task authority and verification gate.
+- Do not force-push, rewrite published history, merge unrelated branches, tag, or create a release without explicit authority for that operation.
 - If the worktree is dirty, map ownership before editing overlapping files and report the residual state at handoff.
-- No completion or gate claim is valid without the exact tested commit, or an explicit statement that the branch is unborn/uncommitted.
+- No completion or gate claim is valid without the exact tested commit and its clean/dirty state.
 
 ## 15. Definition of done
 
@@ -400,7 +426,9 @@ Compilation alone is never done.
 
 Read and update [`docs/milestones/status.md`](docs/milestones/status.md).
 
-Current frontier: M0 is in progress and its gate is open. No product implementation begins before M0 closes. The next approved slice after discovery review is charter, prior-art matrix, benchmark protocol/result schema, corpus/baseline selection, and target qualification.
+Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, candidate-host capture, and proposed target-host decision exist. No product implementation begins before M0 closes.
+
+The earliest executable slice remains M0 target qualification: obtain the `AR-0001` decision, provision and pin the selected C++ toolchain and admitted baselines on the approved host, establish the required measurement controls and PMU evidence, run non-claiming qualification/noise checks, execute full schema validation, obtain the required review, and update the acceptance record. Do not begin M1 product scaffolding to bypass these blockers.
 
 Do not embed percentage estimates. Record states, exact commits, evidence, deviations, and gates.
 
