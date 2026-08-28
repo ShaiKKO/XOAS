@@ -19,7 +19,7 @@ This is the canonical frontier ledger. Update it whenever a milestone changes st
 
 M0 is the earliest open milestone. The repository-discovery checkpoint has been performed in an unborn `main` branch, but M0 is not closed.
 
-M0 Task 1 is implemented in the working tree: the architecture index and Target 0 charter exist and have passed their documentation checks. They are not yet bound to a commit, and the remaining M0 evidence is still open.
+M0 Task 1 is closed at commit `60044e8`: the architecture index and Target 0 charter exist and passed their documentation checks. Task 2 prior-art and baseline matrices are implemented in the working tree and awaiting their scoped commit. The remaining M0 evidence is still open.
 
 Work that can proceed after checkpoint review:
 
@@ -38,7 +38,7 @@ Load-bearing decision before the reference-target manifest can be locked:
 
 | Milestone | State | Implementing commits | Evidence | Open gate items |
 |---|---|---|---|---|
-| M0 — Charter, prior-art map, benchmark protocol | In progress | None; repository has no commits | Build plan; discovery report; candidate-host snapshot; working-tree architecture index and Target 0 charter | Prior-art/baseline matrices, benchmark protocol/schema, frozen corpus manifests, target qualification decision, acceptance review, exact commit |
+| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation, charter, index) | Build plan; discovery report; candidate-host snapshot; Target 0 charter; working-tree prior-art and baseline matrices | Commit Task 2; benchmark protocol/schema; frozen corpus manifests; target qualification decision; acceptance review |
 | M1 — Core types and canonical identity | Not started | None | None | M0 gate must close first |
 | M2 — Reference semantics and honest baselines | Not started | None | None | M1 gate and target/baseline setup |
 | M3 — Contribution graph and scalar code generation | Not started | None | None | M2 gate |
