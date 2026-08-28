@@ -6,9 +6,9 @@
 
 **Evaluation date:** 2026-08-28
 
-**Last committed input:** `6e6adf3` (`docs: record Target 0 host qualification decision`)
+**Verified integration subject:** `3d635d3c6e142cbed60b600a0dc0fa2f894d073b` (`docs: integrate M0 evidence foundation`)
 
-**Working-tree state for this integration pass:** Dirty by construction; the operating-manual reconciliation and final M0 document audit have not yet been bound to a tested integration commit.
+**Subject tree state:** Clean at verification; `main` was one commit ahead of `origin/main` before this documentation-only evidence update.
 
 ## Controlling requirements
 
@@ -33,7 +33,7 @@ The user has not yet approved the server as the Target 0 measurement host.
 | Synthetic and application sources | [`../experiments/corpus-policy.md`](../experiments/corpus-policy.md) and three corpus manifests | Frozen and committed at `8a7032b`; M1 materialization not implemented |
 | Holdout | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen, public identity, no measurements, design use prohibited |
 | Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Candidate capture committed at `6e6adf3`; qualification and approval open |
-| Architecture index | [`../architecture/README.md`](../architecture/README.md) | Exists and includes all current M0 evidence; final audit pending |
+| Architecture index and operating manual | [`../architecture/README.md`](../architecture/README.md) and root [`../../AGENTS.md`](../../AGENTS.md) | Integrated and verified at `3d635d3` |
 
 ## Exit-gate statement
 
@@ -47,14 +47,15 @@ The team can state the required paragraph, but the gate remains open because the
 
 - Required charter headings and M0 research-anchor names were checked with `rg`.
 - Required baseline names and policies were checked with `rg`.
-- Markdown and JSON changes passed `git diff --check` at each scoped checkpoint.
+- Commit `3d635d3c6e142cbed60b600a0dc0fa2f894d073b` passed `git diff --check` from a clean tree.
+- A repository-relative Markdown-link audit resolved every local link across `AGENTS.md` and 12 documentation files.
+- The Task 6 placeholder scan initially matched its own literal in the committed implementation plan. The command was corrected to avoid embedding its search terms, then the placeholder and secret scans passed at the verified subject commit.
 - Secret scans found no committed network coordinates, credential values, key paths, or private-key material. A first scanner revision matched its own sensitive literals; the plan was corrected before the initial commit.
-- Repository-relative links were verified during discovery and will be rerun after final integration.
 
 ### JSON checks
 
 - `python3 -m json.tool` passed for the benchmark-result schema, synthetic example, and all corpus manifests.
-- Standard-library assertions checked unique/disjoint case IDs, partition membership, shapes, seed lengths, source references, coordinate counts, holdout state, raw-sample ordering, and statistical interval ordering.
+- Standard-library assertions passed at `3d635d3` for 37 unique/disjoint cases, four pinned source identities, partition membership, shapes, seed lengths, source references, coordinate counts, holdout state, ten raw-sample ordering records, statistical interval ordering, target qualification state, and absence of secret provenance fields.
 - Python module `jsonschema` is not installed locally. Full draft-2020-12 meta-schema and instance validation has not run.
 
 ### External corpus evidence
@@ -95,7 +96,7 @@ The benchmark-result example is synthetic and explicitly non-claiming.
 
 ## Review
 
-- Head engineering self-review: performed incrementally against the build plan and M0 implementation plan.
+- Head engineering self-review: performed incrementally and again against the exact `3d635d3` diff, build-plan M0 work/deliverables/exit gate, and M0 implementation plan.
 - Independent implementation-quality review: not performed. No subagent or external reviewer was requested for this stage.
 - Architecture approval: AR-0001 pending.
 
@@ -108,7 +109,7 @@ Self-review is not represented as independent review.
 3. The M0 instruction to lock libraries available on the reference machine cannot close because the candidate host has no admitted libraries installed and the measurement host is undecided.
 4. The result schema lacks full validator execution.
 5. Corpus supports are specified but not materialized by code; no canonical support digests exist.
-6. Independent review and an exact clean acceptance commit are absent.
+6. Independent review remains absent. Task 6 self-review is recorded but is not substituted for it.
 
 ## Gate decision and blockers
 
@@ -118,9 +119,7 @@ M0 remains **OPEN**. Closing it requires:
 2. qualified, approved Target 0 manifest satisfying the selected option;
 3. exact installed compiler and serious baseline-library identities on that target;
 4. full schema/example validation with the approved M1-or-earlier validator tool;
-5. final Task 6 cross-document, secret, link, and invariant checks and a clean integration commit;
-6. independent review or explicit user acceptance of the documented review model;
-7. an updated acceptance record bound to the exact verified integration commit.
+5. independent review or explicit user acceptance of the documented review model.
 
 ## Earliest executable next slice
 
