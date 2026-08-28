@@ -1,0 +1,158 @@
+{
+  "manifest_version": "xoas.holdout-corpus.v0",
+  "manifest_id": "holdout-v0",
+  "frozen_at_utc": "2026-08-28T22:30:00Z",
+  "status": "frozen_sealed_not_measured",
+  "governance": {
+    "identity_is_public": true,
+    "measurements_unblinded": false,
+    "authorized_milestone": "M7",
+    "design_use_prohibited": true,
+    "prohibited_uses": [
+      "transformation_design",
+      "cost_model_features",
+      "schedule_ranges",
+      "family_admission_thresholds",
+      "baseline_configuration_policy",
+      "proof_or_product_membership_changes"
+    ],
+    "early_access_effect": "invalidate_affected_claim_and_freeze_versioned_replacement_before_further_tuning"
+  },
+  "source_authority": {
+    "name": "NIST Matrix Market Harwell-Boeing Collection",
+    "collection_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/",
+    "format": "Matrix Market coordinate"
+  },
+  "normalization": {
+    "policy_uri": "docs/experiments/corpus-policy.md",
+    "index_conversion": "one_based_to_zero_based",
+    "stored_coordinate_rule": "every_stored_coordinate_is_structurally_present_even_when_numeric_value_is_zero",
+    "symmetric_rule": "mirror_every_off_diagonal_coordinate",
+    "duplicate_policy": "reject_after_normalization",
+    "final_order": "lexicographic_row_column",
+    "source_values": "discarded_not_compile_time_values"
+  },
+  "runtime_values": {
+    "algorithm": "pcg_integer_binary_fraction_v1",
+    "prng_reference_commit": "428802d1a5634f96bcd0705fab379ff0113bcf13",
+    "generated_outside_timing": true
+  },
+  "sources": [
+    {
+      "matrix_id": "ARC130",
+      "name": "Laser problem Jacobian",
+      "discipline": "nonlinear ordinary differential equations",
+      "page_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/smtape/arc130.html",
+      "download_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/smtape/arc130.mtx.gz",
+      "compressed_bytes": 12287,
+      "compressed_sha256": "574287deae85599973f1a022b832447f01787b73e542b051d42dc9b08b77ed6a",
+      "decompressed_sha256": "c04d50cb2b1e29b0cac38e90437ec005376c07cee07a31804d6a7e2f6ab9705c",
+      "matrix_market_header": "matrix coordinate real general",
+      "rows": 130,
+      "columns": 130,
+      "stored_coordinate_count": 1282,
+      "stored_diagonal_count": 130,
+      "stored_explicit_numerical_zero_count": 245,
+      "normalized_coordinate_count": 1282,
+      "normalized_density_fraction": {
+        "numerator": 1282,
+        "denominator": 16900
+      }
+    },
+    {
+      "matrix_id": "ASH85",
+      "name": "Holland survey normal matrix pattern",
+      "discipline": "least-squares survey adjustment",
+      "page_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/smtape/ash85.html",
+      "download_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/smtape/ash85.mtx.gz",
+      "compressed_bytes": 636,
+      "compressed_sha256": "f183acc1101b11a63864210713de295cdd0a98fc67bb756316a8d510933e92b3",
+      "decompressed_sha256": "9e6fd11538539680aa48e7974529ad518e2bcfc5849ca464c274e90d1b850c73",
+      "matrix_market_header": "matrix coordinate pattern symmetric",
+      "rows": 85,
+      "columns": 85,
+      "stored_coordinate_count": 304,
+      "stored_diagonal_count": 85,
+      "stored_explicit_numerical_zero_count": 0,
+      "normalized_coordinate_count": 523,
+      "normalized_density_fraction": {
+        "numerator": 523,
+        "denominator": 7225
+      }
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "holdout-arc130-n4-r1e3",
+      "source_matrix_id": "ARC130",
+      "roles": ["holdout"],
+      "shape": {"m": 130, "k": 130, "n": 4},
+      "structural_coordinate_count": 1282,
+      "value_seed": "7f8b70af7c8a459ee1c81d66af176617",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput",
+      "measurement_status": "not_run"
+    },
+    {
+      "case_id": "holdout-arc130-n16-r1e7",
+      "source_matrix_id": "ARC130",
+      "roles": ["holdout"],
+      "shape": {"m": 130, "k": 130, "n": 16},
+      "structural_coordinate_count": 1282,
+      "value_seed": "a7057b22c543f22f29fbd0e05a600b63",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput",
+      "measurement_status": "not_run"
+    },
+    {
+      "case_id": "holdout-arc130-n64-r1e9",
+      "source_matrix_id": "ARC130",
+      "roles": ["holdout"],
+      "shape": {"m": 130, "k": 130, "n": 64},
+      "structural_coordinate_count": 1282,
+      "value_seed": "06b613f58e52be12e1611cd5a119ba58",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput",
+      "measurement_status": "not_run"
+    },
+    {
+      "case_id": "holdout-ash85-n4-r1e3",
+      "source_matrix_id": "ASH85",
+      "roles": ["holdout"],
+      "shape": {"m": 85, "k": 85, "n": 4},
+      "structural_coordinate_count": 523,
+      "value_seed": "78910dd12ee42f35ca2109d2c9f1d9d7",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput",
+      "measurement_status": "not_run"
+    },
+    {
+      "case_id": "holdout-ash85-n16-r1e7",
+      "source_matrix_id": "ASH85",
+      "roles": ["holdout"],
+      "shape": {"m": 85, "k": 85, "n": 16},
+      "structural_coordinate_count": 523,
+      "value_seed": "80a78cdb3210c2248f8f8b152d1268fa",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput",
+      "measurement_status": "not_run"
+    },
+    {
+      "case_id": "holdout-ash85-n64-r1e9",
+      "source_matrix_id": "ASH85",
+      "roles": ["holdout"],
+      "shape": {"m": 85, "k": 85, "n": 64},
+      "structural_coordinate_count": 523,
+      "value_seed": "e3114deeeca56a96c022cbd02b82bd8a",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput",
+      "measurement_status": "not_run"
+    }
+  ]
+}

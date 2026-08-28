@@ -1,0 +1,148 @@
+{
+  "manifest_version": "xoas.application-corpus.v0",
+  "manifest_id": "application-target-v0",
+  "frozen_at_utc": "2026-08-28T22:30:00Z",
+  "status": "frozen_sources_not_materialized",
+  "source_authority": {
+    "name": "NIST Matrix Market Harwell-Boeing Collection",
+    "collection_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/",
+    "format": "Matrix Market coordinate"
+  },
+  "normalization": {
+    "policy_uri": "docs/experiments/corpus-policy.md",
+    "index_conversion": "one_based_to_zero_based",
+    "stored_coordinate_rule": "every_stored_coordinate_is_structurally_present_even_when_numeric_value_is_zero",
+    "symmetric_rule": "mirror_every_off_diagonal_coordinate",
+    "duplicate_policy": "reject_after_normalization",
+    "final_order": "lexicographic_row_column",
+    "source_values": "discarded_not_compile_time_values"
+  },
+  "runtime_values": {
+    "algorithm": "pcg_integer_binary_fraction_v1",
+    "prng_reference_commit": "428802d1a5634f96bcd0705fab379ff0113bcf13",
+    "generated_outside_timing": true
+  },
+  "proof_target_case_ids": [
+    "app-west0067-n16-r1e7"
+  ],
+  "product_class_case_ids": [
+    "app-west0067-n4-r1e3",
+    "app-west0067-n16-r1e7",
+    "app-west0067-n64-r1e9",
+    "app-lund-a-n4-r1e3",
+    "app-lund-a-n16-r1e7",
+    "app-lund-a-n64-r1e9"
+  ],
+  "sources": [
+    {
+      "matrix_id": "WEST0067",
+      "name": "Cavett problem with five components",
+      "discipline": "chemical engineering",
+      "page_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/chemwest/west0067.html",
+      "download_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/chemwest/west0067.mtx.gz",
+      "compressed_bytes": 1672,
+      "compressed_sha256": "228c55ac4746e8be7bb7f7e03e590d7066cdfe9ba9c06616dd19c04104ff6adb",
+      "decompressed_sha256": "c2b90a218948d55185f7068fa0c4dd9f5322a8321940830b1a303200b486b0fb",
+      "matrix_market_header": "matrix coordinate real general",
+      "rows": 67,
+      "columns": 67,
+      "stored_coordinate_count": 294,
+      "stored_diagonal_count": 2,
+      "stored_explicit_numerical_zero_count": 0,
+      "normalized_coordinate_count": 294,
+      "normalized_density_fraction": {
+        "numerator": 294,
+        "denominator": 4489
+      }
+    },
+    {
+      "matrix_id": "LUND_A",
+      "name": "Lund stiffness matrix A",
+      "discipline": "generalized eigenvalue stiffness and mass problem",
+      "page_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/smtape/lund_a.html",
+      "download_uri": "https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/smtape/lund_a.mtx.gz",
+      "compressed_bytes": 6628,
+      "compressed_sha256": "ae81bed9b45552f4ac42ce94feebd2a951bd1d1e22d7496d807a57e4b62da4f8",
+      "decompressed_sha256": "9d9cc6b77f0e3057317009c5e06d658e40a137a3d551ff298654d26eccce8c25",
+      "matrix_market_header": "matrix coordinate real symmetric",
+      "rows": 147,
+      "columns": 147,
+      "stored_coordinate_count": 1298,
+      "stored_diagonal_count": 147,
+      "stored_explicit_numerical_zero_count": 0,
+      "normalized_coordinate_count": 2449,
+      "normalized_density_fraction": {
+        "numerator": 2449,
+        "denominator": 21609
+      }
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "app-west0067-n4-r1e3",
+      "source_matrix_id": "WEST0067",
+      "roles": ["visible_application", "product_class"],
+      "shape": {"m": 67, "k": 67, "n": 4},
+      "structural_coordinate_count": 294,
+      "value_seed": "02b09af6030b43b2e2e5d065779fb0cc",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "app-west0067-n16-r1e7",
+      "source_matrix_id": "WEST0067",
+      "roles": ["visible_application", "proof_target", "product_class"],
+      "shape": {"m": 67, "k": 67, "n": 16},
+      "structural_coordinate_count": 294,
+      "value_seed": "5bbe819e4640c7d3e6c1713a8138ffec",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "app-west0067-n64-r1e9",
+      "source_matrix_id": "WEST0067",
+      "roles": ["visible_application", "product_class"],
+      "shape": {"m": 67, "k": 67, "n": 64},
+      "structural_coordinate_count": 294,
+      "value_seed": "e2e420b5908be04c8ee55bbd837e8c40",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "app-lund-a-n4-r1e3",
+      "source_matrix_id": "LUND_A",
+      "roles": ["visible_application", "product_class"],
+      "shape": {"m": 147, "k": 147, "n": 4},
+      "structural_coordinate_count": 2449,
+      "value_seed": "ddf89cbc3bbc92d1d40bbef41e07531a",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "app-lund-a-n16-r1e7",
+      "source_matrix_id": "LUND_A",
+      "roles": ["visible_application", "product_class"],
+      "shape": {"m": 147, "k": 147, "n": 16},
+      "structural_coordinate_count": 2449,
+      "value_seed": "509b0bd12849a59f99d177e5e4de0ba2",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "app-lund-a-n64-r1e9",
+      "source_matrix_id": "LUND_A",
+      "roles": ["visible_application", "product_class"],
+      "shape": {"m": 147, "k": 147, "n": 64},
+      "structural_coordinate_count": 2449,
+      "value_seed": "36829d3fd7b6e559e61c3f8639e4e7b2",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    }
+  ]
+}

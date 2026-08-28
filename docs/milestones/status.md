@@ -19,7 +19,7 @@ This is the canonical frontier ledger. Update it whenever a milestone changes st
 
 M0 is the earliest open milestone. The repository-discovery checkpoint was performed before the first commit; `main` now contains the published foundation and prior-art checkpoints, but M0 is not closed.
 
-M0 Task 1 is closed at commit `60044e8`. Task 2 prior-art and baseline policy is closed at `30616bc`. Task 3 benchmark protocol, result schema, and synthetic example are implemented in the working tree and awaiting their scoped commit. Corpus and target evidence remain open.
+M0 Task 1 is closed at commit `60044e8`; Task 2 prior-art/baseline policy at `30616bc`; and Task 3 benchmark contract at `00afbf7`. Task 4 corpus policy and frozen manifests are implemented in the working tree and awaiting their scoped commit. Target evidence remains open.
 
 Work that can proceed after checkpoint review:
 
@@ -38,7 +38,7 @@ Load-bearing decision before the reference-target manifest can be locked:
 
 | Milestone | State | Implementing commits | Evidence | Open gate items |
 |---|---|---|---|---|
-| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines) | Build plan; discovery report; candidate-host snapshot; charter; prior-art/baseline matrices; working-tree benchmark protocol/schema/example | Commit Task 3; frozen corpus manifests; target qualification decision; acceptance review |
+| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines); `00afbf7` (benchmark contract) | Build plan; discovery report; candidate-host snapshot; charter; prior art/baselines; benchmark protocol/schema; working-tree corpus policy/manifests | Commit Task 4; target qualification decision; acceptance review |
 | M1 — Core types and canonical identity | Not started | None | None | M0 gate must close first |
 | M2 — Reference semantics and honest baselines | Not started | None | None | M1 gate and target/baseline setup |
 | M3 — Contribution graph and scalar code generation | Not started | None | None | M2 gate |

@@ -1,0 +1,449 @@
+{
+  "manifest_version": "xoas.synthetic-corpus.v0",
+  "manifest_id": "synthetic-target-v0",
+  "frozen_at_utc": "2026-08-28T22:30:00Z",
+  "status": "frozen_specification_not_materialized",
+  "scope": {
+    "operation": "C=A*B",
+    "scalar_type": "f32",
+    "layout": "contiguous_row_major",
+    "lhs_support": "exact_compile_time",
+    "lhs_values": "runtime_dynamic",
+    "rhs": "dense_runtime_dynamic",
+    "output": "overwrite",
+    "aliasing": "all_disjoint",
+    "execution_threads": 1,
+    "numerical_mode": "contracted"
+  },
+  "generator": {
+    "policy_uri": "docs/experiments/corpus-policy.md",
+    "prng": "PCG-XSL-RR-128-64",
+    "reference_repository": "https://github.com/imneme/pcg-cpp",
+    "reference_commit": "428802d1a5634f96bcd0705fab379ff0113bcf13",
+    "bounded_draw": "rejection_threshold_u64_v1",
+    "coordinate_order": "zero_based_lexicographic_row_column",
+    "duplicate_policy": "deduplicate_then_assert_declared_count"
+  },
+  "runtime_values": {
+    "algorithm": "pcg_integer_binary_fraction_v1",
+    "integer_min": -1000,
+    "integer_max": 1000,
+    "zero_replacement": 1,
+    "binary_divisor": 128,
+    "generated_outside_timing": true
+  },
+  "proof_target_case_ids": [
+    "syn-proof-repeated-m128-k128-n16-s4-d12",
+    "syn-proof-banded-m192-k192-n32-hb4"
+  ],
+  "product_class_case_ids": [
+    "syn-product-random-m256-k256-n16-nnz328",
+    "syn-product-random-m256-k256-n64-nnz6554",
+    "syn-product-banded-m256-k256-n16-hb8",
+    "syn-product-block-m256-k256-n32-b16-c32",
+    "syn-product-repeated-m256-k256-n64-s8-d24",
+    "syn-product-power-m256-k256-n32-max128-min2"
+  ],
+  "cases": [
+    {
+      "case_id": "syn-smoke-random-m4-k4-n1",
+      "roles": ["smoke"],
+      "shape": {"m": 4, "k": 4, "n": 1},
+      "support": {
+        "family": "random_exact",
+        "support_seed": "808a01d8566ad6178040a105d1895956",
+        "support_seed_consumed": true,
+        "parameters": {"target_coordinate_count": 4},
+        "expected_coordinate_count": 4
+      },
+      "value_seed": "ba0274e89240eb15f0423781b4969f21",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 1000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-smoke-diagonal-m8-k8-n4",
+      "roles": ["smoke"],
+      "shape": {"m": 8, "k": 8, "n": 4},
+      "support": {
+        "family": "diagonal_offsets",
+        "support_seed": "e33871a5cf1a91f10ec4fb704de6557c",
+        "support_seed_consumed": false,
+        "parameters": {"offsets": [0]},
+        "expected_coordinate_count": 8
+      },
+      "value_seed": "35d02d3c41863d1af7aae6ac274fd246",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 1000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-random-m32-k32-n4-nnz5",
+      "roles": ["design_training"],
+      "shape": {"m": 32, "k": 32, "n": 4},
+      "support": {
+        "family": "random_exact",
+        "support_seed": "db84b73b85a4bcd2b62d11e3f15980e5",
+        "support_seed_consumed": true,
+        "parameters": {"target_coordinate_count": 5},
+        "expected_coordinate_count": 5
+      },
+      "value_seed": "f5f3c394a87f6e28793501cc784d7a4f",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-random-m64-k64-n16-nnz205",
+      "roles": ["design_training"],
+      "shape": {"m": 64, "k": 64, "n": 16},
+      "support": {
+        "family": "random_exact",
+        "support_seed": "c77d026c86adb48add971bc829f82b1b",
+        "support_seed_consumed": true,
+        "parameters": {"target_coordinate_count": 205},
+        "expected_coordinate_count": 205
+      },
+      "value_seed": "1145b9c04ac9cdb12039abf1fa3028b6",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-random-m128-k128-n32-nnz1638",
+      "roles": ["design_training"],
+      "shape": {"m": 128, "k": 128, "n": 32},
+      "support": {
+        "family": "random_exact",
+        "support_seed": "e0c04071ef5e914cb24e0e7b23b3f2e4",
+        "support_seed_consumed": true,
+        "parameters": {"target_coordinate_count": 1638},
+        "expected_coordinate_count": 1638
+      },
+      "value_seed": "b31eb64dd192a2b0be2d59b20fb69f42",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-random-m256-k256-n64-nnz26214",
+      "roles": ["design_training"],
+      "shape": {"m": 256, "k": 256, "n": 64},
+      "support": {
+        "family": "random_exact",
+        "support_seed": "08c0cf86fa558cb5fedcc35a6e0f8973",
+        "support_seed_consumed": true,
+        "parameters": {"target_coordinate_count": 26214},
+        "expected_coordinate_count": 26214
+      },
+      "value_seed": "ffe8dd21b0563992010124d0b113a743",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-banded-m32-k32-n8-hb1",
+      "roles": ["design_training"],
+      "shape": {"m": 32, "k": 32, "n": 8},
+      "support": {
+        "family": "banded",
+        "support_seed": "a793c8a54c05187daf04c1f4cfe266f7",
+        "support_seed_consumed": false,
+        "parameters": {"half_bandwidth": 1},
+        "expected_coordinate_count": 94
+      },
+      "value_seed": "66b7ad65dc0afdf1444bcadb1d18b44e",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-banded-m64-k64-n16-hb3",
+      "roles": ["design_training"],
+      "shape": {"m": 64, "k": 64, "n": 16},
+      "support": {
+        "family": "banded",
+        "support_seed": "ee8416eb9f4efbf5749b7fff27d1eb89",
+        "support_seed_consumed": false,
+        "parameters": {"half_bandwidth": 3},
+        "expected_coordinate_count": 436
+      },
+      "value_seed": "919883b5e95620e68b2ae4d07106569e",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-banded-m128-k128-n32-hb8",
+      "roles": ["design_training"],
+      "shape": {"m": 128, "k": 128, "n": 32},
+      "support": {
+        "family": "banded",
+        "support_seed": "a04b5c87a43db7367f6387dc089e42e5",
+        "support_seed_consumed": false,
+        "parameters": {"half_bandwidth": 8},
+        "expected_coordinate_count": 2104
+      },
+      "value_seed": "5f46be76a76b218fe1807d3dd37d8145",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-diagonal-m64-k64-n8-d1",
+      "roles": ["design_training"],
+      "shape": {"m": 64, "k": 64, "n": 8},
+      "support": {
+        "family": "diagonal_offsets",
+        "support_seed": "00f79a74954df7a0d6754e29de959776",
+        "support_seed_consumed": false,
+        "parameters": {"offsets": [0]},
+        "expected_coordinate_count": 64
+      },
+      "value_seed": "d630d5578dc57dd1df9e33857dc54f8a",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-diagonal-m128-k128-n16-d3",
+      "roles": ["design_training"],
+      "shape": {"m": 128, "k": 128, "n": 16},
+      "support": {
+        "family": "diagonal_offsets",
+        "support_seed": "eb76449fbbf0d5da7484afa4dcba86ff",
+        "support_seed_consumed": false,
+        "parameters": {"offsets": [-7, 0, 7]},
+        "expected_coordinate_count": 370
+      },
+      "value_seed": "de6a9ffbc8f66df7fc1760357affdc42",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-block-m64-k64-n8-b8-c4",
+      "roles": ["design_training"],
+      "shape": {"m": 64, "k": 64, "n": 8},
+      "support": {
+        "family": "block_sparse_exact",
+        "support_seed": "7cb10d48507b85e12e2fd2908f5536d4",
+        "support_seed_consumed": true,
+        "parameters": {"block_rows": 8, "block_columns": 8, "selected_block_count": 4},
+        "expected_coordinate_count": 256
+      },
+      "value_seed": "eff4ff4d2c112b66b1c77a62a8bccca4",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-block-m128-k128-n16-b16-c16",
+      "roles": ["design_training"],
+      "shape": {"m": 128, "k": 128, "n": 16},
+      "support": {
+        "family": "block_sparse_exact",
+        "support_seed": "062e97481504ff953528f2736e598548",
+        "support_seed_consumed": true,
+        "parameters": {"block_rows": 16, "block_columns": 16, "selected_block_count": 16},
+        "expected_coordinate_count": 4096
+      },
+      "value_seed": "5254364ed56de314c67dcfa0d4e34413",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-repeated-m64-k64-n16-s4-d8",
+      "roles": ["design_training"],
+      "shape": {"m": 64, "k": 64, "n": 16},
+      "support": {
+        "family": "repeated_rows",
+        "support_seed": "d9a8e71d354af05127e74ce7918e38b2",
+        "support_seed_consumed": true,
+        "parameters": {"signature_count": 4, "entries_per_signature": 8},
+        "expected_coordinate_count": 512
+      },
+      "value_seed": "fecc1c45a8f2e529353a39a5669cd9b9",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-repeated-m128-k128-n32-s8-d16",
+      "roles": ["design_training"],
+      "shape": {"m": 128, "k": 128, "n": 32},
+      "support": {
+        "family": "repeated_rows",
+        "support_seed": "cacb85ada8a360c183a0e56dfa89fee5",
+        "support_seed_consumed": true,
+        "parameters": {"signature_count": 8, "entries_per_signature": 16},
+        "expected_coordinate_count": 2048
+      },
+      "value_seed": "89950920217d0392b050f6f8ab7a54da",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-power-m128-k128-n8-max64",
+      "roles": ["design_training"],
+      "shape": {"m": 128, "k": 128, "n": 8},
+      "support": {
+        "family": "power_law_rows_v1",
+        "support_seed": "15fcfcff4264e2c3387acd3a112ba080",
+        "support_seed_consumed": true,
+        "parameters": {"max_degree": 64, "min_degree": 1},
+        "expected_coordinate_count": 344
+      },
+      "value_seed": "390c18705b378cd19b993f3053cfd7af",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-train-mixed-m64-k64-n8",
+      "roles": ["design_training"],
+      "shape": {"m": 64, "k": 64, "n": 8},
+      "support": {
+        "family": "mixed_band_block_scatter_v1",
+        "support_seed": "431d0b86016c47495c0e62f8e8d9ec5d",
+        "support_seed_consumed": true,
+        "parameters": {"band_half_width": 1, "block_rows": 8, "block_columns": 8, "selected_block_count": 2, "scatter_count": 64},
+        "expected_coordinate_count": 382
+      },
+      "value_seed": "4446ac29c5c090f537e31c8cea8b8aba",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 60000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-proof-repeated-m128-k128-n16-s4-d12",
+      "roles": ["proof_target"],
+      "shape": {"m": 128, "k": 128, "n": 16},
+      "support": {
+        "family": "repeated_rows",
+        "support_seed": "5590d4baf913175cdc775d54ef8f761f",
+        "support_seed_consumed": true,
+        "parameters": {"signature_count": 4, "entries_per_signature": 12},
+        "expected_coordinate_count": 1536
+      },
+      "value_seed": "061b7416b68eb511557b8cd7cb9c3690",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 300000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-proof-banded-m192-k192-n32-hb4",
+      "roles": ["proof_target"],
+      "shape": {"m": 192, "k": 192, "n": 32},
+      "support": {
+        "family": "banded",
+        "support_seed": "b70c693f086b3233f4963994edf39d3e",
+        "support_seed_consumed": false,
+        "parameters": {"half_bandwidth": 4},
+        "expected_coordinate_count": 1708
+      },
+      "value_seed": "8822031c24e08257aefd8845537160a1",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 300000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-product-random-m256-k256-n16-nnz328",
+      "roles": ["product_class"],
+      "shape": {"m": 256, "k": 256, "n": 16},
+      "support": {
+        "family": "random_exact",
+        "support_seed": "bca94d92fe48cd933447fb06dc5ef400",
+        "support_seed_consumed": true,
+        "parameters": {"target_coordinate_count": 328},
+        "expected_coordinate_count": 328
+      },
+      "value_seed": "6961634163cd61badaed50c240e3b4a9",
+      "expected_invocations": 1000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-product-random-m256-k256-n64-nnz6554",
+      "roles": ["product_class"],
+      "shape": {"m": 256, "k": 256, "n": 64},
+      "support": {
+        "family": "random_exact",
+        "support_seed": "598ec76f6f042c600a8668b3b91e503f",
+        "support_seed_consumed": true,
+        "parameters": {"target_coordinate_count": 6554},
+        "expected_coordinate_count": 6554
+      },
+      "value_seed": "a0bcf88db6aac1db98a534e79f7b24e7",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-product-banded-m256-k256-n16-hb8",
+      "roles": ["product_class"],
+      "shape": {"m": 256, "k": 256, "n": 16},
+      "support": {
+        "family": "banded",
+        "support_seed": "3b9e19021f22abb9b683943d259b84a7",
+        "support_seed_consumed": false,
+        "parameters": {"half_bandwidth": 8},
+        "expected_coordinate_count": 4280
+      },
+      "value_seed": "d0dd52e700df14b03fb90c19353e2851",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-product-block-m256-k256-n32-b16-c32",
+      "roles": ["product_class"],
+      "shape": {"m": 256, "k": 256, "n": 32},
+      "support": {
+        "family": "block_sparse_exact",
+        "support_seed": "b334f6afd43bcf6f68d04304eb4aab2d",
+        "support_seed_consumed": true,
+        "parameters": {"block_rows": 16, "block_columns": 16, "selected_block_count": 32},
+        "expected_coordinate_count": 8192
+      },
+      "value_seed": "6ee06b75c419d5f214539c2622011035",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-product-repeated-m256-k256-n64-s8-d24",
+      "roles": ["product_class"],
+      "shape": {"m": 256, "k": 256, "n": 64},
+      "support": {
+        "family": "repeated_rows",
+        "support_seed": "6ef195a04bfa7f59e9ee63216e9c434d",
+        "support_seed_consumed": true,
+        "parameters": {"signature_count": 8, "entries_per_signature": 24},
+        "expected_coordinate_count": 6144
+      },
+      "value_seed": "4c2acf004ccc5bcec0e6258121f4fa7a",
+      "expected_invocations": 1000000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    },
+    {
+      "case_id": "syn-product-power-m256-k256-n32-max128-min2",
+      "roles": ["product_class"],
+      "shape": {"m": 256, "k": 256, "n": 32},
+      "support": {
+        "family": "power_law_rows_v1",
+        "support_seed": "f01dee59ffb96267bb5ebdd01e2c454a",
+        "support_seed_consumed": true,
+        "parameters": {"max_degree": 128, "min_degree": 2},
+        "expected_coordinate_count": 965
+      },
+      "value_seed": "8d331dd45d1e153ae283034a2cd1d79b",
+      "expected_invocations": 10000000,
+      "tuning_budget_ms": 600000,
+      "objective": "throughput"
+    }
+  ]
+}

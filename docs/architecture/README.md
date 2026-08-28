@@ -54,8 +54,12 @@ No IDR exists. Use `../adr/IDR-####-short-title.md` for durable, semantics-neutr
 | [`../experiments/baseline-matrix.md`](../experiments/baseline-matrix.md) | M0 admission policy; host availability remains open | Serious baseline candidates, configuration search, cost accounting, disqualification |
 | [`../../schemas/benchmark-result-v1.schema.json`](../../schemas/benchmark-result-v1.schema.json) | M0 JSON Schema draft 2020-12 contract; syntax checked, full validator unavailable | Immutable result, environment, raw-sample, lifecycle, artifact, and decision fields |
 | [`../../benchmarks/manifests/benchmark-result-v1.example.json`](../../benchmarks/manifests/benchmark-result-v1.example.json) | Explicitly synthetic, non-claiming example | Demonstrates the result shape; never benchmark evidence |
+| [`../experiments/corpus-policy.md`](../experiments/corpus-policy.md) | Frozen M0 corpus/generation policy; materializer remains M1 work | Deterministic support/value generation, source normalization, partitions, holdout governance |
+| [`../../benchmarks/manifests/synthetic-target-v0.json`](../../benchmarks/manifests/synthetic-target-v0.json) | Frozen, not materialized | 25 visible smoke/design/proof/product synthetic cases |
+| [`../../benchmarks/manifests/application-target-v0.json`](../../benchmarks/manifests/application-target-v0.json) | Frozen sources, not materialized | Six visible NIST-derived product cases, including one proof target |
+| [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen and not measured; measurements sealed until M7 | Six NIST-derived holdout cases and early-access invalidation rule |
 
-The corpus policy, corpus manifests, and candidate-target manifest are M0 work in progress. Add each path here only after it exists and passes its plan checks.
+The candidate-target manifest is M0 work in progress. Add its path here only after it exists and passes its plan checks.
 
 Performance results do not become architectural authority. They may motivate a proposal, support a gate decision, or falsify a claim.
 
