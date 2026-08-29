@@ -293,6 +293,9 @@ schema_instances = {
         "tests/quality/contracts/expected-gates.json"
     ],
     "schemas/target0-host-qualification-v1.schema.json": [],
+    "schemas/target0-qualification-tool-bundle-v1.schema.json": [
+        "tests/target0/fixtures/qualification-tool-bundle-v1.example.json"
+    ],
 }
 runtime_validated_schemas = {
     "schemas/target0-host-qualification-v1.schema.json":

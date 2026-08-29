@@ -1,0 +1,158 @@
+{
+  "build": {
+    "accepted_executable": {
+      "path": "bin/xoas-target0-qualification-probe",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "size_bytes": 65536
+    },
+    "arguments": [
+      "/usr/bin/clang++-21",
+      "-std=c++23",
+      "-O3",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-fuse-ld=/usr/bin/ld.lld-21",
+      "qualification_probe.cpp",
+      "-o",
+      "xoas-target0-qualification-probe"
+    ],
+    "builds": [
+      {
+        "path": "build-01/xoas-target0-qualification-probe",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "size_bytes": 65536
+      },
+      {
+        "path": "build-02/xoas-target0-qualification-probe",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "size_bytes": 65536
+      }
+    ],
+    "environment": {
+      "HOME": "/nonexistent",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/usr/sbin",
+      "SOURCE_DATE_EPOCH": "1788026400",
+      "TMPDIR": "private-build-directory"
+    },
+    "executable_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "identical": true
+  },
+  "bundle_id": "synthetic-target0-qualification-tools-v1",
+  "compatibility_tests": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "tests/target0/qualification_probe_test.py"
+      ],
+      "exit_status": 0,
+      "name": "qualification-probe-behavior",
+      "status": "passed",
+      "stderr_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "stdout_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  ],
+  "created_at_utc": "2026-08-29T00:00:00Z",
+  "elf": {
+    "build_id": "0123456789abcdef0123456789abcdef01234567",
+    "class": "ELF64",
+    "endianness": "little",
+    "inspection_logs": [
+      {
+        "name": "readelf-header",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "interpreter": "/lib64/ld-linux-x86-64.so.2",
+    "machine": "Advanced Micro Devices X86-64",
+    "needed": [
+      "libc.so.6",
+      "libstdc++.so.6"
+    ],
+    "type": "DYN"
+  },
+  "manifest_version": "xoas.target0-qualification-tool-bundle.v1",
+  "performance_claim": false,
+  "provisioning_lock": {
+    "configuration_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "execution_subject": "3333333333333333333333333333333333333333",
+    "file_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "lock_id": "synthetic-target0-lock-v1"
+  },
+  "rejection_reasons": [],
+  "repository": {
+    "actual_commit": "1111111111111111111111111111111111111111",
+    "expected_commit": "1111111111111111111111111111111111111111",
+    "public_remote": "https://github.com/ShaiKKO/XOAS.git",
+    "tree": "2222222222222222222222222222222222222222",
+    "tree_state": "clean"
+  },
+  "runtime_dependencies": [
+    {
+      "loader_path": "/lib/x86_64-linux-gnu/libstdc++.so.6",
+      "package": {
+        "name": "libstdc++6:amd64",
+        "version": "15.2.0-16ubuntu1"
+      },
+      "realpath": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "size_bytes": 2900000,
+      "soname": "libstdc++.so.6"
+    }
+  ],
+  "sources": [
+    {
+      "path": "tools/target0/prepare_qualification_bundle.py",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "path": "tools/target0/qualification_probe.cpp",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "path": "tools/target0/capture_host.py",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "path": "tools/target0/measurement_session.sh",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    {
+      "path": "schemas/target0-host-qualification-v1.schema.json",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    {
+      "path": "schemas/target0-qualification-tool-bundle-v1.schema.json",
+      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  ],
+  "status": "passed",
+  "target_id": "target0-amd-ryzen9-7900x-v1",
+  "toolchain": {
+    "compiler": {
+      "driver_path": "/usr/bin/clang++-21",
+      "package": {
+        "name": "clang-21",
+        "version": "1:21.1.8-6ubuntu1"
+      },
+      "resolved_path": "/usr/lib/llvm-21/bin/clang",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "target_triple": "x86_64-pc-linux-gnu",
+      "version": "Ubuntu clang version 21.1.8 (6ubuntu1)"
+    },
+    "linker": {
+      "driver_path": "/usr/bin/ld.lld-21",
+      "package": {
+        "name": "lld-21",
+        "version": "1:21.1.8-6ubuntu1"
+      },
+      "resolved_path": "/usr/lib/llvm-21/bin/lld",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "version": "Ubuntu LLD 21.1.8 (compatible with GNU linkers)"
+    }
+  }
+}

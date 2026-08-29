@@ -150,7 +150,7 @@ Also mutate the example to prove rejection of:
 - an unknown top-level field;
 - a short or uppercase SHA-256;
 - a dirty repository state;
-- unequal first/second build digests;
+- a passed build whose `identical` decision is false;
 - a passed state with a nonempty rejection list;
 - an absent runtime dependency hash;
 - an unclosed test result.
@@ -186,6 +186,11 @@ Every digest uses `^[0-9a-f]{64}$`. Every retained path is either explicitly
 classified or relative to the bundle; no access identity or network coordinate
 field exists. The synthetic example uses clearly non-live identities and
 `performance_claim: false`.
+
+Draft 2020-12 validates the structure and the passed-state `identical: true`
+decision. It cannot compare two arbitrary sibling digest strings. Task 5's
+production semantic validator therefore owns and tests actual first/second
+digest equality before acceptance.
 
 Update `RepositoryPolicy.cmake` so the schema is mapped to the synthetic
 example. Do not classify it as runtime-only: the repository must always carry
@@ -629,6 +634,8 @@ Also prove:
 - `inventory.json` excludes itself and `acceptance.json`;
 - `acceptance.json` authenticates the exact inventory digest and bundle
   manifest digest;
+- unequal first/second executable digests are rejected even when a malformed
+  retained record claims `identical: true`;
 - final revalidation detects a changed byte, missing file, extra file, unsafe
   type, or changed acceptance record;
 - a rejected attempt has `status: rejected`, a closed reason, nonzero CLI

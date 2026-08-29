@@ -1,0 +1,579 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xoas.dev/schemas/target0-qualification-tool-bundle-v1.schema.json",
+  "title": "XOAS Target 0 qualification-tool bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "bundle_id",
+    "created_at_utc",
+    "target_id",
+    "performance_claim",
+    "status",
+    "rejection_reasons",
+    "repository",
+    "provisioning_lock",
+    "sources",
+    "toolchain",
+    "build",
+    "elf",
+    "runtime_dependencies",
+    "compatibility_tests"
+  ],
+  "properties": {
+    "manifest_version": {
+      "const": "xoas.target0-qualification-tool-bundle.v1"
+    },
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9.-]{0,127}$"
+    },
+    "created_at_utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "target_id": {
+      "const": "target0-amd-ryzen9-7900x-v1"
+    },
+    "performance_claim": {
+      "const": false
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "rejected"
+      ]
+    },
+    "rejection_reasons": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "unsafe_output_path",
+          "repository_identity_mismatch",
+          "dirty_repository",
+          "toolchain_lock_invalid",
+          "target_identity_mismatch",
+          "compiler_identity_mismatch",
+          "linker_identity_mismatch",
+          "build_failed",
+          "build_output_invalid",
+          "build_digest_mismatch",
+          "elf_identity_invalid",
+          "runtime_dependency_invalid",
+          "compatibility_test_failed",
+          "bundle_schema_invalid",
+          "inventory_validation_failed",
+          "unexpected_failure"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_commit",
+        "actual_commit",
+        "tree",
+        "tree_state",
+        "public_remote"
+      ],
+      "properties": {
+        "expected_commit": {
+          "$ref": "#/$defs/git_object"
+        },
+        "actual_commit": {
+          "$ref": "#/$defs/git_object"
+        },
+        "tree": {
+          "$ref": "#/$defs/git_object"
+        },
+        "tree_state": {
+          "enum": [
+            "clean",
+            "dirty"
+          ]
+        },
+        "public_remote": {
+          "const": "https://github.com/ShaiKKO/XOAS.git"
+        }
+      }
+    },
+    "provisioning_lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lock_id",
+        "execution_subject",
+        "configuration_sha256",
+        "file_sha256"
+      ],
+      "properties": {
+        "lock_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9.-]{0,127}$"
+        },
+        "execution_subject": {
+          "$ref": "#/$defs/git_object"
+        },
+        "configuration_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "file_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "compiler",
+        "linker"
+      ],
+      "properties": {
+        "compiler": {
+          "$ref": "#/$defs/compiler"
+        },
+        "linker": {
+          "$ref": "#/$defs/linker"
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "arguments",
+        "environment",
+        "builds",
+        "identical",
+        "executable_sha256",
+        "accepted_executable"
+      ],
+      "properties": {
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 2
+        },
+        "environment": {
+          "$ref": "#/$defs/build_environment"
+        },
+        "builds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/executable"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "identical": {
+          "type": "boolean"
+        },
+        "executable_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "accepted_executable": {
+          "$ref": "#/$defs/executable"
+        }
+      }
+    },
+    "elf": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class",
+        "endianness",
+        "machine",
+        "type",
+        "interpreter",
+        "build_id",
+        "needed",
+        "inspection_logs"
+      ],
+      "properties": {
+        "class": {
+          "const": "ELF64"
+        },
+        "endianness": {
+          "const": "little"
+        },
+        "machine": {
+          "const": "Advanced Micro Devices X86-64"
+        },
+        "type": {
+          "enum": [
+            "DYN",
+            "EXEC"
+          ]
+        },
+        "interpreter": {
+          "$ref": "#/$defs/system_path"
+        },
+        "build_id": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32,64}$"
+            }
+          ]
+        },
+        "needed": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9+_.-]*$"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "inspection_logs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/log"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "runtime_dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/runtime_dependency"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "compatibility_tests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/compatibility_test"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "passed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "rejection_reasons": {
+            "maxItems": 0
+          },
+          "repository": {
+            "properties": {
+              "tree_state": {
+                "const": "clean"
+              }
+            }
+          },
+          "build": {
+            "properties": {
+              "identical": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "rejection_reasons": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "git_object": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "relative_path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$))[A-Za-z0-9][A-Za-z0-9+_.@/-]*$"
+    },
+    "system_path": {
+      "type": "string",
+      "pattern": "^/(usr|lib|lib64)(/[A-Za-z0-9+_.@-]+)+$"
+    },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9+.-]*(?::[a-z0-9]+)?$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relative_path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "compiler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "driver_path",
+        "resolved_path",
+        "version",
+        "target_triple",
+        "sha256",
+        "package"
+      ],
+      "properties": {
+        "driver_path": {
+          "const": "/usr/bin/clang++-21"
+        },
+        "resolved_path": {
+          "$ref": "#/$defs/system_path"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_triple": {
+          "type": "string",
+          "pattern": "^x86_64-[A-Za-z0-9_.-]+$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "package": {
+          "$ref": "#/$defs/package"
+        }
+      }
+    },
+    "linker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "driver_path",
+        "resolved_path",
+        "version",
+        "sha256",
+        "package"
+      ],
+      "properties": {
+        "driver_path": {
+          "const": "/usr/bin/ld.lld-21"
+        },
+        "resolved_path": {
+          "$ref": "#/$defs/system_path"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "package": {
+          "$ref": "#/$defs/package"
+        }
+      }
+    },
+    "build_environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "HOME",
+        "LANG",
+        "LC_ALL",
+        "PATH",
+        "SOURCE_DATE_EPOCH",
+        "TMPDIR"
+      ],
+      "properties": {
+        "HOME": {
+          "const": "/nonexistent"
+        },
+        "LANG": {
+          "const": "C.UTF-8"
+        },
+        "LC_ALL": {
+          "const": "C.UTF-8"
+        },
+        "PATH": {
+          "const": "/usr/bin:/usr/sbin"
+        },
+        "SOURCE_DATE_EPOCH": {
+          "type": "string",
+          "pattern": "^[0-9]{1,20}$"
+        },
+        "TMPDIR": {
+          "const": "private-build-directory"
+        }
+      }
+    },
+    "executable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relative_path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "log": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "runtime_dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "soname",
+        "loader_path",
+        "realpath",
+        "size_bytes",
+        "sha256",
+        "package"
+      ],
+      "properties": {
+        "soname": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9+_.-]*$"
+        },
+        "loader_path": {
+          "$ref": "#/$defs/system_path"
+        },
+        "realpath": {
+          "$ref": "#/$defs/system_path"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "package": {
+          "$ref": "#/$defs/package"
+        }
+      }
+    },
+    "compatibility_test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "command",
+        "status",
+        "exit_status",
+        "stdout_sha256",
+        "stderr_sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+        },
+        "command": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed"
+          ]
+        },
+        "exit_status": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "stdout_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "stderr_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  }
+}
