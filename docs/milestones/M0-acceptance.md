@@ -8,6 +8,8 @@
 
 **Verified integration subject:** `3d635d3c6e142cbed60b600a0dc0fa2f894d073b` (`docs: integrate M0 evidence foundation`)
 
+**AR-0001 decision integration:** `6904d49e4978f48d9ca3c5db29fac59bbc3233c6` (`docs: approve gpu-2 development-only role`)
+
 **Subject tree state:** Clean at verification; `main` was one commit ahead of `origin/main` before this documentation-only evidence update.
 
 ## Controlling requirements
@@ -25,7 +27,7 @@ The user approved AR-0001 Option 2: `gpu-2` is development-only and is not the T
 | M0 requirement | Evidence | State |
 |---|---|---|
 | Product charter and non-goals | [`../architecture/000-charter.md`](../architecture/000-charter.md) | Implemented and committed at `60044e8` |
-| Lock Target 0 | Charter; target decision [`../architecture/proposals/AR-0001-target-0-host-qualification.md`](../architecture/proposals/AR-0001-target-0-host-qualification.md) | Option 2 approved; controlled physical measurement host still unselected |
+| Lock Target 0 | Charter; target decision [`../architecture/proposals/AR-0001-target-0-host-qualification.md`](../architecture/proposals/AR-0001-target-0-host-qualification.md) | Option 2 integrated at `6904d49`; controlled physical measurement host still unselected |
 | Required prior-art comparison | [`../experiments/prior-art-matrix.md`](../experiments/prior-art-matrix.md) | Implemented and committed at `30616bc` |
 | Baseline selection | [`../experiments/baseline-matrix.md`](../experiments/baseline-matrix.md) | Admission policy committed at `30616bc`; selected measurement host and its binaries unavailable |
 | Benchmark protocol | [`../architecture/050-benchmark-protocol.md`](../architecture/050-benchmark-protocol.md) | Implemented and committed at `00afbf7`; no harness exists |
@@ -98,7 +100,7 @@ The benchmark-result example is synthetic and explicitly non-claiming.
 
 - Head engineering self-review: performed incrementally and again against the exact `3d635d3` diff, build-plan M0 work/deliverables/exit gate, and M0 implementation plan.
 - Independent implementation-quality review: not performed. No subagent or external reviewer was requested for this stage.
-- Architecture approval: AR-0001 Option 2 approved by the user on 2026-08-28; exact integration commit recorded in the milestone ledger.
+- Architecture approval: AR-0001 Option 2 approved by the user on 2026-08-28 and integrated at `6904d49e4978f48d9ca3c5db29fac59bbc3233c6`.
 
 Self-review is not represented as independent review.
 

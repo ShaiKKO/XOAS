@@ -172,4 +172,4 @@ On 2026-08-28, the user explicitly designated `gpu-2` as the primary development
 
 On 2026-08-28, after reviewing the written specification and the explicit AR-0001 recommendation, the user approved Option 2.
 This selects development-only use for `gpu-2`, leaves the Target 0 measurement-host slot unfilled, preserves every measurement gate, and unblocks the separately reviewed development-toolchain plan.
-The exact integration commit is recorded in the milestone ledger after this decision document is committed.
+The decision is integrated at commit `6904d49e4978f48d9ca3c5db29fac59bbc3233c6` (`docs: approve gpu-2 development-only role`).
