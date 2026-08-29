@@ -1,0 +1,126 @@
+name: quality
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  repository-policy:
+    name: repository-policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install the locked quality toolchain
+        run: |
+          set -euo pipefail
+          bash tools/ci/install-locked-toolchain.sh
+      - name: Run repository policy
+        run: |
+          set -euo pipefail
+          cmake --preset dev-debug
+          cmake --build --preset dev-debug --target repository-policy
+          ctest --preset dev-debug -R quality-policy --output-on-failure
+
+  static-quality:
+    name: static-quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install the locked quality toolchain
+        run: |
+          set -euo pipefail
+          bash tools/ci/install-locked-toolchain.sh
+      - name: Run static quality gates
+        run: |
+          set -euo pipefail
+          cmake --preset dev-debug
+          cmake --build --preset dev-debug --target format-check tidy docs-check
+          ctest --preset dev-debug -R 'quality-(format|tidy|docs)' --output-on-failure
+
+  debug-build-and-test:
+    name: debug-build-and-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install the locked quality toolchain
+        run: |
+          set -euo pipefail
+          bash tools/ci/install-locked-toolchain.sh
+      - name: Build and test Debug
+        run: |
+          set -euo pipefail
+          cmake --preset dev-debug
+          cmake --build --preset dev-debug --target warnings
+          ctest --preset dev-debug --output-on-failure
+
+  release-build-and-test:
+    name: release-build-and-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install the locked quality toolchain
+        run: |
+          set -euo pipefail
+          bash tools/ci/install-locked-toolchain.sh
+      - name: Build and test Release
+        run: |
+          set -euo pipefail
+          cmake --preset dev-release
+          cmake --build --preset dev-release --target warnings
+          ctest --preset dev-release --output-on-failure
+
+  sanitizers:
+    name: sanitizers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install the locked quality toolchain
+        run: |
+          set -euo pipefail
+          bash tools/ci/install-locked-toolchain.sh
+      - name: Run fail-fast sanitizers
+        run: |
+          set -euo pipefail
+          cmake --preset asan-ubsan
+          cmake --build --preset asan-ubsan --target asan-ubsan
+          ctest --preset asan-ubsan -R quality-sanitizer --output-on-failure

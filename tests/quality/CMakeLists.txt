@@ -412,6 +412,17 @@ add_test(
     "-DXOAS_CLEANUP_TEST_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/cleanup-boundary"
     -P "${PROJECT_SOURCE_DIR}/cmake/quality/CleanBuildTreesCheck.cmake")
 
+add_test(
+  NAME quality-ci-workflow
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_ACTION_LOCK=${PROJECT_SOURCE_DIR}/toolchains/github-actions-v1.lock.json"
+    "-DXOAS_ACTION_LOCK_SCHEMA=${PROJECT_SOURCE_DIR}/schemas/github-actions-lock-v1.schema.json"
+    "-DXOAS_PYTHON=${Python3_EXECUTABLE}"
+    "-DXOAS_QUALITY_CONTRACT=${XOAS_QUALITY_CONTRACT}"
+    "-DXOAS_WORKFLOW=${PROJECT_SOURCE_DIR}/.github/workflows/quality.yml"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/CiWorkflowCheck.cmake")
+
 execute_process(
   COMMAND "${GIT_EXECUTABLE}" ls-files
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"

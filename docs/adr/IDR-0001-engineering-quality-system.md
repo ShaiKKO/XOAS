@@ -258,6 +258,28 @@ measurement decision. The complete positive and two named negative sanitizer
 tests must pass under the persistent setting before the sanitizer gate is
 accepted.
 
+### GitHub-hosted quality lock
+
+The initial hosted lane uses only GitHub's `ubuntu-24.04` runner label and the
+official `actions/checkout` action.
+GitHub's API resolved release `v7.0.1` to commit
+`3d3c42e5aac5ba805825da76410c181273ba90b1`; GitHub reports that commit's
+signature verification as valid.
+The workflow pins the commit SHA rather than the mutable release tag, grants
+only `contents: read`, disables checkout credential persistence, and uses no
+repository secret, cache, artifact upload, or self-hosted runner.
+
+The conforming
+[`../../toolchains/github-actions-v1.lock.json`](../../toolchains/github-actions-v1.lock.json)
+binds that action identity, five required contexts, the exact development
+toolchain lock ID, the LLVM archive fingerprint and file digests, and the exact
+APT package versions installed on each ephemeral hosted runner.
+The five contexts are `quality / repository-policy`,
+`quality / static-quality`, `quality / debug-build-and-test`,
+`quality / release-build-and-test`, and `quality / sanitizers`.
+Hosted success and branch-protection enforcement remain separate gates until
+the pushed revision completes and the live repository setting is verified.
+
 The exact manifest and identifier options are reviewable in the repository's
 `.clang-tidy` file.
 The accepted manifest enumerates 85 checks and has SHA-256

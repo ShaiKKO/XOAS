@@ -7,6 +7,7 @@
   "required": [
     "contract_version",
     "toolchain_lock_id",
+    "required_ci_contexts",
     "source_classifications",
     "gates"
   ],
@@ -17,6 +18,21 @@
     "toolchain_lock_id": {
       "type": "string",
       "minLength": 1
+    },
+    "required_ci_contexts": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "quality / repository-policy",
+          "quality / static-quality",
+          "quality / debug-build-and-test",
+          "quality / release-build-and-test",
+          "quality / sanitizers"
+        ]
+      }
     },
     "source_classifications": {
       "type": "object",

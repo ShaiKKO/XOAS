@@ -514,18 +514,23 @@ Record commands, wall-clock cost, exact lock ID, and build-tree cleanup boundary
 **Files:**
 
 - Create: `.github/workflows/quality.yml`
+- Create: `cmake/quality/CiWorkflowCheck.cmake`
 - Create: `toolchains/github-actions-v1.lock.json`
 - Create: `schemas/github-actions-lock-v1.schema.json`
+- Create: `tools/ci/install-locked-toolchain.sh`
+- Modify: `cmake/quality/RepositoryPolicy.cmake`
+- Modify: `schemas/quality-gates-v1.schema.json`
+- Modify: `tests/quality/CMakeLists.txt`
 - Modify: `tests/quality/contracts/expected-gates.json`
 - Modify: `docs/adr/IDR-0001-engineering-quality-system.md`
 
-- [ ] **Step 1: Resolve and record immutable action identities**
+- [x] **Step 1: Resolve and record immutable action identities**
 
 Use the GitHub API to resolve each admitted official action release to one 40-character commit SHA. The initial workflow should require only checkout unless a demonstrated need adds another action. Define `schemas/github-actions-lock-v1.schema.json` and record repository, release tag, commit SHA, verification state, purpose, and retrieval time in the conforming `toolchains/github-actions-v1.lock.json`.
 
 Do not use a floating major tag in workflow `uses:` fields.
 
-- [ ] **Step 2: Add least-privilege workflow policy**
+- [x] **Step 2: Add least-privilege workflow policy**
 
 Use:
 
@@ -538,7 +543,7 @@ Use:
 - exact APT source key fingerprint and package versions from the verified toolchain lock;
 - versioned compiler tools and no global alternatives.
 
-- [ ] **Step 3: Define stable required job names**
+- [x] **Step 3: Define stable required job names**
 
 Create exactly these required contexts:
 
@@ -552,11 +557,11 @@ quality / sanitizers
 
 Each job must run its local equivalent rather than duplicate policy in YAML. CI formatter checks remain non-mutating.
 
-- [ ] **Step 4: Validate workflow syntax and local parity**
+- [x] **Step 4: Validate workflow syntax and local parity**
 
 Run the repository policy target, parse the YAML with the locked PyYAML module, validate the action lock against its schema, verify every `uses:` value ends in a locked 40-character SHA, and compare job names against the gate contract. Run the complete local `quality` target again on `gpu-2`.
 
-- [ ] **Step 5: Commit and push CI before protection**
+- [x] **Step 5: Commit and push CI before protection**
 
 ```bash
 git add .github/workflows/quality.yml \

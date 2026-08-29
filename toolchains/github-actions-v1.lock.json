@@ -1,0 +1,100 @@
+{
+  "manifest_version": "xoas.github-actions-lock.v1",
+  "captured_at_utc": "2026-08-29T06:27:07Z",
+  "workflow_path": ".github/workflows/quality.yml",
+  "runner_label": "ubuntu-24.04",
+  "permissions": {
+    "contents": "read"
+  },
+  "toolchain_lock_id": "gpu-2-development-toolchain-v1-20260829t013505z",
+  "apt_archive": {
+    "source_url": "https://apt.llvm.org/noble/",
+    "suite": "llvm-toolchain-noble-21",
+    "component": "main",
+    "source_line": "deb [signed-by=/usr/share/keyrings/xoas-llvm-archive-keyring.gpg] https://apt.llvm.org/noble/ llvm-toolchain-noble-21 main",
+    "key_url": "https://apt.llvm.org/llvm-snapshot.gpg.key",
+    "key_fingerprint": "6084F3CF814B57C1CF12EFD515CF4D18AF4F7421",
+    "keyring_sha256": "99f4985fd25cdf4c15b07fd6139d5e205cbd39bab1c65d83484efc92a1d67344",
+    "source_file_sha256": "8045d768789c700c422e596754817f155032b7dd78ac30a025629007900adb3d"
+  },
+  "apt_packages": [
+    {
+      "name": "build-essential",
+      "version": "12.10ubuntu1"
+    },
+    {
+      "name": "cmake",
+      "version": "3.28.3-1build7"
+    },
+    {
+      "name": "ninja-build",
+      "version": "1.11.1-2"
+    },
+    {
+      "name": "doxygen",
+      "version": "1.9.8+ds-2ubuntu0.1"
+    },
+    {
+      "name": "graphviz",
+      "version": "2.42.2-9ubuntu0.1"
+    },
+    {
+      "name": "python3-jsonschema",
+      "version": "4.10.3-2ubuntu1"
+    },
+    {
+      "name": "python3-yaml",
+      "version": "6.0.1-2build2"
+    },
+    {
+      "name": "shellcheck",
+      "version": "0.9.0-1"
+    },
+    {
+      "name": "clang-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70"
+    },
+    {
+      "name": "clang-format-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70"
+    },
+    {
+      "name": "clang-tidy-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70"
+    },
+    {
+      "name": "lld-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70"
+    },
+    {
+      "name": "llvm-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70"
+    },
+    {
+      "name": "libclang-rt-21-dev",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70"
+    }
+  ],
+  "actions": [
+    {
+      "repository": "actions/checkout",
+      "release_tag": "v7.0.1",
+      "release_immutable": false,
+      "commit_sha": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "purpose": "Check out the exact workflow revision without retaining push credentials.",
+      "resolved_via": "https://api.github.com/repos/actions/checkout/git/ref/tags/v7.0.1",
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "verified_at_utc": "2026-07-17T18:45:11Z"
+      }
+    }
+  ],
+  "required_contexts": [
+    "quality / repository-policy",
+    "quality / static-quality",
+    "quality / debug-build-and-test",
+    "quality / release-build-and-test",
+    "quality / sanitizers"
+  ]
+}

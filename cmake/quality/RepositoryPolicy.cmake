@@ -273,6 +273,9 @@ for relative_path in tracked_json:
     )
 
 schema_instances = {
+    "schemas/github-actions-lock-v1.schema.json": [
+        "toolchains/github-actions-v1.lock.json"
+    ],
     "schemas/benchmark-result-v1.schema.json": [
         "benchmarks/manifests/benchmark-result-v1.example.json"
     ],
