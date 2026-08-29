@@ -8,6 +8,8 @@ from collections.abc import Sequence
 from pathlib import Path
 import sys
 
+sys.dont_write_bytecode = True
+
 from prepare_qualification_bundle import (
     PreparationError,
     canonical_json_bytes,

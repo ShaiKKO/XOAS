@@ -14,13 +14,17 @@ import os
 from pathlib import Path
 import re
 import shlex
+import shutil
 import subprocess
+import sys
 import tempfile
 from types import ModuleType, SimpleNamespace
 import unittest
 from unittest import mock
 
 from jsonschema import Draft202012Validator
+
+sys.dont_write_bytecode = True
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -1859,6 +1863,24 @@ class PrepareQualificationBundleFinalizationTest(unittest.TestCase):
                         text=True,
                     )
                     self.assertNotEqual(completed.returncode, 0)
+
+    def test_fresh_process_verifier_writes_no_sibling_bytecode(self) -> None:
+        """Replica verification must not mutate its retained source directory."""
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            tool_directory = Path(temporary_directory)
+            verifier_path = tool_directory / VERIFIER_PATH.name
+            shutil.copy2(MODULE_PATH, tool_directory / MODULE_PATH.name)
+            shutil.copy2(VERIFIER_PATH, verifier_path)
+
+            completed = subprocess.run(
+                ("/usr/bin/python3", verifier_path, "--help"),
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertFalse((tool_directory / "__pycache__").exists())
 
     def test_rejection_record_is_closed_nonzero_and_never_accepted(self) -> None:
         """A rejected attempt must retain one reason without acceptance."""
