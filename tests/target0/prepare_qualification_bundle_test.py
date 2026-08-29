@@ -1891,42 +1891,37 @@ class PrepareQualificationBundleFinalizationTest(unittest.TestCase):
                     1,
                 )
 
-    def test_cli_failure_returns_nonzero_and_publishes_no_acceptance(self) -> None:
-        """The preparation CLI must convert a failed stage into closed evidence."""
+    def test_cli_rejects_repository_before_creating_output(self) -> None:
+        """Repository rejection must precede any output-directory creation."""
         main = getattr(self.module, "main", None)
         self.assertTrue(callable(main), "preparation CLI main is missing")
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            bundle_root = Path(temporary_directory)
-            arguments = (
-                "--repository-root",
-                str(REPOSITORY_ROOT),
-                "--expected-commit",
-                "1" * 40,
-                "--toolchain-lock",
-                str(TARGET_LOCK_PATH),
-                "--output-directory",
-                "/var/tmp/xoas-target0-qualification-tools.fixture",
-            )
-            with mock.patch.object(
-                self.module,
-                "create_staging_root",
-                return_value=bundle_root,
-            ), mock.patch.object(
-                self.module,
-                "validate_repository",
-                side_effect=self.module.PreparationError("controlled failure"),
-            ), contextlib.redirect_stderr(io.StringIO()):
-                status = main(arguments)
+        arguments = (
+            "--repository-root",
+            str(REPOSITORY_ROOT),
+            "--expected-commit",
+            "1" * 40,
+            "--toolchain-lock",
+            str(TARGET_LOCK_PATH),
+            "--output-directory",
+            "/var/tmp/xoas-target0-qualification-tools.fixture",
+        )
+        with mock.patch.object(
+            self.module,
+            "create_staging_root",
+        ) as staging_creator, mock.patch.object(
+            self.module,
+            "validate_repository",
+            side_effect=self.module.PreparationError("controlled failure"),
+        ) as repository_validator, contextlib.redirect_stderr(io.StringIO()):
+            status = main(arguments)
 
-            self.assertEqual(status, 1)
-            rejection = json.loads(
-                (bundle_root / "rejection.json").read_text(encoding="utf-8")
-            )
-            self.assertEqual(
-                rejection["rejection_reason"],
-                "repository_identity_mismatch",
-            )
-            self.assertFalse((bundle_root / "acceptance.json").exists())
+        self.assertEqual(status, 1)
+        repository_validator.assert_called_once_with(
+            REPOSITORY_ROOT,
+            "1" * 40,
+            self.module.run_command,
+        )
+        staging_creator.assert_not_called()
 
 
 ARGUMENTS = parse_arguments()

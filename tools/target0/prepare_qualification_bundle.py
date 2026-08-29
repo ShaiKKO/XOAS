@@ -1940,23 +1940,23 @@ def main(arguments: Sequence[str] | None = None) -> int:
     """Prepare one native bundle without network, privilege, or measurement."""
     options = parse_arguments(arguments)
     staging_root: Path | None = None
-    rejection_reason = "unsafe_output_path"
+    rejection_reason = "repository_identity_mismatch"
     try:
-        staging_root = create_staging_root(
-            options.output_directory,
-            allowed_root=Path("/var/tmp"),
-            repository_root=options.repository_root,
-            install_prefix=Path("/opt/xoas/target0-v1"),
-            home_directory=Path.home(),
-        )
-
-        rejection_reason = "repository_identity_mismatch"
         repository = validate_repository(
             options.repository_root,
             options.expected_commit,
             run_command,
         )
         repository_root = options.repository_root.resolve(strict=True)
+
+        rejection_reason = "unsafe_output_path"
+        staging_root = create_staging_root(
+            options.output_directory,
+            allowed_root=Path("/var/tmp"),
+            repository_root=repository_root,
+            install_prefix=Path("/opt/xoas/target0-v1"),
+            home_directory=Path.home(),
+        )
 
         rejection_reason = "toolchain_lock_invalid"
         lock_schema_path = (
