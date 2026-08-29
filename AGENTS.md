@@ -38,7 +38,7 @@ Read these files before working:
 5. For any source, tooling, CI, or review work: [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md) and [`docs/adr/IDR-0001-engineering-quality-system.md`](docs/adr/IDR-0001-engineering-quality-system.md).
 6. For benchmark, corpus, or performance work: [`docs/architecture/050-benchmark-protocol.md`](docs/architecture/050-benchmark-protocol.md), [`docs/experiments/baseline-matrix.md`](docs/experiments/baseline-matrix.md), and [`docs/experiments/corpus-policy.md`](docs/experiments/corpus-policy.md).
 7. For research-claim work: [`docs/experiments/prior-art-matrix.md`](docs/experiments/prior-art-matrix.md).
-8. For target/toolchain work: [`docs/architecture/proposals/AR-0001-target-0-host-qualification.md`](docs/architecture/proposals/AR-0001-target-0-host-qualification.md), [`docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md`](docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md), and the candidate/approved target manifest. AR-0001 Option 2 is approved: `gpu-2` is development-only, and the designated physical AMD Target 0 candidate must still be qualified. AR-0002 Option 1 is selected in principle but its exact written terms remain under review.
+8. For target/toolchain work: [`docs/architecture/proposals/AR-0001-target-0-host-qualification.md`](docs/architecture/proposals/AR-0001-target-0-host-qualification.md), [`docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md`](docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md), and the candidate/approved target manifest. AR-0001 Option 2 is approved: `gpu-2` is development-only, and the designated physical AMD Target 0 candidate must still be qualified. AR-0002 Option 1 is approved: AOCL-BLAS joins the admitted comparator set without removing existing applicable baselines.
 9. [`docs/repository_discovery_and_project_understanding_report.md`](docs/repository_discovery_and_project_understanding_report.md) — point-in-time repository, host, toolchain, and evidence gaps; refresh drift-prone facts.
 10. The nearest scoped `AGENTS.md` if nested instructions are added later.
 
@@ -99,7 +99,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/architecture/000-charter.md` — locked Target 0 product/research charter.
 - `docs/architecture/050-benchmark-protocol.md` — locked v1 benchmark and evidence protocol.
 - `docs/architecture/proposals/AR-0001-target-0-host-qualification.md` — approved primary-development designation and physical AMD replacement-host candidacy.
-- `docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md` — selected-in-principle AOCL-BLAS admission decision awaiting written review.
+- `docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md` — approved AOCL-BLAS admission decision for the physical AMD target.
 - `docs/engineering/coding-standards.md` — approved LLVM-derived source, documentation, enforcement, and review contract.
 - `docs/adr/IDR-0001-engineering-quality-system.md` — accepted engineering-quality design and staged implementation decision.
 - `CMakeLists.txt` and `CMakePresets.json` — quality-only C++23 build, test, and sanitizer surface; they do not contain product modules.
@@ -118,6 +118,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-implementation-plan.md` — executable M0 plan and commit boundaries.
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
+- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — written, unexecuted physical-host qualification and baseline-provisioning plan.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, and the historical unqualified `gpu-2` candidate-target capture. AR-0001 Option 2 excludes that host from current Target 0 measurement authority. The directory contains no executable harness or measured performance result.
 - `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; schema and synthetic example fully validated on `gpu-2`.
 - `schemas/development-toolchain-v1.schema.json` — draft-2020-12 installed development-toolchain evidence schema.
@@ -448,7 +449,13 @@ The Target 0 workflow must:
 11. collect at least cycles and instructions, plus cache/branch/stall/vector evidence where the qualified host exposes trustworthy counters;
 12. retain failed, tied, losing, and regressed experiments when analytically useful.
 
-Admitted baseline families are the independent scalar oracle/fallback, compiler-optimized dense C++ fallback, OpenBLAS/oneMKL dense SGEMM when installed and applicable, oneMKL Sparse BLAS when installed and semantically compatible, inspector/executor CSR and alternative traversal paths, and LIBXSMM dense/generated paths when installed and applicable. Always compare with the fastest correct admitted configuration that passes the protocol. Never compare only with a naive loop.
+Admitted baseline families are the independent scalar oracle/fallback,
+compiler-optimized dense C++ fallback, OpenBLAS dense SGEMM, AOCL-BLAS dense
+SGEMM on admitted AMD targets, oneMKL dense and Sparse BLAS when installed and
+applicable, inspector/executor CSR and alternative traversal paths, and
+LIBXSMM dense/generated paths when installed and applicable. Always compare
+with the fastest correct admitted configuration that passes the protocol.
+Never compare only with a naive loop.
 
 Report analysis, search, compile, and tuning time; generated code size; scratch/prepack requirements; kernel and fallback time; speedup; variability; and break-even invocation count.
 
@@ -632,14 +639,19 @@ Compilation alone is never done.
 
 Read and update [`docs/milestones/status.md`](docs/milestones/status.md).
 
-Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, historical candidate-host capture, approved engineering-quality design, and target-host decision exist. AR-0001 Option 2 designates `gpu-2` as development-only; a physical AMD Ryzen 9 7900X Linux host is the designated replacement candidate but remains unqualified. AR-0002 Option 1, adding AOCL-BLAS without removing existing applicable comparators, is selected in principle and awaiting review of its written terms. No product implementation begins before M0 closes.
+Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, historical candidate-host capture, approved engineering-quality design, and target-host decision exist. AR-0001 Option 2 designates `gpu-2` as development-only; a physical AMD Ryzen 9 7900X Linux host is the designated replacement candidate but remains unqualified. AR-0002 Option 1 is approved, adding AOCL-BLAS without removing existing applicable comparators. No product implementation begins before M0 closes.
 
 The written engineering-quality specification is implemented and enforced.
 The development-toolchain plan and the local/hosted quality-gates plan have
 been executed; stable targets, pinned hosted jobs, and protected-main controls
 are repository capabilities with retained evidence.
 
-The M0 critical path is review of AR-0002 followed by qualification of the designated physical AMD Target 0 candidate. Baseline installation, measurement controls, PMU evidence, noise checks, and target-bound benchmark evidence belong on that selected measurement host. Obtain the required independent review or explicit review-model acceptance and update the acceptance record before M0 closes. Do not begin M1 product scaffolding to bypass these blockers.
+The M0 critical path is review and execution of the written physical AMD
+Target 0 qualification plan. Baseline installation, measurement controls, PMU
+evidence, noise checks, and target-bound benchmark evidence belong on that
+selected measurement host. Obtain the required independent review or explicit
+review-model acceptance and update the acceptance record before M0 closes. Do
+not begin M1 product scaffolding to bypass these blockers.
 
 Do not embed percentage estimates. Record states, exact commits, evidence, deviations, and gates.
 

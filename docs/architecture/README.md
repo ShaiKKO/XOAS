@@ -26,7 +26,7 @@ If two sources conflict, stop work affected by the conflict, quote the exact sec
 | Document | State | Requested decision |
 |---|---|---|
 | [`proposals/AR-0001-target-0-host-qualification.md`](proposals/AR-0001-target-0-host-qualification.md) | Approved — Option 2; replacement candidate designated | `gpu-2` is development-only; qualify the designated physical AMD host before measurement use |
-| [`proposals/AR-0002-amd-target-baseline-admission.md`](proposals/AR-0002-amd-target-baseline-admission.md) | Option 1 selected in principle; written decision awaiting review | Add AOCL-BLAS as an AMD-vendor comparator without removing existing applicable baselines |
+| [`proposals/AR-0002-amd-target-baseline-admission.md`](proposals/AR-0002-amd-target-baseline-admission.md) | Approved — Option 1 | Add AOCL-BLAS as an AMD-vendor comparator without removing existing applicable baselines |
 
 Approved proposals override the affected sections of lower-authority documents only to the extent their requested decision says so. Rejected and superseded proposals remain evidence and must be labeled accordingly.
 
@@ -44,6 +44,7 @@ Use the next unused `../adr/IDR-####-short-title.md` number for a durable, seman
 |---|---|---|
 | [`../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) | Executed and verified at `ce1d27d` | Reversible exact-version provisioning and verification of the primary development toolchain; excludes baselines and measurement qualification |
 | [`../superpowers/plans/2026-08-28-engineering-quality-gates.md`](../superpowers/plans/2026-08-28-engineering-quality-gates.md) | Executed and enforced through protected-main merge `6516866`; command/status activation verified | Local quality fixtures/targets, pinned hosted CI, and protected `main`; excludes product/compiler implementation |
+| [`../superpowers/plans/2026-08-29-amd-target0-host-qualification.md`](../superpowers/plans/2026-08-29-amd-target0-host-qualification.md) | Written; execution requires user review | Physical AMD host tooling, source-built baselines, reversible controls, reboot-separated qualification, and M0 decision |
 
 An implementation plan does not change architecture authority. Its execution must preserve the controlling specification and record exact commits and evidence.
 

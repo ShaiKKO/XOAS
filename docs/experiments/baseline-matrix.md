@@ -19,6 +19,7 @@ The independent oracle is timed for transparency. It is not expected to win, but
 | `csr-generic` | Clean generic CSR-by-dense row-major SpMM loop | Transparent sparse traversal baseline | Every normalized support representable as zero-based CSR | CSR arrays built once; loop loads row pointers and column indices at runtime | CSR construction is reported; reuse-amortized and cold lifecycle views are separate | Source/commit, compiler/flags, row/column ordering, index width, alignment, loop/order variants |
 | `support-array` | Exact-support runtime-array loop with compact values plus stored coordinate/index arrays | Isolates benefit of code-embedded support from support-known data | Every Target 0 case | Stable ordering/support arrays are prebuilt, but coordinates remain runtime loads | Support-array construction reported; persistent arrays count as prepack bytes | Same compiler/flags as generated code, index width/order, disassembly, code size |
 | `openblas-sgemm` | [OpenBLAS](https://www.openblas.net/) single-precision dense GEMM | Maintained optimized dense library | Every dense materialization of `A`; useful where density/shape makes sparse specialization lose | Library sees only dense `A`, `B`, `C` and dimensions | Sparse-to-dense materialization reported separately and excluded only when caller contract supplies persistent dense `A` | Exact release/commit, build target and dynamic architecture policy, single-thread control/effective thread count, `SGEMM` entry point, `alpha=1`, `beta=0`, layout/transposition, library path/hash |
+| `aocl-blas-sgemm` | [AMD AOCL-BLAS](https://www.amd.com/en/developer/aocl.html) single-precision dense GEMM | AMD-vendor-optimized dense library | Every dense materialization of `A` on an admitted AMD target when the exact artifact and active numerical mode pass admission | Library sees only dense `A`, `B`, `C` and dimensions | Sparse-to-dense materialization, initialization, and any packing are reported separately; persistent state bytes are retained | Exact release/source revision and license, build provenance, Zen dispatch evidence, single-thread path/effective thread count, CBLAS row-major/no-transpose call, `alpha=1`, `beta=0`, loaded-library path/hash |
 | `onemkl-sgemm` | Intel oneMKL single-precision dense GEMM | Vendor-optimized dense library on Intel target | Every dense materialization of `A` when installed and licensed for the host | Library sees dense operands/dimensions | Dense materialization and any pack API cost reported; persistent packed-state bytes recorded | Exact oneMKL release, dispatch/ISA controls, single-thread control, CBLAS row-major/no-transpose call, `alpha=1`, `beta=0`, loaded-library identity |
 | `onemkl-sparse-mm` | Intel oneMKL [`mkl_sparse_s_mm`](https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2024-1/mkl-sparse-mm.html) | Vendor sparse-by-dense baseline | Zero-based CSR general non-transposed row-major cases are directly supported; BSR and declared symmetric cases are additional configurations only when semantically identical | Persistent sparse handle may encode structure | Handle creation, conversion, hints, and optimization are reported separately; measure both steady-state execution and lifecycle break-even | Exact release, CSR/BSR format, descriptor, index base, row-major layout, columns/leading dimensions, `alpha=1`, `beta=0`, optimize/hint calls, single-thread evidence |
 | `libxsmm-gemm` | [LIBXSMM](https://libxsmm.github.io/libxsmm/documentation/) dispatched/JIT FP32 GEMM | Specialized small/fixed-shape dense comparator | Cases supported by its FP32 GEMM semantics; its documented approximate small-matrix envelope `(M*N*K)^(1/3) <= 64` overlaps Target 0 | Fixed `M`, `N`, `K`, flags and scalars | First dispatch/JIT and initialization cost reported separately; kernel and lifecycle views both retained | Exact release/commit, target dispatch, GEMM flags, `alpha=1`, `beta=0`, JIT cache state, generated-code size where exposed, loaded library hash |
@@ -42,7 +43,11 @@ Every admitted implementation receives a bounded, predeclared configuration sear
 
 ### Dense baselines
 
-Search only a small registered set of loop orders, unroll factors, and compiler options for `clang-dense-fixed`. Do not enable numerical flags outside the active contract. Dense library calls include both OpenBLAS and oneMKL when available; whichever is faster and correct wins for that case.
+Search only a small registered set of loop orders, unroll factors, and compiler
+options for `clang-dense-fixed`. Do not enable numerical flags outside the
+active contract. Dense library calls include OpenBLAS, AOCL-BLAS on admitted
+AMD targets, and oneMKL when available and applicable; whichever is faster and
+correct wins for that case.
 
 ### Sparse baselines
 
@@ -88,12 +93,18 @@ for every expected-invocation class. Break-even is reported against the fastest 
 
 ## Availability snapshot
 
-As of the 2026-08-28 discovery snapshot, the candidate `gpu-2` development host has no detected C/C++ compiler, CMake/Ninja, OpenBLAS, oneMKL, LIBXSMM, or BLAS packages. Therefore:
+The historical 2026-08-28 `gpu-2` snapshot did not contain baseline
+libraries. Its development toolchain is now installed, but AR-0001 excludes
+that VM from Target 0 measurement authority. On 2026-08-29 the user designated
+a physical AMD Ryzen 9 7900X Linux host as the replacement candidate and
+approved AR-0002 Option 1, admitting AOCL-BLAS. The replacement host currently
+has no detected OpenBLAS, AOCL-BLAS, or LIBXSMM installation. Therefore:
 
 - this document locks baseline candidates and admission/configuration rules;
 - it does **not** claim any external baseline is installed or runnable;
 - exact versions are not locked until controlled provisioning records package/repository provenance;
-- M0 cannot claim “baselines available on the reference machine” until that evidence exists.
+- M0 cannot claim “baselines available on the reference machine” until the
+  approved physical-host provisioning plan produces that evidence.
 
 OpenBLAS's official site listed release `0.3.33` on the research date. Intel's official C reference documents the `mkl_sparse_s_mm` row-major sparse-by-dense operation. LIBXSMM's official documentation establishes FP32 specialized dense/sparse operations and JIT specialization. These observations select candidates; installed binaries and their hashes will control experiments.
 
@@ -113,4 +124,9 @@ Retain the configuration, error, seed, instance digest, environment, and decisio
 
 ## M2 lock condition
 
-Before M2 baseline implementation begins, approve the reference-target decision and record exact source/package versions, install provenance, licenses, adapter APIs, and allowed configuration sets. Any later baseline-set removal or material method change requires architecture approval because it can change the research claim.
+Before M2 baseline implementation begins, qualify the reference target and
+record exact OpenBLAS, AOCL-BLAS, oneMKL, LIBXSMM, and other comparator
+source/package versions as applicable, with install provenance, licenses,
+adapter APIs, and allowed configuration sets. Any later baseline-set removal
+or material method change requires architecture approval because it can change
+the research claim.
