@@ -80,6 +80,27 @@ locked; numerical adapter admission remains later work.
 - The Target 0 process schema passed draft-2020-12 meta-validation and validated real build-tree probe records on `gpu-2`; closed-schema mutations rejected claim inflation, unknown fields, duplicate rounds, and missing samples.
 - The Target 0 toolchain-lock schema passed draft-2020-12 meta-validation and validated the installed lock. On the physical host, all 288 recorded installed-file hashes matched the live versioned prefix and the configuration digest recomputed exactly.
 
+### Target 0 Task 4 verification
+
+The published evidence head
+`9b28162152bfd4c0329a2d5de59f23c65f832a85` passed both pinned `gpu-2`
+aggregates:
+
+```bash
+cmake --preset dev-debug
+cmake --build --preset dev-debug --target quality
+cmake --preset dev-release
+cmake --build --preset dev-release --target quality
+```
+
+Each configuration passed repository policy, formatting, documentation,
+Clang-Tidy, the isolated ASan/UBSan gate, all 33 CTest cases, and the Target 0
+tooling tests. On the physical host, draft-2020-12 lock validation, canonical
+configuration-digest recomputation, and all 288 live installed-file hashes
+passed. A direct full repository-policy diagnostic passed there only after a
+temporary exclusion for ShellCheck 0.11 SC2329; no exclusion was committed,
+and the authoritative pinned `gpu-2` policy passed without accommodation.
+
 ### Target qualification process checks
 
 On `gpu-2`, the Task 1 implementation passed the complete Debug, Release, and

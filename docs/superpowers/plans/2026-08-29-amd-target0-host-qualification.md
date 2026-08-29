@@ -553,6 +553,8 @@ Implemented at `9d44f6431ebdaea60c796292e9da071f0f49522b`. The physical-host
 installed-lock and live 288-file digest check passed. The repository-policy
 diagnostic passed with only the documented temporary SC2329 exclusion required
 by the host's newer ShellCheck; no exclusion was committed.
+Evidence was bound to the repository at `9b28162152bfd4c0329a2d5de59f23c65f832a85`,
+which passed the pinned `gpu-2` Debug and Release quality aggregates.
 
 ---
 
