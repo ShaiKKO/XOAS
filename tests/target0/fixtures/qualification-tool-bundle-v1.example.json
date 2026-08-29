@@ -14,6 +14,19 @@
       "-Wextra",
       "-Wpedantic",
       "-Werror",
+      "-Wcast-align",
+      "-Wconversion",
+      "-Wdouble-promotion",
+      "-Wextra-semi",
+      "-Wformat=2",
+      "-Wimplicit-fallthrough",
+      "-Wnon-virtual-dtor",
+      "-Wold-style-cast",
+      "-Woverloaded-virtual",
+      "-Wshadow",
+      "-Wsign-conversion",
+      "-Wundef",
+      "-Wzero-as-null-pointer-constant",
       "-fuse-ld=/usr/bin/ld.lld-21",
       "qualification_probe.cpp",
       "-o",
@@ -70,8 +83,10 @@
     "interpreter": "/lib64/ld-linux-x86-64.so.2",
     "machine": "Advanced Micro Devices X86-64",
     "needed": [
-      "libc.so.6",
-      "libstdc++.so.6"
+      "libstdc++.so.6",
+      "libm.so.6",
+      "libgcc_s.so.1",
+      "libc.so.6"
     ],
     "type": "DYN"
   },
@@ -96,18 +111,66 @@
       "loader_path": "/lib/x86_64-linux-gnu/libstdc++.so.6",
       "package": {
         "name": "libstdc++6:amd64",
-        "version": "15.2.0-16ubuntu1"
+        "version": "16-20260322-1ubuntu1"
       },
-      "realpath": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34",
+      "realpath": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.35",
       "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
       "size_bytes": 2900000,
       "soname": "libstdc++.so.6"
+    },
+    {
+      "loader_path": "/lib/x86_64-linux-gnu/libm.so.6",
+      "package": {
+        "name": "libc6:amd64",
+        "version": "2.43-2ubuntu2.3"
+      },
+      "realpath": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size_bytes": 940000,
+      "soname": "libm.so.6"
+    },
+    {
+      "loader_path": "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+      "package": {
+        "name": "libgcc-s1:amd64",
+        "version": "16-20260322-1ubuntu1"
+      },
+      "realpath": "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size_bytes": 190000,
+      "soname": "libgcc_s.so.1"
+    },
+    {
+      "loader_path": "/lib/x86_64-linux-gnu/libc.so.6",
+      "package": {
+        "name": "libc6:amd64",
+        "version": "2.43-2ubuntu2.3"
+      },
+      "realpath": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size_bytes": 2200000,
+      "soname": "libc.so.6"
+    },
+    {
+      "loader_path": "/lib64/ld-linux-x86-64.so.2",
+      "package": {
+        "name": "libc6:amd64",
+        "version": "2.43-2ubuntu2.3"
+      },
+      "realpath": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "size_bytes": 240000,
+      "soname": "ld-linux-x86-64.so.2"
     }
   ],
   "sources": [
     {
       "path": "tools/target0/prepare_qualification_bundle.py",
       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "path": "tools/target0/verify_qualification_bundle.py",
+      "sha256": "0101010101010101010101010101010101010101010101010101010101010101"
     },
     {
       "path": "tools/target0/qualification_probe.cpp",
@@ -122,12 +185,28 @@
       "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
     },
     {
+      "path": "tests/target0/capture_host_test.py",
+      "sha256": "0202020202020202020202020202020202020202020202020202020202020202"
+    },
+    {
+      "path": "tests/target0/measurement_session_test.py",
+      "sha256": "0303030303030303030303030303030303030303030303030303030303030303"
+    },
+    {
+      "path": "tests/target0/qualification_probe_test.py",
+      "sha256": "0404040404040404040404040404040404040404040404040404040404040404"
+    },
+    {
       "path": "schemas/target0-host-qualification-v1.schema.json",
       "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
     },
     {
       "path": "schemas/target0-qualification-tool-bundle-v1.schema.json",
       "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "path": "schemas/target0-toolchain-lock-v1.schema.json",
+      "sha256": "0505050505050505050505050505050505050505050505050505050505050505"
     }
   ],
   "status": "passed",

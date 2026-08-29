@@ -6,12 +6,15 @@ from __future__ import annotations
 import argparse
 from collections.abc import Sequence
 import copy
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
+import sys
 from types import SimpleNamespace
 from typing import Protocol
 
@@ -48,6 +51,39 @@ _RUNTIME_PACKAGE_BY_SONAME = {
     "libc.so.6": "libc6:amd64",
     "ld-linux-x86-64.so.2": "libc6:amd64",
 }
+_REJECTION_REASONS = frozenset(
+    {
+        "unsafe_output_path",
+        "repository_identity_mismatch",
+        "dirty_repository",
+        "toolchain_lock_invalid",
+        "target_identity_mismatch",
+        "compiler_identity_mismatch",
+        "linker_identity_mismatch",
+        "build_failed",
+        "build_output_invalid",
+        "build_digest_mismatch",
+        "elf_identity_invalid",
+        "runtime_dependency_invalid",
+        "compatibility_test_failed",
+        "bundle_schema_invalid",
+        "inventory_validation_failed",
+        "unexpected_failure",
+    }
+)
+_RETAINED_SOURCE_PATHS = (
+    "tools/target0/prepare_qualification_bundle.py",
+    "tools/target0/verify_qualification_bundle.py",
+    "tools/target0/qualification_probe.cpp",
+    "tools/target0/capture_host.py",
+    "tools/target0/measurement_session.sh",
+    "tests/target0/capture_host_test.py",
+    "tests/target0/measurement_session_test.py",
+    "tests/target0/qualification_probe_test.py",
+    "schemas/target0-host-qualification-v1.schema.json",
+    "schemas/target0-qualification-tool-bundle-v1.schema.json",
+    "schemas/target0-toolchain-lock-v1.schema.json",
+)
 
 
 class PreparationError(RuntimeError):
@@ -1100,6 +1136,42 @@ def validate_schema_instance(schema_path: Path, instance: object) -> None:
         raise PreparationError("schema or instance validation failed") from error
 
 
+def _remove_private_transient_tree(path: Path, expected_parent: Path) -> None:
+    """Remove one exact owned scratch tree without following unsafe entries."""
+    try:
+        resolved_parent = expected_parent.resolve(strict=True)
+        resolved_path = path.resolve(strict=True)
+    except OSError as error:
+        raise PreparationError("private transient tree is unavailable") from error
+    if (
+        path.is_symlink()
+        or resolved_path.parent != resolved_parent
+        or path.name not in {"python-cache", "tmp"}
+        or not resolved_path.is_dir()
+    ):
+        raise PreparationError("private transient tree is invalid")
+    for current_root, directory_names, file_names in os.walk(
+        resolved_path,
+        topdown=False,
+        followlinks=False,
+    ):
+        current_directory = Path(current_root)
+        for file_name in file_names:
+            file_path = current_directory / file_name
+            if not stat.S_ISREG(file_path.lstat().st_mode):
+                raise PreparationError("private transient tree has an unsafe file")
+            file_path.unlink()
+        for directory_name in directory_names:
+            directory = current_directory / directory_name
+            if directory.is_symlink() or not directory.is_dir():
+                raise PreparationError(
+                    "private transient tree has an unsafe directory"
+                )
+            directory.rmdir()
+    resolved_path.rmdir()
+    _fsync_directory(resolved_parent)
+
+
 def run_compatibility_tests(
     repository_root: Path,
     accepted_probe: Path,
@@ -1227,7 +1299,536 @@ def run_compatibility_tests(
         records.append(record)
         if result.returncode != 0:
             raise PreparationError(f"{name} compatibility test failed")
+    _remove_private_transient_tree(python_cache, compatibility_directory)
+    _remove_private_transient_tree(temporary_directory, compatibility_directory)
     return records
+
+
+def _fsync_directory(directory: Path) -> None:
+    """Persist one directory entry update before reporting publication."""
+    descriptor = os.open(
+        directory,
+        os.O_RDONLY | getattr(os, "O_DIRECTORY", 0),
+    )
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _write_new_bytes(path: Path, content: bytes, mode: int = 0o600) -> None:
+    """Write one new file without replacement and durably publish its name."""
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        descriptor = os.open(path, flags, mode)
+        with os.fdopen(descriptor, "wb") as output:
+            output.write(content)
+            output.flush()
+            os.fsync(output.fileno())
+        path.chmod(mode)
+        _fsync_directory(path.parent)
+    except OSError as error:
+        raise PreparationError("retained file cannot be published") from error
+
+
+def _write_new_json(path: Path, record: object) -> bytes:
+    """Publish one canonical JSON record without replacement."""
+    content = canonical_json_bytes(record)
+    _write_new_bytes(path, content)
+    return content
+
+
+def _relative_inventory_path(path: Path, bundle_root: Path) -> str:
+    """Return one safe portable retained-file path."""
+    try:
+        relative_path = path.relative_to(bundle_root).as_posix()
+    except ValueError as error:
+        raise PreparationError("inventory path escapes the bundle") from error
+    if (
+        not relative_path
+        or relative_path.startswith("/")
+        or any(part in {"", ".", ".."} for part in relative_path.split("/"))
+        or re.fullmatch(r"[A-Za-z0-9+_.@/-]+", relative_path) is None
+    ):
+        raise PreparationError("inventory path is not portable")
+    return relative_path
+
+
+def build_inventory(bundle_root: Path) -> dict[str, object]:
+    """Hash every retained regular file in canonical path order."""
+    try:
+        resolved_root = bundle_root.resolve(strict=True)
+    except OSError as error:
+        raise PreparationError("bundle root is unavailable") from error
+    if bundle_root.is_symlink() or not resolved_root.is_dir():
+        raise PreparationError("bundle root is invalid")
+    files: list[dict[str, object]] = []
+    for current_root, directory_names, file_names in os.walk(
+        resolved_root,
+        topdown=True,
+        followlinks=False,
+    ):
+        current_directory = Path(current_root)
+        for directory_name in directory_names:
+            directory = current_directory / directory_name
+            mode = directory.lstat().st_mode
+            if stat.S_ISLNK(mode) or not stat.S_ISDIR(mode):
+                raise PreparationError("bundle contains an unsafe directory")
+        for file_name in file_names:
+            path = current_directory / file_name
+            relative_path = _relative_inventory_path(path, resolved_root)
+            if relative_path in {"inventory.json", "acceptance.json"}:
+                continue
+            mode = path.lstat().st_mode
+            if not stat.S_ISREG(mode):
+                raise PreparationError("bundle contains an unsafe file")
+            content = path.read_bytes()
+            files.append(
+                {
+                    "path": relative_path,
+                    "size_bytes": len(content),
+                    "sha256": hashlib.sha256(content).hexdigest(),
+                }
+            )
+    files.sort(key=lambda item: str(item["path"]).encode("utf-8"))
+    return {
+        "manifest_version": "xoas.target0-qualification-tool-inventory.v1",
+        "files": files,
+    }
+
+
+def validate_inventory(
+    bundle_root: Path,
+    inventory: dict[str, object],
+) -> None:
+    """Recompute one finalized bundle without trusting retained hashes."""
+    if set(inventory) != {"manifest_version", "files"}:
+        raise PreparationError("inventory record shape is invalid")
+    if inventory.get("manifest_version") != (
+        "xoas.target0-qualification-tool-inventory.v1"
+    ):
+        raise PreparationError("inventory record version differs")
+    files = inventory.get("files")
+    if not isinstance(files, list):
+        raise PreparationError("inventory file list is invalid")
+    paths: list[str] = []
+    for item in files:
+        if not isinstance(item, dict) or set(item) != {
+            "path",
+            "size_bytes",
+            "sha256",
+        }:
+            raise PreparationError("inventory file record is invalid")
+        path = item["path"]
+        size_bytes = item["size_bytes"]
+        digest = item["sha256"]
+        if (
+            not isinstance(path, str)
+            or not isinstance(size_bytes, int)
+            or isinstance(size_bytes, bool)
+            or size_bytes < 0
+            or not isinstance(digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+        ):
+            raise PreparationError("inventory file identity is invalid")
+        paths.append(path)
+    if len(paths) != len(set(paths)) or paths != sorted(
+        paths,
+        key=lambda path: path.encode("utf-8"),
+    ):
+        raise PreparationError("inventory paths are not canonical")
+    if build_inventory(bundle_root) != inventory:
+        raise PreparationError("inventory differs from retained bundle bytes")
+
+
+def normalized_executable_identity(manifest: dict[str, object]) -> str:
+    """Hash stable executable provenance without attempt metadata."""
+    try:
+        build = manifest["build"]
+        elf = manifest["elf"]
+        if not isinstance(build, dict) or not isinstance(elf, dict):
+            raise TypeError
+        elf_identity = {
+            key: elf[key]
+            for key in (
+                "class",
+                "endianness",
+                "machine",
+                "type",
+                "interpreter",
+                "build_id",
+                "needed",
+            )
+        }
+        identity = {
+            "manifest_version": manifest["manifest_version"],
+            "target_id": manifest["target_id"],
+            "repository": manifest["repository"],
+            "provisioning_lock": manifest["provisioning_lock"],
+            "sources": manifest["sources"],
+            "toolchain": manifest["toolchain"],
+            "build": {
+                "arguments": build["arguments"],
+                "environment": build["environment"],
+                "builds": build["builds"],
+                "executable_sha256": build["executable_sha256"],
+                "accepted_executable": build["accepted_executable"],
+            },
+            "elf": elf_identity,
+            "runtime_dependencies": manifest["runtime_dependencies"],
+        }
+    except (KeyError, TypeError) as error:
+        raise PreparationError("executable identity input is incomplete") from error
+    return hashlib.sha256(canonical_json_bytes(identity)).hexdigest()
+
+
+def _load_canonical_json(path: Path, description: str) -> dict[str, object]:
+    """Load one regular canonical JSON object without following a symlink."""
+    try:
+        if path.is_symlink() or not path.is_file():
+            raise PreparationError(f"{description} is unavailable")
+        content = path.read_bytes()
+        record = json.loads(content.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise PreparationError(f"{description} is unreadable") from error
+    if not isinstance(record, dict) or canonical_json_bytes(record) != content:
+        raise PreparationError(f"{description} is not canonical")
+    return record
+
+
+def _validate_file_record(
+    bundle_root: Path,
+    record: dict[str, object],
+    description: str,
+) -> None:
+    """Recompute one manifest-referenced regular file identity."""
+    if set(record) != {"path", "sha256", "size_bytes"}:
+        raise PreparationError(f"{description} record shape is invalid")
+    relative_path = record.get("path")
+    if not isinstance(relative_path, str):
+        raise PreparationError(f"{description} path is invalid")
+    path = bundle_root / relative_path
+    if (
+        path.is_symlink()
+        or not path.is_file()
+        or _relative_inventory_path(path, bundle_root) != relative_path
+    ):
+        raise PreparationError(f"{description} file is invalid")
+    content = path.read_bytes()
+    if (
+        record.get("size_bytes") != len(content)
+        or record.get("sha256") != hashlib.sha256(content).hexdigest()
+    ):
+        raise PreparationError(f"{description} bytes differ")
+
+
+def _validate_manifest_semantics(
+    bundle_root: Path,
+    manifest: dict[str, object],
+) -> None:
+    """Cross-check passed-manifest claims against every referenced byte."""
+    try:
+        if manifest["status"] != "passed" or manifest["rejection_reasons"] != []:
+            raise TypeError
+        build = manifest["build"]
+        elf = manifest["elf"]
+        compatibility_tests = manifest["compatibility_tests"]
+        sources = manifest["sources"]
+        runtime_dependencies = manifest["runtime_dependencies"]
+        if (
+            not isinstance(build, dict)
+            or not isinstance(elf, dict)
+            or not isinstance(compatibility_tests, list)
+            or not isinstance(sources, list)
+            or not isinstance(runtime_dependencies, list)
+        ):
+            raise TypeError
+        builds = build["builds"]
+        accepted = build["accepted_executable"]
+        if (
+            build["identical"] is not True
+            or not isinstance(builds, list)
+            or len(builds) != 2
+            or not all(isinstance(item, dict) for item in builds)
+            or not isinstance(accepted, dict)
+        ):
+            raise TypeError
+    except (KeyError, TypeError) as error:
+        raise PreparationError("passed bundle semantics are incomplete") from error
+    digests = [item.get("sha256") for item in builds]
+    if (
+        len(set(digests)) != 1
+        or digests[0] != build.get("executable_sha256")
+        or digests[0] != accepted.get("sha256")
+        or accepted.get("path") != "bin/xoas-target0-qualification-probe"
+    ):
+        raise PreparationError("passed bundle executable claims differ")
+    for index, record in enumerate(builds, start=1):
+        _validate_file_record(bundle_root, record, f"build {index}")
+    _validate_file_record(bundle_root, accepted, "accepted executable")
+
+    source_paths = [
+        record.get("path") if isinstance(record, dict) else None
+        for record in sources
+    ]
+    if source_paths != list(_RETAINED_SOURCE_PATHS):
+        raise PreparationError("retained source set differs from the contract")
+
+    needed = elf.get("needed")
+    interpreter = elf.get("interpreter")
+    if not isinstance(needed, list) or not isinstance(interpreter, str):
+        raise PreparationError("ELF dependency claims are invalid")
+    expected_sonames = [*needed, Path(interpreter).name]
+    observed_sonames = [
+        record.get("soname") if isinstance(record, dict) else None
+        for record in runtime_dependencies
+    ]
+    if observed_sonames != expected_sonames:
+        raise PreparationError("runtime dependency set differs from the ELF")
+    for record in runtime_dependencies:
+        package = record.get("package")
+        expected_package = _RUNTIME_PACKAGE_BY_SONAME.get(record.get("soname"))
+        if (
+            not isinstance(package, dict)
+            or package.get("name") != expected_package
+        ):
+            raise PreparationError("runtime dependency package differs")
+
+    inspection_logs = elf.get("inspection_logs")
+    if not isinstance(inspection_logs, list):
+        raise PreparationError("inspection log claims are invalid")
+    for log in inspection_logs:
+        if (
+            not isinstance(log, dict)
+            or set(log) != {"name", "sha256"}
+            or not isinstance(log.get("name"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", str(log.get("sha256"))) is None
+        ):
+            raise PreparationError("inspection log claim is invalid")
+        path = bundle_root / f"inspection/{log['name']}.json"
+        if (
+            path.is_symlink()
+            or not path.is_file()
+            or hashlib.sha256(path.read_bytes()).hexdigest() != log["sha256"]
+        ):
+            raise PreparationError("inspection log bytes differ")
+        status = _load_canonical_json(path, "inspection command status")
+        if (
+            status.get("name") != log["name"]
+            or status.get("status") != "passed"
+            or status.get("exit_status") != 0
+        ):
+            raise PreparationError("inspection command did not pass")
+
+    for record in compatibility_tests:
+        if not isinstance(record, dict) or not isinstance(record.get("name"), str):
+            raise PreparationError("compatibility-test claim is invalid")
+        name = record["name"]
+        status_path = bundle_root / f"compatibility/{name}.json"
+        stdout_path = bundle_root / f"compatibility/{name}.stdout.log"
+        stderr_path = bundle_root / f"compatibility/{name}.stderr.log"
+        retained_status = _load_canonical_json(
+            status_path,
+            "compatibility-test status",
+        )
+        if retained_status != record:
+            raise PreparationError("compatibility-test status differs")
+        if record.get("status") != "passed" or record.get("exit_status") != 0:
+            raise PreparationError("compatibility test did not pass")
+        for path, digest_field in (
+            (stdout_path, "stdout_sha256"),
+            (stderr_path, "stderr_sha256"),
+        ):
+            if (
+                path.is_symlink()
+                or not path.is_file()
+                or hashlib.sha256(path.read_bytes()).hexdigest()
+                != record.get(digest_field)
+            ):
+                raise PreparationError("compatibility-test log differs")
+
+
+def _fsync_retained_tree(bundle_root: Path) -> None:
+    """Flush every pre-publication file and directory in one private bundle."""
+    directories: list[Path] = []
+    for current_root, directory_names, file_names in os.walk(
+        bundle_root,
+        topdown=True,
+        followlinks=False,
+    ):
+        current_directory = Path(current_root)
+        directories.append(current_directory)
+        for directory_name in directory_names:
+            directory = current_directory / directory_name
+            mode = directory.lstat().st_mode
+            if stat.S_ISLNK(mode) or not stat.S_ISDIR(mode):
+                raise PreparationError("bundle contains an unsafe directory")
+        for file_name in file_names:
+            path = current_directory / file_name
+            if not stat.S_ISREG(path.lstat().st_mode):
+                raise PreparationError("bundle contains an unsafe file")
+            descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+            try:
+                os.fsync(descriptor)
+            finally:
+                os.close(descriptor)
+    for directory in reversed(directories):
+        _fsync_directory(directory)
+
+
+def finalize_bundle(
+    bundle_root: Path,
+    manifest: dict[str, object],
+    schema_path: Path,
+) -> dict[str, object]:
+    """Publish a closed manifest, inventory, and final acceptance record."""
+    try:
+        resolved_root = bundle_root.resolve(strict=True)
+    except OSError as error:
+        raise PreparationError("bundle root is unavailable") from error
+    if bundle_root.is_symlink() or not resolved_root.is_dir():
+        raise PreparationError("bundle root is invalid")
+    publication_paths = tuple(
+        resolved_root / name
+        for name in (
+            "bundle.json",
+            "inventory.json",
+            "acceptance.json",
+            "rejection.json",
+        )
+    )
+    if any(os.path.lexists(path) for path in publication_paths):
+        raise PreparationError("bundle root was already finalized")
+    validate_schema_instance(schema_path, manifest)
+    _validate_manifest_semantics(resolved_root, manifest)
+    _fsync_retained_tree(resolved_root)
+    manifest_bytes = _write_new_json(resolved_root / "bundle.json", manifest)
+    inventory = build_inventory(resolved_root)
+    inventory_bytes = _write_new_json(
+        resolved_root / "inventory.json",
+        inventory,
+    )
+    validate_inventory(resolved_root, inventory)
+    acceptance = {
+        "manifest_version": "xoas.target0-qualification-tool-acceptance.v1",
+        "bundle_id": manifest["bundle_id"],
+        "performance_claim": False,
+        "status": "accepted",
+        "bundle_manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+        "inventory_sha256": hashlib.sha256(inventory_bytes).hexdigest(),
+        "executable_sha256": manifest["build"]["executable_sha256"],
+        "executable_identity_sha256": normalized_executable_identity(manifest),
+    }
+    _write_new_json(resolved_root / "acceptance.json", acceptance)
+    if verify_finalized_bundle(resolved_root, schema_path) != acceptance:
+        raise PreparationError("finalized bundle verification differs")
+    return acceptance
+
+
+def _validate_acceptance_record(acceptance: dict[str, object]) -> None:
+    """Validate the closed acceptance record shape without trusting digests."""
+    if set(acceptance) != {
+        "manifest_version",
+        "bundle_id",
+        "performance_claim",
+        "status",
+        "bundle_manifest_sha256",
+        "inventory_sha256",
+        "executable_sha256",
+        "executable_identity_sha256",
+    }:
+        raise PreparationError("acceptance record shape is invalid")
+    if (
+        acceptance.get("manifest_version")
+        != "xoas.target0-qualification-tool-acceptance.v1"
+        or acceptance.get("performance_claim") is not False
+        or acceptance.get("status") != "accepted"
+        or not isinstance(acceptance.get("bundle_id"), str)
+    ):
+        raise PreparationError("acceptance record identity is invalid")
+    for field in (
+        "bundle_manifest_sha256",
+        "inventory_sha256",
+        "executable_sha256",
+        "executable_identity_sha256",
+    ):
+        if re.fullmatch(r"[0-9a-f]{64}", str(acceptance.get(field))) is None:
+            raise PreparationError("acceptance digest is invalid")
+
+
+def verify_finalized_bundle(
+    bundle_root: Path,
+    schema_path: Path,
+) -> dict[str, object]:
+    """Recompute a finalized bundle without trusting its retained records."""
+    try:
+        resolved_root = bundle_root.resolve(strict=True)
+    except OSError as error:
+        raise PreparationError("bundle root is unavailable") from error
+    if bundle_root.is_symlink() or not resolved_root.is_dir():
+        raise PreparationError("bundle root is invalid")
+    manifest_path = resolved_root / "bundle.json"
+    inventory_path = resolved_root / "inventory.json"
+    acceptance_path = resolved_root / "acceptance.json"
+    manifest = _load_canonical_json(manifest_path, "bundle manifest")
+    inventory = _load_canonical_json(inventory_path, "bundle inventory")
+    acceptance = _load_canonical_json(acceptance_path, "bundle acceptance")
+    validate_schema_instance(schema_path, manifest)
+    _validate_manifest_semantics(resolved_root, manifest)
+    validate_inventory(resolved_root, inventory)
+    _validate_acceptance_record(acceptance)
+    if acceptance["bundle_id"] != manifest["bundle_id"]:
+        raise PreparationError("acceptance bundle identity differs")
+    if acceptance["bundle_manifest_sha256"] != hashlib.sha256(
+        manifest_path.read_bytes()
+    ).hexdigest():
+        raise PreparationError("acceptance manifest digest differs")
+    if acceptance["inventory_sha256"] != hashlib.sha256(
+        inventory_path.read_bytes()
+    ).hexdigest():
+        raise PreparationError("acceptance inventory digest differs")
+    if acceptance["executable_sha256"] != manifest["build"][
+        "executable_sha256"
+    ]:
+        raise PreparationError("acceptance executable digest differs")
+    if acceptance["executable_identity_sha256"] != normalized_executable_identity(
+        manifest
+    ):
+        raise PreparationError("acceptance executable identity differs")
+    return acceptance
+
+
+def write_rejection_record(
+    bundle_root: Path,
+    rejection_reason: str,
+    exit_status: int,
+) -> dict[str, object]:
+    """Publish one closed non-accepting diagnostic record without replacement."""
+    if rejection_reason not in _REJECTION_REASONS:
+        raise PreparationError("rejection reason is outside the closed set")
+    if (
+        not isinstance(exit_status, int)
+        or isinstance(exit_status, bool)
+        or not 1 <= exit_status <= 255
+    ):
+        raise PreparationError("rejection exit status is invalid")
+    try:
+        resolved_root = bundle_root.resolve(strict=True)
+    except OSError as error:
+        raise PreparationError("rejection root is unavailable") from error
+    if bundle_root.is_symlink() or not resolved_root.is_dir():
+        raise PreparationError("rejection root is invalid")
+    if os.path.lexists(resolved_root / "acceptance.json"):
+        raise PreparationError("accepted bundle cannot be rejected")
+    record = {
+        "manifest_version": "xoas.target0-qualification-tool-rejection.v1",
+        "performance_claim": False,
+        "status": "rejected",
+        "rejection_reason": rejection_reason,
+        "exit_status": exit_status,
+    }
+    _write_new_json(resolved_root / "rejection.json", record)
+    return record
 
 
 def create_staging_root(
@@ -1277,3 +1878,199 @@ def create_staging_root(
     if output_directory.is_symlink() or not output_directory.is_dir():
         raise PreparationError("output directory has an unsafe file type")
     return output_directory
+
+
+def _load_json_object(path: Path, description: str) -> dict[str, object]:
+    """Load one required JSON object after its owning validator succeeds."""
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise PreparationError(f"{description} is unreadable") from error
+    if not isinstance(record, dict):
+        raise PreparationError(f"{description} is not an object")
+    return record
+
+
+def _source_records(repository_root: Path) -> list[dict[str, str]]:
+    """Hash the fixed repository inputs retained by the deployment manifest."""
+    records: list[dict[str, str]] = []
+    for relative_path in _RETAINED_SOURCE_PATHS:
+        path = repository_root / relative_path
+        if path.is_symlink() or not path.is_file():
+            raise PreparationError("retained source input is unavailable")
+        records.append(
+            {
+                "path": relative_path,
+                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            }
+        )
+    return records
+
+
+def _commit_source_date_epoch(
+    repository_root: Path,
+    expected_commit: str,
+    command_runner: CommandRunner,
+) -> str:
+    """Return the reviewed commit timestamp as the reproducible build epoch."""
+    epoch = _require_success(
+        command_runner(
+            (
+                "/usr/bin/git",
+                "show",
+                "-s",
+                "--format=%ct",
+                expected_commit,
+            ),
+            repository_root,
+        ),
+        "repository commit-time inspection",
+    )
+    if re.fullmatch(r"[0-9]{1,20}", epoch) is None:
+        raise PreparationError("repository commit time is invalid")
+    return epoch
+
+
+def _utc_timestamp() -> str:
+    """Return one canonical UTC attempt timestamp."""
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def main(arguments: Sequence[str] | None = None) -> int:
+    """Prepare one native bundle without network, privilege, or measurement."""
+    options = parse_arguments(arguments)
+    staging_root: Path | None = None
+    rejection_reason = "unsafe_output_path"
+    try:
+        staging_root = create_staging_root(
+            options.output_directory,
+            allowed_root=Path("/var/tmp"),
+            repository_root=options.repository_root,
+            install_prefix=Path("/opt/xoas/target0-v1"),
+            home_directory=Path.home(),
+        )
+
+        rejection_reason = "repository_identity_mismatch"
+        repository = validate_repository(
+            options.repository_root,
+            options.expected_commit,
+            run_command,
+        )
+        repository_root = options.repository_root.resolve(strict=True)
+
+        rejection_reason = "toolchain_lock_invalid"
+        lock_schema_path = (
+            repository_root / "schemas/target0-toolchain-lock-v1.schema.json"
+        )
+        provisioning_lock = validate_toolchain_lock(
+            options.toolchain_lock,
+            lock_schema_path,
+        )
+        lock = _load_json_object(options.toolchain_lock, "toolchain lock")
+
+        rejection_reason = "target_identity_mismatch"
+        architecture = _require_success(
+            run_command(("/usr/bin/uname", "-m")),
+            "target architecture inspection",
+        )
+        validate_target_identity(
+            lock,
+            source_root=Path("/"),
+            architecture=architecture,
+        )
+
+        rejection_reason = "compiler_identity_mismatch"
+        compiler = validate_compiler(lock, run_command)
+        rejection_reason = "linker_identity_mismatch"
+        linker = validate_linker(lock, run_command)
+
+        sources = _source_records(repository_root)
+        source_date_epoch = _commit_source_date_epoch(
+            repository_root,
+            options.expected_commit,
+            run_command,
+        )
+        probe_source = repository_root / "tools/target0/qualification_probe.cpp"
+        probe_source_sha256 = next(
+            record["sha256"]
+            for record in sources
+            if record["path"] == "tools/target0/qualification_probe.cpp"
+        )
+
+        rejection_reason = "build_failed"
+        build = build_probe_twice(
+            probe_source,
+            probe_source_sha256,
+            staging_root,
+            source_date_epoch,
+            run_command,
+        )
+        accepted_probe = staging_root / str(build["accepted_executable"]["path"])
+
+        rejection_reason = "elf_identity_invalid"
+        inspection = inspect_elf_runtime(
+            accepted_probe,
+            staging_root,
+            lock,
+            run_command,
+        )
+
+        rejection_reason = "compatibility_test_failed"
+        compatibility_tests = run_compatibility_tests(
+            repository_root,
+            accepted_probe,
+            staging_root,
+            run_command,
+        )
+
+        manifest = {
+            "manifest_version": "xoas.target0-qualification-tool-bundle.v1",
+            "bundle_id": (
+                f"target0-qualification-tools-{options.expected_commit[:16]}"
+            ),
+            "created_at_utc": _utc_timestamp(),
+            "target_id": "target0-amd-ryzen9-7900x-v1",
+            "performance_claim": False,
+            "status": "passed",
+            "rejection_reasons": [],
+            "repository": repository,
+            "provisioning_lock": provisioning_lock,
+            "sources": sources,
+            "toolchain": {
+                "compiler": compiler,
+                "linker": linker,
+            },
+            "build": build,
+            "elf": inspection["elf"],
+            "runtime_dependencies": inspection["runtime_dependencies"],
+            "compatibility_tests": compatibility_tests,
+        }
+        rejection_reason = "bundle_schema_invalid"
+        acceptance = finalize_bundle(
+            staging_root,
+            manifest,
+            repository_root
+            / "schemas/target0-qualification-tool-bundle-v1.schema.json",
+        )
+    except PreparationError:
+        if staging_root is not None:
+            try:
+                write_rejection_record(staging_root, rejection_reason, 1)
+            except PreparationError:
+                pass
+        print("qualification bundle preparation failed", file=sys.stderr)
+        return 1
+    except Exception:
+        if staging_root is not None:
+            try:
+                write_rejection_record(staging_root, "unexpected_failure", 1)
+            except PreparationError:
+                pass
+        print("qualification bundle preparation failed", file=sys.stderr)
+        return 1
+    sys.stdout.buffer.write(canonical_json_bytes(acceptance))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

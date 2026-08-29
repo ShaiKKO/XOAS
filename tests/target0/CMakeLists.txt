@@ -67,10 +67,21 @@ add_test(
     --example
     "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/qualification-tool-bundle-v1.example.json"
     -k PrepareQualificationBundleInspectionTest)
+add_test(
+  NAME target0-qualification-bundle-finalization
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/prepare_qualification_bundle_test.py"
+    --schema
+    "${PROJECT_SOURCE_DIR}/schemas/target0-qualification-tool-bundle-v1.schema.json"
+    --example
+    "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/qualification-tool-bundle-v1.example.json"
+    -k PrepareQualificationBundleFinalizationTest)
 set_tests_properties(
   target0-host-tools-capture
   target0-host-tools-session
   target0-qualification-bundle-build
+  target0-qualification-bundle-finalization
   target0-qualification-bundle-inspection
   target0-qualification-bundle-preflight
   target0-qualification-bundle-schema

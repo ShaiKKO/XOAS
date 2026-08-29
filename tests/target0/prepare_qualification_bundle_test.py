@@ -25,6 +25,7 @@ from jsonschema import Draft202012Validator
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 MODULE_PATH = REPOSITORY_ROOT / "tools/target0/prepare_qualification_bundle.py"
+VERIFIER_PATH = REPOSITORY_ROOT / "tools/target0/verify_qualification_bundle.py"
 TARGET_LOCK_PATH = (
     REPOSITORY_ROOT / "toolchains/target0-amd-ryzen9-7900x-v1.lock.json"
 )
@@ -179,6 +180,35 @@ class ScriptedCommandRunner:
         if command not in self.responses:
             raise AssertionError(f"unexpected command classification: {command[0]}")
         return self.responses[command]
+
+
+class CacheWritingCommandRunner(ScriptedCommandRunner):
+    """Simulate Python's absolute-source mirror below its private cache."""
+
+    def __call__(
+        self,
+        command: tuple[str, ...],
+        working_directory: Path | None = None,
+        *,
+        environment: dict[str, str] | None = None,
+        timeout: int = 30,
+    ) -> SimpleNamespace:
+        """Create one mirrored cache file before returning scripted output."""
+        if command[:3] == ("/usr/bin/python3", "-m", "py_compile"):
+            if environment is None:
+                raise AssertionError("py_compile environment is missing")
+            cache_file = (
+                Path(environment["PYTHONPYCACHEPREFIX"])
+                / "home/operator/XOAS/tools/target0/probe.pyc"
+            )
+            cache_file.parent.mkdir(parents=True)
+            cache_file.write_bytes(b"transient bytecode")
+        return super().__call__(
+            command,
+            working_directory,
+            environment=environment,
+            timeout=timeout,
+        )
 
 
 class CompilerCommandRunner:
@@ -1431,7 +1461,7 @@ class PrepareQualificationBundleInspectionTest(unittest.TestCase):
                 command: command_result(stdout=f"{name} passed\n")
                 for name, command in commands
             }
-            runner = ScriptedCommandRunner(responses)
+            runner = CacheWritingCommandRunner(responses)
 
             records = orchestrator(
                 REPOSITORY_ROOT,
@@ -1469,6 +1499,8 @@ class PrepareQualificationBundleInspectionTest(unittest.TestCase):
                 self.assertEqual(environment["HOME"], "/nonexistent")
                 self.assertNotIn("SSH_AUTH_SOCK", environment)
                 self.assertNotIn("CXXFLAGS", environment)
+            self.assertFalse((staging_root / "compatibility/python-cache").exists())
+            self.assertFalse((staging_root / "compatibility/tmp").exists())
 
     def test_each_failed_compatibility_command_rejects_after_logging(self) -> None:
         """No failed physical check may produce a compatibility acceptance set."""
@@ -1529,6 +1561,372 @@ class PrepareQualificationBundleInspectionTest(unittest.TestCase):
             invalid_schema.write_text('{"type": 7}\n', encoding="utf-8")
             with self.assertRaises(self.module.PreparationError):
                 validator(invalid_schema, {})
+
+
+class PrepareQualificationBundleFinalizationTest(unittest.TestCase):
+    """Verify write-once inventory, acceptance, and independent replay."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Load production finalization behavior and the bundle fixture."""
+        cls.module = load_preparation_module()
+        cls.example = json.loads(ARGUMENTS.example.read_text(encoding="utf-8"))
+
+    def make_unfinalized_bundle(self, bundle_root: Path) -> dict[str, object]:
+        """Materialize every retained file referenced by a passed manifest."""
+        manifest = copy.deepcopy(self.example)
+        executable_bytes = b"synthetic accepted ELF\n"
+        executable_digest = hashlib.sha256(executable_bytes).hexdigest()
+        for executable in [
+            *manifest["build"]["builds"],
+            manifest["build"]["accepted_executable"],
+        ]:
+            path = bundle_root / executable["path"]
+            path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            path.write_bytes(executable_bytes)
+            path.chmod(0o700)
+            executable["sha256"] = executable_digest
+            executable["size_bytes"] = len(executable_bytes)
+        manifest["build"]["executable_sha256"] = executable_digest
+        manifest["build"]["identical"] = True
+
+        inspection_directory = bundle_root / "inspection"
+        inspection_directory.mkdir(mode=0o700, exist_ok=True)
+        for log in manifest["elf"]["inspection_logs"]:
+            status = {
+                "command": ["/usr/bin/readelf", "-h"],
+                "exit_status": 0,
+                "name": log["name"],
+                "status": "passed",
+                "stderr_sha256": hashlib.sha256(b"").hexdigest(),
+                "stdout_sha256": hashlib.sha256(b"ELF fixture\n").hexdigest(),
+            }
+            status_path = inspection_directory / f"{log['name']}.json"
+            status_path.write_bytes(self.module.canonical_json_bytes(status))
+            status_path.chmod(0o600)
+            log["sha256"] = hashlib.sha256(status_path.read_bytes()).hexdigest()
+
+        compatibility_directory = bundle_root / "compatibility"
+        compatibility_directory.mkdir(mode=0o700, exist_ok=True)
+        for record in manifest["compatibility_tests"]:
+            stdout_bytes = b"compatibility passed\n"
+            stderr_bytes = b""
+            record["stdout_sha256"] = hashlib.sha256(stdout_bytes).hexdigest()
+            record["stderr_sha256"] = hashlib.sha256(stderr_bytes).hexdigest()
+            stdout_path = compatibility_directory / f"{record['name']}.stdout.log"
+            stderr_path = compatibility_directory / f"{record['name']}.stderr.log"
+            status_path = compatibility_directory / f"{record['name']}.json"
+            stdout_path.write_bytes(stdout_bytes)
+            stderr_path.write_bytes(stderr_bytes)
+            status_path.write_bytes(self.module.canonical_json_bytes(record))
+            for path in (stdout_path, stderr_path, status_path):
+                path.chmod(0o600)
+        return manifest
+
+    def finalize_fixture(
+        self,
+        bundle_root: Path,
+    ) -> tuple[dict[str, object], dict[str, object]]:
+        """Create one accepted synthetic bundle and return its closed records."""
+        manifest = self.make_unfinalized_bundle(bundle_root)
+        acceptance = self.module.finalize_bundle(
+            bundle_root,
+            manifest,
+            ARGUMENTS.schema,
+        )
+        return manifest, acceptance
+
+    def test_inventory_and_acceptance_authenticate_exact_canonical_bytes(self) -> None:
+        """Acceptance must bind sorted file bytes without recursive hashes."""
+        inventory_builder = getattr(self.module, "build_inventory", None)
+        inventory_validator = getattr(self.module, "validate_inventory", None)
+        finalizer = getattr(self.module, "finalize_bundle", None)
+        identity_builder = getattr(
+            self.module,
+            "normalized_executable_identity",
+            None,
+        )
+        for function, description in (
+            (inventory_builder, "inventory builder"),
+            (inventory_validator, "inventory validator"),
+            (finalizer, "bundle finalizer"),
+            (identity_builder, "executable identity builder"),
+        ):
+            self.assertTrue(callable(function), f"{description} is missing")
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            bundle_root = Path(temporary_directory)
+            manifest = self.make_unfinalized_bundle(bundle_root)
+            copied_manifest = copy.deepcopy(manifest)
+            self.assertEqual(
+                self.module.canonical_json_bytes(manifest),
+                self.module.canonical_json_bytes(copied_manifest),
+            )
+            acceptance = finalizer(bundle_root, manifest, ARGUMENTS.schema)
+            inventory = json.loads(
+                (bundle_root / "inventory.json").read_text(encoding="utf-8")
+            )
+
+            paths = [item["path"] for item in inventory["files"]]
+            self.assertEqual(paths, sorted(paths, key=lambda path: path.encode()))
+            self.assertEqual(len(paths), len(set(paths)))
+            self.assertNotIn("inventory.json", paths)
+            self.assertNotIn("acceptance.json", paths)
+            for item in inventory["files"]:
+                path = bundle_root / item["path"]
+                self.assertFalse(path.is_symlink())
+                self.assertTrue(path.is_file())
+                self.assertEqual(item["size_bytes"], path.stat().st_size)
+                self.assertEqual(
+                    item["sha256"],
+                    hashlib.sha256(path.read_bytes()).hexdigest(),
+                )
+            inventory_validator(bundle_root, inventory)
+            inventory_bytes = (bundle_root / "inventory.json").read_bytes()
+            manifest_bytes = (bundle_root / "bundle.json").read_bytes()
+            self.assertEqual(
+                acceptance["inventory_sha256"],
+                hashlib.sha256(inventory_bytes).hexdigest(),
+            )
+            self.assertEqual(
+                acceptance["bundle_manifest_sha256"],
+                hashlib.sha256(manifest_bytes).hexdigest(),
+            )
+            changed_metadata = copy.deepcopy(manifest)
+            changed_metadata["created_at_utc"] = "2026-08-30T00:00:00Z"
+            changed_metadata["bundle_id"] = "different-attempt-metadata"
+            self.assertEqual(
+                identity_builder(manifest),
+                identity_builder(changed_metadata),
+            )
+            retained_text = "\n".join(
+                path.read_text(encoding="utf-8", errors="ignore")
+                for path in bundle_root.rglob("*")
+                if path.is_file()
+            )
+            for forbidden in (
+                "80.158.7.144",
+                "wineth",
+                "/Users/",
+                "/home/",
+                "PRIVATE KEY",
+            ):
+                self.assertNotIn(forbidden, retained_text)
+
+    def test_finalizer_rejects_false_equality_and_existing_publication(self) -> None:
+        """Claims cannot override bytes and an accepted root is write-once."""
+        finalizer = getattr(self.module, "finalize_bundle", None)
+        self.assertTrue(callable(finalizer), "bundle finalizer is missing")
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            bundle_root = Path(temporary_directory)
+            manifest = self.make_unfinalized_bundle(bundle_root)
+            manifest["build"]["builds"][1]["sha256"] = "0" * 64
+            with self.assertRaises(self.module.PreparationError):
+                finalizer(bundle_root, manifest, ARGUMENTS.schema)
+
+    def test_finalizer_rejects_cross_record_semantic_contradictions(self) -> None:
+        """Schema-valid failed checks and incomplete provenance must still reject."""
+        finalizer = getattr(self.module, "finalize_bundle", None)
+        self.assertTrue(callable(finalizer), "bundle finalizer is missing")
+        for mutation in (
+            "failed-compatibility",
+            "failed-inspection",
+            "missing-runtime",
+            "duplicate-source",
+        ):
+            with self.subTest(mutation=mutation):
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    bundle_root = Path(temporary_directory)
+                    manifest = self.make_unfinalized_bundle(bundle_root)
+                    if mutation == "failed-compatibility":
+                        record = manifest["compatibility_tests"][0]
+                        record["status"] = "failed"
+                        record["exit_status"] = 1
+                        status_path = (
+                            bundle_root
+                            / f"compatibility/{record['name']}.json"
+                        )
+                        status_path.write_bytes(
+                            self.module.canonical_json_bytes(record)
+                        )
+                    elif mutation == "failed-inspection":
+                        log = manifest["elf"]["inspection_logs"][0]
+                        status_path = bundle_root / f"inspection/{log['name']}.json"
+                        status = json.loads(
+                            status_path.read_text(encoding="utf-8")
+                        )
+                        status["status"] = "failed"
+                        status["exit_status"] = 1
+                        status_path.write_bytes(
+                            self.module.canonical_json_bytes(status)
+                        )
+                        log["sha256"] = hashlib.sha256(
+                            status_path.read_bytes()
+                        ).hexdigest()
+                    elif mutation == "missing-runtime":
+                        manifest["runtime_dependencies"].pop()
+                    elif mutation == "duplicate-source":
+                        manifest["sources"][1]["path"] = manifest["sources"][0][
+                            "path"
+                        ]
+                    with self.assertRaises(self.module.PreparationError):
+                        finalizer(bundle_root, manifest, ARGUMENTS.schema)
+                    self.assertFalse((bundle_root / "acceptance.json").exists())
+            self.assertFalse((bundle_root / "acceptance.json").exists())
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            bundle_root = Path(temporary_directory)
+            manifest, _ = self.finalize_fixture(bundle_root)
+            with self.assertRaises(self.module.PreparationError):
+                finalizer(bundle_root, manifest, ARGUMENTS.schema)
+
+    def mutate_finalized_bundle(self, bundle_root: Path, mutation: str) -> None:
+        """Apply one controlled post-acceptance corruption."""
+        if mutation == "changed":
+            (bundle_root / "bin/xoas-target0-qualification-probe").write_bytes(
+                b"changed ELF\n"
+            )
+        elif mutation == "missing":
+            (bundle_root / "inspection/readelf-header.json").unlink()
+        elif mutation == "extra":
+            (bundle_root / "unlisted.txt").write_text("extra\n", encoding="utf-8")
+        elif mutation == "unsafe":
+            (bundle_root / "unsafe-link").symlink_to(
+                bundle_root / "bin/xoas-target0-qualification-probe"
+            )
+        elif mutation == "acceptance":
+            acceptance_path = bundle_root / "acceptance.json"
+            acceptance = json.loads(acceptance_path.read_text(encoding="utf-8"))
+            acceptance["inventory_sha256"] = "0" * 64
+            acceptance_path.write_bytes(
+                self.module.canonical_json_bytes(acceptance)
+            )
+        else:
+            raise AssertionError(f"unknown mutation: {mutation}")
+
+    def test_independent_validation_rejects_every_bundle_mutation(self) -> None:
+        """Revalidation must distrust all retained file and acceptance hashes."""
+        verifier = getattr(self.module, "verify_finalized_bundle", None)
+        self.assertTrue(callable(verifier), "independent verifier is missing")
+        for mutation in ("changed", "missing", "extra", "unsafe", "acceptance"):
+            with self.subTest(mutation=mutation):
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    bundle_root = Path(temporary_directory)
+                    self.finalize_fixture(bundle_root)
+                    self.mutate_finalized_bundle(bundle_root, mutation)
+                    with self.assertRaises(self.module.PreparationError):
+                        verifier(bundle_root, ARGUMENTS.schema)
+
+    def test_fresh_process_verifier_accepts_only_unchanged_bundle(self) -> None:
+        """Replica validation must start fresh and recompute every retained byte."""
+        self.assertTrue(VERIFIER_PATH.is_file(), "fresh-process verifier is missing")
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            bundle_root = Path(temporary_directory)
+            _, acceptance = self.finalize_fixture(bundle_root)
+            completed = subprocess.run(
+                (
+                    "/usr/bin/python3",
+                    VERIFIER_PATH,
+                    "--bundle-directory",
+                    bundle_root,
+                    "--schema",
+                    ARGUMENTS.schema,
+                ),
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertEqual(json.loads(completed.stdout), acceptance)
+
+        for mutation in ("changed", "missing", "extra", "unsafe", "acceptance"):
+            with self.subTest(mutation=mutation):
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    bundle_root = Path(temporary_directory)
+                    self.finalize_fixture(bundle_root)
+                    self.mutate_finalized_bundle(bundle_root, mutation)
+                    completed = subprocess.run(
+                        (
+                            "/usr/bin/python3",
+                            VERIFIER_PATH,
+                            "--bundle-directory",
+                            bundle_root,
+                            "--schema",
+                            ARGUMENTS.schema,
+                        ),
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                    )
+                    self.assertNotEqual(completed.returncode, 0)
+
+    def test_rejection_record_is_closed_nonzero_and_never_accepted(self) -> None:
+        """A rejected attempt must retain one reason without acceptance."""
+        rejection_writer = getattr(self.module, "write_rejection_record", None)
+        self.assertTrue(callable(rejection_writer), "rejection writer is missing")
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            bundle_root = Path(temporary_directory)
+            record = rejection_writer(
+                bundle_root,
+                "repository_identity_mismatch",
+                1,
+            )
+            self.assertEqual(
+                record,
+                {
+                    "manifest_version": (
+                        "xoas.target0-qualification-tool-rejection.v1"
+                    ),
+                    "performance_claim": False,
+                    "status": "rejected",
+                    "rejection_reason": "repository_identity_mismatch",
+                    "exit_status": 1,
+                },
+            )
+            self.assertFalse((bundle_root / "acceptance.json").exists())
+            with self.assertRaises(self.module.PreparationError):
+                rejection_writer(
+                    bundle_root,
+                    "repository_identity_mismatch",
+                    1,
+                )
+
+    def test_cli_failure_returns_nonzero_and_publishes_no_acceptance(self) -> None:
+        """The preparation CLI must convert a failed stage into closed evidence."""
+        main = getattr(self.module, "main", None)
+        self.assertTrue(callable(main), "preparation CLI main is missing")
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            bundle_root = Path(temporary_directory)
+            arguments = (
+                "--repository-root",
+                str(REPOSITORY_ROOT),
+                "--expected-commit",
+                "1" * 40,
+                "--toolchain-lock",
+                str(TARGET_LOCK_PATH),
+                "--output-directory",
+                "/var/tmp/xoas-target0-qualification-tools.fixture",
+            )
+            with mock.patch.object(
+                self.module,
+                "create_staging_root",
+                return_value=bundle_root,
+            ), mock.patch.object(
+                self.module,
+                "validate_repository",
+                side_effect=self.module.PreparationError("controlled failure"),
+            ), contextlib.redirect_stderr(io.StringIO()):
+                status = main(arguments)
+
+            self.assertEqual(status, 1)
+            rejection = json.loads(
+                (bundle_root / "rejection.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                rejection["rejection_reason"],
+                "repository_identity_mismatch",
+            )
+            self.assertFalse((bundle_root / "acceptance.json").exists())
 
 
 ARGUMENTS = parse_arguments()
