@@ -2383,7 +2383,7 @@
     }
   },
   "provisioning": {
-    "state": "resolved_not_installed",
+    "state": "installed_verified",
     "toolchain_lock": "toolchains/target0-amd-ryzen9-7900x-v1.lock.json",
     "install_prefix": "/opt/xoas/target0-v1",
     "install_prefix_collision_absent": true,
@@ -2391,12 +2391,21 @@
     "package_holds_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "package_prestate_count": 1502,
     "package_prestate_sha256": "c84618dd993eb7daf56218d4e0b631385cab4409814f8e576498bac33e387c09",
-    "apt_install_simulation_sha256": "1fdb67a6407584d214e7e571f22752b686bfd738f9e6e39a6f93f661251d29bf"
+    "apt_install_simulation_sha256": "1fdb67a6407584d214e7e571f22752b686bfd738f9e6e39a6f93f661251d29bf",
+    "provisioning_subject": "16d698dd80cabee0a5b6b5046914edde4535464a",
+    "verified_at_utc": "2026-08-29T20:24:11Z",
+    "package_poststate_count": 1528,
+    "package_poststate_sha256": "160ebb0a03a71da3aabd3318c1f2bda7df96a3f7bfc53fbb758940dcd616ee07",
+    "installed_package_closure_count": 26,
+    "installed_file_count": 288,
+    "installed_file_manifest_sha256": "3dbfbc787ea6bb108e374da5d95c6adc3b8307bd419e0187eccfdcce3bc166ce",
+    "configuration_sha256": "810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3",
+    "external_evidence_bundle_sha256": "6cb7936cd8399158dfec83be898dced8319027c881260f05dfe6fb157b931dd4"
   },
   "baseline_state": {
-    "aocl_blas": "source_locked_not_installed",
-    "openblas": "source_locked_not_installed",
-    "libxsmm": "source_locked_not_installed",
+    "aocl_blas": "installed_verified_not_numerically_admitted",
+    "openblas": "installed_verified_not_numerically_admitted",
+    "libxsmm": "installed_verified_not_numerically_admitted",
     "one_mkl": "not_installed_pending_M2_applicability_review",
     "jitspmm": "source_identity_pinned_adapter_deferred_M2_license_missing"
   },
@@ -2418,18 +2427,18 @@
       },
       {
         "id": "support_package_installation",
-        "state": "pending",
-        "evidence": "Task 4 must install only the version-pinned simulated package request."
+        "state": "passed",
+        "evidence": "Exact 26-package closure installed with zero upgrades/removals and all dpkg file checks passed."
       },
       {
         "id": "source_baseline_builds",
-        "state": "pending",
-        "evidence": "Task 4 must build and test AOCL-BLAS, OpenBLAS, and LIBXSMM below the versioned prefix."
+        "state": "passed",
+        "evidence": "AOCL-BLAS, OpenBLAS, and corrected-prefix LIBXSMM upstream suites and deterministic smoke probes passed."
       },
       {
         "id": "baseline_artifact_hashes",
-        "state": "pending",
-        "evidence": "Task 4 must retain installed-file, compiler, dependency, symbol, and loader identities."
+        "state": "passed",
+        "evidence": "All 288 installed regular files, 11 symlinks, compiler identities, symbols, loader traces, and pkg-config prefixes were retained and indexed."
       },
       {
         "id": "baseline_numerical_admission",
@@ -2459,7 +2468,7 @@
       {
         "id": "separate_reboot_approval",
         "state": "pending",
-        "evidence": "The user must separately approve the exact reboot action."
+        "evidence": "The mid-provisioning administrative reboot was not a controlled campaign and does not satisfy the separate-reboot approval gate."
       },
       {
         "id": "campaign_two",

@@ -510,6 +510,7 @@
           "enum": [
             "identity_only",
             "resolved_not_installed",
+            "installed_verified",
             "source_identity_pinned_adapter_deferred_M2"
           ]
         },

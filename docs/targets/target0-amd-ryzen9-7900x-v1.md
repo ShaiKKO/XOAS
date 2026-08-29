@@ -6,6 +6,8 @@
 
 **Task 3 implementation:** `ee57ff5e4af01fecb11fffd985e376d636560434`
 
+**Task 4 provisioning subject:** `16d698dd80cabee0a5b6b5046914edde4535464a`
+
 **Controlling plan:**
 [`2026-08-29-amd-target0-host-qualification.md`](../superpowers/plans/2026-08-29-amd-target0-host-qualification.md)
 
@@ -14,14 +16,15 @@
 This physical x86-64 Linux machine is the designated Target 0 measurement
 candidate. It is not yet a measurement authority. The candidate manifest is
 [`target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json),
-and the only authorized Task 4 provisioning input is
+and the installed provisioning record is
 [`target0-amd-ryzen9-7900x-v1.lock.json`](../../toolchains/target0-amd-ryzen9-7900x-v1.lock.json).
 
-The lock is `resolved_not_installed`. No support package or baseline library
-was installed, no CPU control was changed, and no reboot occurred during Task
-3. APT metadata was refreshed once as the approved version-resolution step.
-The checkout created for qualification remained clean at protected planning
-commit `60c4eeb2ae91c728486079f170dc7a553699657f`.
+Task 4 installed and verified the exact support-package closure and the
+AOCL-BLAS, OpenBLAS, and LIBXSMM source builds below
+`/opt/xoas/target0-v1`. That closes baseline-stack provisioning only. It does
+not provide independent numerical admission, a controlled measurement
+session, noise characterization, a benchmark campaign, or any performance
+claim. `target0_measurement_qualified` therefore remains false.
 
 ## Verified host boundary
 
@@ -37,7 +40,7 @@ The closed read-only capture at `2026-08-29T18:01:12Z` established:
 - `amd-pstate-epp`, per-CPU preferred-core ranking, governor/EPP controls,
   boost state, `k10temp`, cache topology, interrupt counters, and load capture;
 - non-interactive privileged command availability; and
-- an absent `/opt/xoas/target0-v1` prefix.
+- an absent `/opt/xoas/target0-v1` prefix before provisioning.
 
 The closed capture SHA-256 is
 `019376b74df12d12129dca2618d215dfcd32ad51cdb0ca06b51b19d0977c0106`.
@@ -47,65 +50,96 @@ Its producer is `capture_host.py` at fix commit
 Access aliases, login identity, credentials, network coordinates, home paths,
 and full command-line or environment data are not retained.
 
-## Package pre-state and support-package resolution
+## Support-package installation
 
-The sorted pre-state contains 1,502 exact `name<TAB>version` entries and no
-package holds. The complete array is retained in the lock.
+The pre-state contained 1,502 sorted package entries and no holds. The exact
+nine-package request installed the simulated 26-package closure with zero
+upgrades and zero removals. All 26 closure packages passed `dpkg -V`; the
+post-state contains 1,528 package entries and no holds.
 
 | Evidence | SHA-256 |
 |---|---|
-| Package holds | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
-| Installed-package pre-state | `c84618dd993eb7daf56218d4e0b631385cab4409814f8e576498bac33e387c09` |
-| APT refresh log | `ca45e03f46ead81d71455af2de5bf8150875c8c0fcd9247211cc15ab7b121d46` |
+| Package pre-state | `c84618dd993eb7daf56218d4e0b631385cab4409814f8e576498bac33e387c09` |
 | Exact install simulation | `1fdb67a6407584d214e7e571f22752b686bfd738f9e6e39a6f93f661251d29bf` |
+| Redacted APT install history | `e922840e5e69cc23de0589bec9eb9808c9aa76ffb543e87b2aa2584c1d7e4bc0` |
+| Installed dpkg closure log | `bdcd9061011b95c4ce4d389e7d313bd094cdb4a822b0b214d96a4f0461be1cb3` |
+| Package post-state | `160ebb0a03a71da3aabd3318c1f2bda7df96a3f7bfc53fbb758940dcd616ee07` |
+| Package holds | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 
-The version-pinned simulation resolved 26 new dependency packages, zero
-upgrades, and zero removals.
+The installation added GNU Fortran 15.2.0, Doxygen 1.15.0, Graphviz 14.1.2,
+ShellCheck 0.11.0, hwloc 2.13.0, lm-sensors 3.6.2, and the locked development
+headers. GCC, G++, Clang, CMake, and Ninja executable hashes remained
+unchanged. Package-managed `f77` and `f95` alternatives were added by the
+GNU Fortran package; no compiler default alternative was changed manually.
 
-| Requested package | Candidate | Pre-state |
-|---|---|---|
-| `build-essential` | `12.12ubuntu2.26.04.2` | installed at candidate |
-| `gfortran` | `4:15.2.0-5ubuntu1` | absent |
-| `doxygen` | `1.15.0+ds1-1ubuntu3` | absent |
-| `graphviz` | `14.1.2-1ubuntu1` | absent |
-| `shellcheck` | `0.11.0-2` | absent |
-| `hwloc` | `2.13.0-2` | absent |
-| `lm-sensors` | `1:3.6.2-2build1` | absent |
-| `libnuma-dev` | `2.0.19-1build1` | absent |
-| `pkg-config` | `2.5.1-4` | installed at candidate |
+## Verified baseline installations
 
-Task 4 must stop if any candidate, origin, pre-state digest, host fact,
-checkout identity, or prefix-collision result changes.
+Each source matched its locked commit, archive digest, and license identity
+before build. The complete lock records all build commands and all 288 regular
+installed-file hashes. Eleven installed symlinks were separately indexed.
 
-## Existing build and measurement tools
+| Baseline | Installed artifact | SHA-256 | Verification result |
+|---|---|---|---|
+| AOCL-BLAS 5.3.2 | `aocl-blas-5.3.2/lib/libblis.so.5.3.2` | `0670e0fcb11ddfd39304761aae957f78d1ed48c9bde0ea3dc8254febf2ce1381` | BLIS and BLAS suites passed; SGEMM checksum 415; Zen 4 dispatch; one effective thread |
+| OpenBLAS 0.3.34 | `openblas-0.3.34/lib/libopenblas.so.0.3` | `8a2ab96cad5195422d4880eb42afcfb57d06a036a9178c3ea5b8bc3de06297c8` | 120/120 CTest cases passed; SGEMM checksum 415; one effective thread |
+| LIBXSMM 2.1.0 | `libxsmm-2.1.0/lib/libxsmm.so.2.1.0` | `63e8fd17a5d5a759f5ee2058cf209e855aceff2857b14fbaa608bfdb95a92625` | full upstream suite passed; checksum 415; `cpx` JIT target; generated code; no worker thread |
 
-The lock records resolved paths, version lines, and executable hashes for all
-19 required tool probes. The important pre-existing versions are GCC/G++
-15.2.0, Clang/Clang++ 21.1.8, CMake 4.2.3, Ninja 1.13.2, Python 3.14.4,
-Git 2.53.0, and perf 7.0.12. `taskset`, `numactl`, and `cpupower` are present.
-The support-package simulation supplies the currently absent `gfortran`,
-Doxygen, Graphviz, ShellCheck, hwloc, and lm-sensors executables.
+AOCL-BLAS reported `zen4` dispatch and Genoa model classification. Its smoke
+probe required GNU C17 plus a narrow `-Wno-unused-function` exception for an
+upstream public-header static-inline warning; the exception was not applied to
+XOAS source.
 
-## Frozen upstream identities
+OpenBLAS reported runtime core name `Cooperlake`. This is the pinned upstream
+source's feature-class selection for Zen 3/4 CPUs exposing AVX-512 BF16, not a
+host-identity claim. The physical host identity remains the closed AMD capture.
 
-Each source tree was cloned into temporary storage, checked out detached,
-matched against its approved remote tag or commit, archived with `git archive
---format=tar`, and left uninstalled.
+The original LIBXSMM test invocation omitted `PREFIX`, causing generated
+pkg-config metadata to reference its temporary source tree. The user approved
+adding `PREFIX=/opt/xoas/target0-v1/libxsmm-2.1.0` to the build/test command.
+A clean rebuild passed the upstream suite and installed metadata contains no
+temporary path. The rejected test/install logs remain retained as failed
+evidence rather than being discarded.
 
-| Source | Tag | Commit | Archive SHA-256 | License identity | State |
-|---|---|---|---|---|---|
-| AOCL integration | `AOCL-5.3.2-Submodules` | `2fab7ee97dfce6ebc3cb0522c254a3653429f472` | `7d85cd7641a87c81e2821242f91689860862c80d90069f01c53f575697a902ee` | `LICENSE.txt` / `a7632f4bfa66fdc35b03ce37199dd64cfae5d9a8d190decf4f67d45e4968f87d` | identity only |
-| AOCL-BLAS | `5.3.2` | `25cad99a6840855ade0a49871197f48ee0e1d317` | `b4237e5c45999ad738215729b50b20cdcc0e0d687d28d4d5338d5765cf582c8c` | `LICENSE` / `0a09d682aa885b092af218ef73e12a65d9db0f237131fdcd628b762a64586ea4` | resolved, not installed |
-| OpenBLAS | `v0.3.34` | `e0166008be8e466242aa76b2ff75ce3f0fbf574a` | `b128a9c596d2f329b5c8aa4700ade6805f845fa40e4593c7537ea25b9f7ab15e` | `LICENSE` / `190b5a9c8d9723fe958ad33916bd7346d96fab3c5ea90832bb02d854f620fcff` | resolved, not installed |
-| LIBXSMM | `2.1.0` | `7944bf36cf847c846b3fa0eb194789295e00b624` | `704e32a7a479d3ef8f186d633e46296bfe46b4edd6735e0a04eb531ec7986fc4` | `LICENSE.md` / `e60bc806cb48bb16fe29f5b03f5e33384f13063aa1c217dad62d983e318fba46` | resolved, not installed |
-| JITSpMM inspection | none | `85b502a4c6603ecdeabb641b3c45b24a61117a4a` | `124fa52dceecf6961409cb5db74117d0aef42b4251cd918f059b1c3f23485a3f` | missing at pinned revision | adapter and use deferred to M2 |
+Explicit include, library, and RPATH probes loaded only the intended versioned
+libraries. `LD_DEBUG=libs` showed no AOCL-BLAS/OpenBLAS cross-load. All three
+pkg-config records resolve below the versioned prefix. No numerical-baseline
+adapter has yet been compared with the independent oracle; that remains M2.
+
+## Evidence identity and interruption boundary
+
+The canonical lock configuration digest is
+`810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3`.
+It is computed over canonical compact JSON with recursively sorted keys and
+the `configuration_sha256` field omitted. The external Task 4 evidence bundle
+is retained pending the repository artifact-store policy with SHA-256
+`6cb7936cd8399158dfec83be898dced8319027c881260f05dfe6fb157b931dd4`.
+The bundle is not committed as an ungoverned binary artifact.
+
+An administrator-initiated reboot interrupted provisioning after the support
+packages and source prefix had been installed. The boot-identity digest changed
+from `3bba7d5411d8d3d1bb89570516512aaa0e038e74eb67c76aa42ab334654141b9`
+to `e30d0884ab780b4d7fc18787fc7f4bf55132119a9762d34f0ef489211c2b3dea`.
+Volatile temporary logs were lost; package-manager history and persistent
+source/build evidence were recovered, rechecked, and re-indexed. This event was
+not executed by the qualification session controller, was not an approved
+campaign boundary, and does not satisfy either campaign or reboot gate.
+
+The physical host has Python 3.14.4 while XOAS configuration pins Python
+3.12.3 exactly. The full repository CMake quality suite therefore stops during
+configuration on this host. A direct repository-policy diagnostic additionally
+found that host ShellCheck 0.11 reports SC2329 for functions invoked indirectly
+by the existing measurement-session traps, while the pinned development lane is
+green. These are open qualification-tool deployment gaps, not product evidence
+and not reasons to weaken the repository toolchain lock or suppress the rule
+broadly.
+
+## Deferred comparator boundaries
 
 The pinned JITSpMM tree contains no license or copyright statement. XOAS does
-not infer permission, does not build or use that source, and does not remove
-JITSpMM from the admitted comparator set. M2 must resolve the license and
-adapter boundary before use.
+not infer permission and does not build or use that source. Its adapter and use
+remain deferred to M2 pending license resolution.
 
-Intel oneMKL is recorded as
+Intel oneMKL remains
 `not_installed_pending_M2_applicability_review`. That state does not assert
 inapplicability and does not remove oneMKL from the admitted policy.
 
@@ -113,24 +147,23 @@ inapplicability and does not remove oneMKL from the admitted policy.
 
 The candidate remains unqualified until all applicable gates close:
 
-1. install the exact support package request and verify its dependency closure;
-2. build, test, install, and hash AOCL-BLAS, OpenBLAS, and LIBXSMM below the
-   versioned prefix;
-3. prove explicit loader coexistence, target dispatch, and one effective
-   execution thread;
-4. pass independent numerical admission for every baseline adapter;
-5. prove the real physical-host measurement session restores exact state;
-6. pass non-claiming smoke, PMU, and noise characterization;
-7. complete campaign one;
-8. obtain separate approval for the exact reboot action;
-9. complete campaign two under a distinct boot identity;
-10. reconcile both campaigns and complete the accepted review model.
+1. pass independent numerical admission for every applicable baseline adapter;
+2. resolve deployment of the qualification tools without changing the locked
+   development-toolchain contract silently;
+3. prove the real physical-host measurement session restores exact state;
+4. pass non-claiming smoke, PMU, and noise characterization;
+5. complete campaign one;
+6. obtain separate approval for the exact controlled reboot action;
+7. complete campaign two under a distinct controlled boot identity;
+8. reconcile both campaigns and complete the accepted review model.
 
 No final compatibility digest is computed here. M1 owns the versioned
 canonical binary identity.
 
 ## Rollback boundary
 
-The only planned source-built installation root is `/opt/xoas/target0-v1`.
-Rollback quarantines that complete prefix to a timestamped sibling path.
-Package removal is prohibited without a separate administrator review.
+The verified installation remains active at `/opt/xoas/target0-v1`. Rollback
+was not executed, so no actual quarantine path exists. If a later reviewed
+rollback is authorized, it quarantines the complete prefix to the timestamped
+sibling path recorded in the lock. Package removal remains prohibited without
+a separate administrator review.

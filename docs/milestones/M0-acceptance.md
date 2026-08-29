@@ -40,7 +40,7 @@ any existing applicable comparator.
 | Product charter and non-goals | [`../architecture/000-charter.md`](../architecture/000-charter.md) | Implemented and committed at `60044e8` |
 | Lock Target 0 | Charter; target decision [`../architecture/proposals/AR-0001-target-0-host-qualification.md`](../architecture/proposals/AR-0001-target-0-host-qualification.md) | Option 2 integrated at `6904d49`; physical AMD replacement candidate designated but not qualified |
 | Required prior-art comparison | [`../experiments/prior-art-matrix.md`](../experiments/prior-art-matrix.md) | Implemented and committed at `30616bc` |
-| Baseline selection | [`../experiments/baseline-matrix.md`](../experiments/baseline-matrix.md) and [`../../toolchains/target0-amd-ryzen9-7900x-v1.lock.json`](../../toolchains/target0-amd-ryzen9-7900x-v1.lock.json) | Admission policy committed at `30616bc`; exact AOCL-BLAS, OpenBLAS, and LIBXSMM sources are locked but no baseline binary is installed |
+| Baseline selection | [`../experiments/baseline-matrix.md`](../experiments/baseline-matrix.md) and [`../../toolchains/target0-amd-ryzen9-7900x-v1.lock.json`](../../toolchains/target0-amd-ryzen9-7900x-v1.lock.json) | Admission policy committed at `30616bc`; exact AOCL-BLAS, OpenBLAS, and LIBXSMM source builds are installed and artifact-verified, but no baseline adapter is numerically admitted |
 | Benchmark protocol | [`../architecture/050-benchmark-protocol.md`](../architecture/050-benchmark-protocol.md) | Implemented and committed at `00afbf7`; no harness exists |
 | Result schema | [`../../schemas/benchmark-result-v1.schema.json`](../../schemas/benchmark-result-v1.schema.json) and non-claiming example | Draft-2020-12 meta-schema and example validation passed on `gpu-2`; the example remains synthetic and non-claiming |
 | Synthetic and application sources | [`../experiments/corpus-policy.md`](../experiments/corpus-policy.md) and three corpus manifests | Frozen and committed at `8a7032b`; M1 materialization not implemented |
@@ -49,13 +49,16 @@ any existing applicable comparator.
 | Architecture index and operating manual | [`../architecture/README.md`](../architecture/README.md) and root [`../../AGENTS.md`](../../AGENTS.md) | Integrated and verified at `3d635d3` |
 | Target qualification process contract | [`../../schemas/target0-host-qualification-v1.schema.json`](../../schemas/target0-host-qualification-v1.schema.json), [`../../tools/target0/qualification_probe.cpp`](../../tools/target0/qualification_probe.cpp), and behavioral tests | Task 1 implemented at `8a247a2`; this is non-claiming host-qualification tooling and does not qualify the AMD target |
 | Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented at `864f7fa` and repository-root integration repaired at `b7371ae`; no real measurement control was changed |
-| Physical candidate and provisioning lock | [`../targets/target0-amd-ryzen9-7900x-v1.md`](../targets/target0-amd-ryzen9-7900x-v1.md), [`../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json), and closed lock/schema | Task 3 resolved exact pre-state, packages, tools, sources, licenses, validation probes, and rollback at `ee57ff5`; no package or baseline was installed and the candidate remains unqualified |
+| Physical candidate and provisioning lock | [`../targets/target0-amd-ryzen9-7900x-v1.md`](../targets/target0-amd-ryzen9-7900x-v1.md), [`../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json), and closed lock/schema | Task 3 resolved exact pre-state at `ee57ff5`; Task 4 installed and verified the 26-package closure plus AOCL-BLAS, OpenBLAS, and LIBXSMM against clean subject `16d698d`; the candidate remains unqualified |
 
 ## Exit-gate statement
 
 XOAS v0 specializes exact stable support of a runtime-valued sparse `float32` left operand into single-threaded x86-64 Linux `C=A*B` code and empirically selects only a verified compatible lifecycle winner. EGGS is the closest reviewed match to the stable-pattern/dynamic-values input, SABLE v5 to per-matrix hybrid regional C generation, JITSpMM to exact SpMM instruction specialization, and FFTW3/TVM MetaSchedule to measured planning. XOAS's scoped distinction is the combined exact-support contribution program, explicit numerical-legality boundary, bounded arithmetic/schedule search, pre-timing correctness and compatibility gates, target-measured baseline competition, lifecycle accounting, replay/invalidation provenance, and fallback. The claim is falsified if the qualified-target frozen benchmarks fail the `2x` proof threshold or the `1.5x` product-class geometric mean plus `2x` application threshold under the locked confidence rules.
 
-The team can state the required paragraph, but the gate remains open because the reference machine and executable baseline availability are not locked.
+The team can state the required paragraph, but the gate remains open because
+the designated reference candidate has not passed controlled qualification
+campaigns or the accepted review gate. Executable baseline availability is now
+locked; numerical adapter admission remains later work.
 
 ## Verification performed
 
@@ -75,7 +78,7 @@ The team can state the required paragraph, but the gate remains open because the
 - On `gpu-2`, `jsonschema` 4.10.3 passed draft-2020-12 meta-schema validation and validated the synthetic benchmark-result example.
 - The development-toolchain schema and installed lock passed draft-2020-12 validation with format checks, stable configuration-digest verification, live package-closure checks, and live executable-hash checks.
 - The Target 0 process schema passed draft-2020-12 meta-validation and validated real build-tree probe records on `gpu-2`; closed-schema mutations rejected claim inflation, unknown fields, duplicate rounds, and missing samples.
-- The Target 0 toolchain-lock schema passed draft-2020-12 meta-validation and validated the complete 1,502-package resolved-not-installed lock on `gpu-2`.
+- The Target 0 toolchain-lock schema passed draft-2020-12 meta-validation and validated the installed lock. On the physical host, all 288 recorded installed-file hashes matched the live versioned prefix and the configuration digest recomputed exactly.
 
 ### Target qualification process checks
 
@@ -149,12 +152,22 @@ TSC, bare metal, exact cache/frequency/thermal facts, and working privileged
 cycles/instructions to clean planning commit `60c4eeb`. Capture SHA-256 is
 `019376b74df12d12129dca2618d215dfcd32ad51cdb0ca06b51b19d0977c0106`.
 
-APT metadata was refreshed without installing packages. The complete sorted
-1,502-package pre-state and zero holds are retained in the toolchain lock; the
-version-pinned nine-package simulation resolved 26 new dependencies, zero
-upgrades, and zero removals. Four build-source license files were hashed. The
-pinned JITSpMM revision contains no license statement, so its adapter/use is
-explicitly blocked and deferred to M2 without removing it from admission.
+The complete sorted 1,502-package pre-state and zero holds are retained in the
+toolchain lock. The version-pinned nine-package request installed its simulated
+26-package closure with zero upgrades/removals, and all closure file checks
+passed. AOCL-BLAS 5.3.2, OpenBLAS 0.3.34, and corrected-prefix LIBXSMM 2.1.0
+passed their upstream suites, deterministic smoke probes, single-thread checks,
+and explicit loader-coexistence checks. The lock retains 288 regular installed
+file hashes and configuration SHA-256
+`810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3`.
+Four build-source license files were hashed. The pinned JITSpMM revision
+contains no license statement, so its adapter/use is explicitly blocked and
+deferred to M2 without removing it from admission.
+
+An administrator reboot interrupted Task 4 and cleared volatile temporary
+logs. Persistent source/build evidence and package-manager history were
+recovered, rechecked, and re-indexed. The event is not a controlled campaign,
+does not satisfy reboot approval, and is not qualification evidence.
 
 ## Performance and correctness evidence
 
@@ -164,7 +177,7 @@ The benchmark-result example is synthetic and explicitly non-claiming.
 
 ## Review
 
-- Head engineering self-review: performed incrementally and again against the exact `3d635d3` diff, build-plan M0 work/deliverables/exit gate, and M0 implementation plan.
+- Head engineering self-review: performed incrementally against the exact Task 4 provisioning subject `16d698d`, installed lock, live artifact hashes, retained upstream logs, build-plan M0 requirements, and the active AMD qualification plan. Earlier M0 integration self-review remains bound to `3d635d3`.
 - Independent implementation-quality review: not performed. No subagent or external reviewer was requested for this stage.
 - Architecture approval: AR-0001 Option 2 approved by the user on 2026-08-28 and integrated at `6904d49e4978f48d9ca3c5db29fac59bbc3233c6`.
 
@@ -174,29 +187,32 @@ Self-review is not represented as independent review.
 
 1. The build-plan front matter still says `Proposed architectural program`; the user handoff approved it as execution authority. The charter and index record the authority distinction without rewriting technical semantics.
 2. The historical `gpu-2` VM still denies unprivileged cycles and instructions and remains ineligible. The designated AMD candidate exposes working privileged events, but its PMU policy and reboot stability are not yet qualified.
-3. The M0 instruction to lock libraries available on the reference machine cannot close because the designated AMD candidate has no admitted baseline libraries installed.
+3. The physical host exposes Python 3.14.4 while repository configuration pins Python 3.12.3; a direct policy diagnostic also observes ShellCheck 0.11 SC2329 differences from the pinned development lane. Qualification-tool deployment is not yet closed.
 4. JITSpMM has no license statement at the pinned inspection revision; no build or use is authorized unless M2 resolves that boundary.
 5. Corpus supports are specified but not materialized by code; no canonical support digests exist.
 6. Independent review remains absent. Task 6 self-review is recorded but is not substituted for it.
+7. The qualification plan says Task 7 may set qualification true only when every requirement and review gate passes, while the candidate manifest defers `baseline_numerical_admission` to M2 and M1 is blocked on M0. This dependency conflict must be resolved explicitly before the Task 7 decision; it does not block Task 5 infrastructure qualification.
 
 ## Gate decision and blockers
 
 M0 remains **OPEN**. Closing it requires:
 
 1. qualified, approved Target 0 manifest for the designated physical AMD host required by Option 2;
-2. exact installed compiler and serious baseline-library identities on that target;
-3. independent review or explicit user acceptance of the documented review model.
+2. exact qualification-tool deployment and two accepted controlled campaigns;
+3. resolution of the Task 7 versus M2 numerical-admission dependency conflict;
+4. independent review or explicit user acceptance of the documented review model.
 
 ## Earliest executable next slice
 
 The earliest valid slice is still within M0:
 
-1. install only the exact locked support packages;
-2. build, test, and pin AOCL-BLAS, OpenBLAS, and LIBXSMM below the versioned prefix;
-3. verify artifact coexistence and the installed dependency closure;
-4. enable/verify reversible measurement controls and PMU evidence;
-5. run non-claiming qualification smoke and noise characterization;
-6. complete both reboot-separated campaigns and update this acceptance record.
+1. resolve an exact, reviewed deployment path for the already-implemented
+   qualification tools on the physical host without weakening the development
+   lock or repository checks;
+2. execute the Task 5 pre-session and reversible-control checks;
+3. run non-claiming qualification smoke, PMU, and noise characterization;
+4. complete campaign one;
+5. stop for separate approval before any controlled campaign reboot.
 
 The reviewed engineering-quality-gates plan is now unblocked as independent development-environment work, but it cannot substitute for the measurement-host critical path or authorize M1 product code.
 

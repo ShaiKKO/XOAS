@@ -368,6 +368,104 @@ if jitspmm["license"] != {
     "use_authorized": False,
 }:
     raise RuntimeError("JITSpMM missing-license boundary changed")
+
+if target0_lock["state"] == "installed_verified":
+    expected_source_states = {
+        "aocl-blas-5.3.2": "installed_verified",
+        "aocl-integration-5.3.2": "identity_only",
+        "jitspmm-inspection": "source_identity_pinned_adapter_deferred_M2",
+        "libxsmm-2.1.0": "installed_verified",
+        "openblas-0.3.34": "installed_verified",
+    }
+    source_states = {
+        item["id"]: item["state"] for item in target0_lock["source_locks"]
+    }
+    if source_states != expected_source_states:
+        raise RuntimeError("Target 0 installed source states differ")
+
+    package_closure = target0_lock["installed_package_closure"]
+    if len(package_closure) != 26:
+        raise RuntimeError("Target 0 installed package closure must contain 26 entries")
+    closure_names = [item["name"] for item in package_closure]
+    if closure_names != sorted(closure_names):
+        raise RuntimeError("Target 0 installed package closure is not sorted")
+    if len(set(closure_names)) != len(closure_names):
+        raise RuntimeError("Target 0 installed package closure contains duplicates")
+    if any(item["package_file_status"] != "passed" for item in package_closure):
+        raise RuntimeError("Target 0 installed package closure has failed file checks")
+
+    installed_files = target0_lock["installed_files"]
+    if len(installed_files) != 288:
+        raise RuntimeError("Target 0 installed-file inventory must contain 288 entries")
+    installed_paths = [item["path"] for item in installed_files]
+    if installed_paths != sorted(installed_paths):
+        raise RuntimeError("Target 0 installed-file inventory is not sorted")
+    if len(set(installed_paths)) != len(installed_paths):
+        raise RuntimeError("Target 0 installed-file inventory contains duplicates")
+    required_artifacts = {
+        "/opt/xoas/target0-v1/aocl-blas-5.3.2/lib/libblis.so.5.3.2":
+            "0670e0fcb11ddfd39304761aae957f78d1ed48c9bde0ea3dc8254febf2ce1381",
+        "/opt/xoas/target0-v1/libxsmm-2.1.0/lib/libxsmm.so.2.1.0":
+            "63e8fd17a5d5a759f5ee2058cf209e855aceff2857b14fbaa608bfdb95a92625",
+        "/opt/xoas/target0-v1/openblas-0.3.34/lib/libopenblas.so.0.3":
+            "8a2ab96cad5195422d4880eb42afcfb57d06a036a9178c3ea5b8bc3de06297c8",
+    }
+    installed_digests = {
+        item["path"]: item["sha256"] for item in installed_files
+    }
+    for artifact_path, artifact_digest in required_artifacts.items():
+        if installed_digests.get(artifact_path) != artifact_digest:
+            raise RuntimeError(
+                f"Target 0 primary baseline artifact changed: {artifact_path}"
+            )
+
+    libxsmm = next(
+        item for item in target0_lock["source_locks"]
+        if item["id"] == "libxsmm-2.1.0"
+    )
+    for command in libxsmm["build_commands"] + libxsmm["test_commands"]:
+        if "PREFIX=/opt/xoas/target0-v1/libxsmm-2.1.0" not in command:
+            raise RuntimeError("LIBXSMM test/build command lacks the installed prefix")
+
+    validation_states = {
+        item["name"]: item["status"] for item in target0_lock["validations"]
+    }
+    required_passed_validations = {
+        "aocl_blas_upstream_tests",
+        "baseline_smoke_probes",
+        "compiler_identity_preservation",
+        "installed_file_inventory",
+        "library_coexistence",
+        "libxsmm_prefix_correction",
+        "libxsmm_upstream_tests",
+        "openblas_upstream_tests",
+        "package_file_verification",
+        "pkg_config_prefixes",
+        "single_thread_behavior",
+        "support_package_installation",
+        "task4_evidence_bundle",
+        "toolchain_lock_schema",
+    }
+    if any(
+        validation_states.get(name) != "passed"
+        for name in required_passed_validations
+    ):
+        raise RuntimeError("Target 0 required provisioning validation is not passed")
+
+    if target0_lock["baseline_stack_verified"] is not True:
+        raise RuntimeError("Target 0 installed stack is not marked verified")
+    if target0_lock["target0_measurement_qualified"] is not False:
+        raise RuntimeError("Target 0 was qualified during provisioning")
+    if target0_lock["performance_claim"] is not False:
+        raise RuntimeError("Target 0 provisioning contains a performance claim")
+
+    digest_document = dict(target0_lock)
+    configuration_digest = digest_document.pop("configuration_sha256", None)
+    configuration_bytes = json.dumps(
+        digest_document, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    if hashlib.sha256(configuration_bytes).hexdigest() != configuration_digest:
+        raise RuntimeError("Target 0 configuration digest does not match its lock")
 ]=])
 execute_process(
   COMMAND

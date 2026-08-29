@@ -395,20 +395,20 @@ Implemented at `ee57ff5e4af01fecb11fffd985e376d636560434`.
 - Modify: `docs/targets/target0-amd-ryzen9-7900x-v1.md`
 - Modify: `benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`
 
-- [ ] **Step 1: Reconfirm lock and collision preconditions**
+- [x] **Step 1: Reconfirm lock and collision preconditions**
 
 Require the host checkout at the exact Task 3 commit, a clean tree, unchanged
 APT candidates, unchanged host CPU/OS identity, and absent
 `/opt/xoas/target0-v1`. Create `/opt/xoas/target0-v1` root-owned and mode 0755
 only after every check passes.
 
-- [ ] **Step 2: Install exact support-package versions**
+- [x] **Step 2: Install exact support-package versions**
 
 Install only the name/version pairs recorded in the lock. Re-query the full
 installed dependency closure and record version, architecture, origin, and
 package-file status. Do not change compiler alternatives or hold the kernel.
 
-- [ ] **Step 3: Build single-thread AOCL-BLAS 5.3.2**
+- [x] **Step 3: Build single-thread AOCL-BLAS 5.3.2**
 
 Clone `amd/blis`, detach at
 `25cad99a6840855ade0a49871197f48ee0e1d317`, and configure the public source
@@ -437,7 +437,12 @@ Require Zen-family dispatch and one effective thread. Record source/configure
 logs, compiler hashes, library hashes, `ldd`, exported CBLAS symbols, and test
 results.
 
-- [ ] **Step 4: Build single-thread OpenBLAS 0.3.34**
+The installed build passed the upstream suite. The standalone smoke compile
+used GNU C17 and a narrow `-Wno-unused-function` exception for an upstream
+public-header static-inline warning. This exception applies only to the probe,
+not XOAS source or repository quality policy.
+
+- [x] **Step 4: Build single-thread OpenBLAS 0.3.34**
 
 Detach at `e0166008be8e466242aa76b2ff75ce3f0fbf574a` and configure an LP64,
 shared/static, `DYNAMIC_ARCH=ON`, `USE_THREAD=OFF`, `NUM_THREADS=1` build with
@@ -469,7 +474,7 @@ Run upstream tests and the same row-major SGEMM smoke. Require
 `OPENBLAS_NUM_THREADS=1`, one effective thread, recorded runtime core name,
 library hashes, `ldd`, and exported symbols.
 
-- [ ] **Step 5: Build LIBXSMM 2.1.0**
+- [x] **Step 5: Build LIBXSMM 2.1.0**
 
 Detach at `7944bf36cf847c846b3fa0eb194789295e00b624` and use the upstream
 reference GNU Make build with Release optimization, shared libraries, GCC
@@ -488,6 +493,7 @@ make -j12 \
   FC= \
   FORTRAN=0 \
   STATIC=0 \
+  PREFIX=/opt/xoas/target0-v1/libxsmm-2.1.0 \
   tests
 sudo make \
   CC=/usr/bin/gcc \
@@ -503,7 +509,13 @@ Run upstream tests and a fixed FP32 GEMM dispatch smoke with
 `LIBXSMM_VERBOSE=2`. Record detected/JIT target, initialization state, one
 effective thread, generated-code availability, library hashes, and `ldd`.
 
-- [ ] **Step 6: Validate coexistence and record installed closure**
+The initial invocation exposed that LIBXSMM generates pkg-config metadata
+during the test build. Without `PREFIX`, the installed metadata retained the
+temporary source path. The user approved adding the installation prefix to the
+build/test command. A clean corrected build and full test run passed, and the
+rejected logs remain retained as failed evidence.
+
+- [x] **Step 6: Validate coexistence and record installed closure**
 
 Compile one loader probe per library with explicit include/library/RPATH so no
 ambient BLAS can be selected. Use `LD_DEBUG=libs` once per probe and record the
@@ -513,7 +525,7 @@ Update the lock to `installed_verified`, list every installed file hash, and
 record a configuration digest computed over the lock with its digest field
 omitted.
 
-- [ ] **Step 7: Record reversible rollback without executing it**
+- [x] **Step 7: Record reversible rollback without executing it**
 
 Rollback quarantines the complete prefix using:
 
@@ -523,8 +535,10 @@ sudo mv /opt/xoas/target0-v1 \
   "/opt/xoas/target0-v1.quarantine-$xoasRollbackTimestamp"
 ```
 
-Record the actual quarantine path. Package removal is outside this plan and
-requires a separate administrator review.
+If rollback is executed later, record the actual quarantine path. Because this
+step records the rollback without executing it, Task 4 records the template and
+the fact that no actual quarantine path exists. Package removal is outside this
+plan and requires a separate administrator review.
 
 - [ ] **Step 8: Validate and commit provisioning evidence**
 

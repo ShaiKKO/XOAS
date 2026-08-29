@@ -118,9 +118,9 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-implementation-plan.md` — executable M0 plan and commit boundaries.
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
-- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification and baseline-provisioning plan; Tasks 1–3 are implemented and Tasks 4–7 remain open.
-- `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate pre-state, source/package provenance, blockers, and remaining gates; it is not qualification evidence.
-- `toolchains/target0-amd-ryzen9-7900x-v1.lock.json` — the only authorized Task 4 provisioning input; currently resolved and uninstalled.
+- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented and Tasks 5–7 remain open.
+- `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate capture and verified provisioning evidence, explicit gaps, and remaining gates; it is not measurement qualification.
+- `toolchains/target0-amd-ryzen9-7900x-v1.lock.json` — exact installed support-package closure, source/build commands, artifact hashes, validation evidence, and rollback boundary for the physical candidate.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, the historical unqualified `gpu-2` capture, and the explicitly unqualified physical AMD candidate manifest. The directory contains no executable benchmark harness or measured performance result.
 - `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; schema and synthetic example fully validated on `gpu-2`.
 - `schemas/development-toolchain-v1.schema.json` — draft-2020-12 installed development-toolchain evidence schema.
@@ -178,6 +178,18 @@ The fresh M0 capture at `2026-08-28T23:01:51Z` records `gpu-2` in `benchmarks/ma
 `build_ready=true` means the primary development toolchain passed its provisioning probes; it is not a product-build, quality-enforcement, baseline, or measurement claim. OpenBLAS, oneMKL, and LIBXSMM remain absent. PMU cycles/instructions remain unavailable to the unprivileged guest. Do not treat `gpu-2` as measurement-qualified.
 
 The local Apple M4/macOS machine is not valid for Target 0 performance evidence.
+
+The physical Target 0 candidate has the exact 26-package support closure and
+single-thread AOCL-BLAS 5.3.2, OpenBLAS 0.3.34, and LIBXSMM 2.1.0 builds
+verified below `/opt/xoas/target0-v1`. Its lock records 288 regular installed
+files and configuration SHA-256
+`810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3`.
+These artifacts are not numerically admitted and the host remains unqualified.
+The host exposes Python 3.14.4, while repository configuration requires Python
+3.12.3 exactly; the qualification-tool deployment gap must be resolved before
+the real campaign workflow can run there. A direct policy diagnostic also
+found a ShellCheck 0.11 SC2329 difference from the pinned development lane;
+do not weaken the repository policy to make the physical host appear green.
 
 ### Commands currently verified
 
@@ -302,6 +314,19 @@ holds = subprocess.run(
     ["apt-mark", "showhold"], check=True, capture_output=True, text=True
 ).stdout.splitlines()
 assert holds == lock["installation"]["holds"]
+
+target_lock = json.loads(checks[2][1].read_text())
+assert target_lock["state"] == "installed_verified"
+assert target_lock["baseline_stack_verified"] is True
+assert target_lock["target0_measurement_qualified"] is False
+assert len(target_lock["installed_package_closure"]) == 26
+assert len(target_lock["installed_files"]) == 288
+target_configuration = dict(target_lock)
+target_digest = target_configuration.pop("configuration_sha256")
+target_configuration_bytes = json.dumps(
+    target_configuration, sort_keys=True, separators=(",", ":")
+).encode("utf-8")
+assert hashlib.sha256(target_configuration_bytes).hexdigest() == target_digest
 PY
 ```
 
@@ -701,11 +726,12 @@ been executed; stable targets, pinned hosted jobs, and protected-main controls
 are repository capabilities with retained evidence.
 
 The M0 critical path is continued execution of the physical AMD Target 0
-qualification plan. Tasks 1–3 provide the process contract, deterministic
+qualification plan. Tasks 1–4 provide the process contract, deterministic
 probe, non-secret host capture/core selector, fixture-verified reversible
-session controller, closed physical-host pre-state, and schema-valid uninstalled
-provisioning lock. Baseline installation, measurement controls, campaigns, and
-qualification remain open. The pinned JITSpMM revision has no license statement;
+session controller, closed physical-host pre-state, exact installed support
+closure, and verified versioned baseline artifacts. Baseline numerical
+admission, qualification-tool deployment, real measurement controls, campaigns,
+and qualification remain open. The pinned JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound
 benchmark evidence belong on that selected measurement host. Obtain the
