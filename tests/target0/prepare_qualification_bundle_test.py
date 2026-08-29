@@ -12,10 +12,13 @@ import io
 import json
 import os
 from pathlib import Path
+import re
+import shlex
 import subprocess
 import tempfile
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 import unittest
+from unittest import mock
 
 from jsonschema import Draft202012Validator
 
@@ -35,6 +38,10 @@ def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--schema", required=True, type=Path)
     parser.add_argument("--example", required=True, type=Path)
+    parser.add_argument("--cmake-cache", type=Path)
+    parser.add_argument("--compile-commands", type=Path)
+    parser.add_argument("--cmake-presets", type=Path)
+    parser.add_argument("--warning-module", type=Path)
     arguments, unittest_arguments = parser.parse_known_args()
     unittest.main_argv = [__file__, *unittest_arguments]
     return arguments
@@ -95,6 +102,100 @@ def write_fixture_text(root: Path, relative_path: str, content: str) -> None:
     path = root / relative_path
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
+
+
+def command_result(
+    *,
+    returncode: int = 0,
+    stdout: str = "",
+    stderr: str = "",
+) -> SimpleNamespace:
+    """Construct one captured-command result for a deterministic fake."""
+    return SimpleNamespace(
+        returncode=returncode,
+        stdout=stdout,
+        stderr=stderr,
+    )
+
+
+class ScriptedCommandRunner:
+    """Return exact predeclared results while retaining every invocation."""
+
+    def __init__(
+        self,
+        responses: dict[tuple[str, ...], SimpleNamespace],
+    ) -> None:
+        """Store one closed command-to-result script."""
+        self.responses = responses
+        self.calls: list[
+            tuple[
+                tuple[str, ...],
+                Path | None,
+                dict[str, str] | None,
+                int,
+            ]
+        ] = []
+
+    def __call__(
+        self,
+        command: tuple[str, ...],
+        working_directory: Path | None = None,
+        *,
+        environment: dict[str, str] | None = None,
+        timeout: int = 30,
+    ) -> SimpleNamespace:
+        """Return the result bound to an exact fixed argument array."""
+        self.calls.append((command, working_directory, environment, timeout))
+        if command not in self.responses:
+            raise AssertionError(f"unexpected command classification: {command[0]}")
+        return self.responses[command]
+
+
+class CompilerCommandRunner:
+    """Materialize controlled compiler results for dual-build tests."""
+
+    def __init__(
+        self,
+        outputs: tuple[bytes, ...],
+        *,
+        fail_at: int | None = None,
+    ) -> None:
+        """Select output bytes and an optional failing invocation."""
+        self.outputs = outputs
+        self.fail_at = fail_at
+        self.calls: list[
+            tuple[
+                tuple[str, ...],
+                Path | None,
+                dict[str, str] | None,
+                int,
+            ]
+        ] = []
+
+    def __call__(
+        self,
+        command: tuple[str, ...],
+        working_directory: Path | None = None,
+        *,
+        environment: dict[str, str] | None = None,
+        timeout: int = 30,
+    ) -> SimpleNamespace:
+        """Write one requested executable or return controlled diagnostics."""
+        self.calls.append((command, working_directory, environment, timeout))
+        call_index = len(self.calls) - 1
+        if self.fail_at == call_index:
+            return command_result(
+                returncode=1,
+                stdout="controlled compiler stdout\n",
+                stderr="controlled compiler failure\n",
+            )
+        if working_directory is None or "-o" not in command:
+            raise AssertionError("compiler invocation lacks explicit output")
+        output_index = command.index("-o") + 1
+        output = working_directory / command[output_index]
+        output.write_bytes(self.outputs[call_index])
+        output.chmod(0o700)
+        return command_result(stdout="controlled compiler success\n")
 
 
 class PrepareQualificationBundleSchemaTest(unittest.TestCase):
@@ -518,6 +619,348 @@ class PrepareQualificationBundlePreflightTest(unittest.TestCase):
                             source_root=source_root,
                             architecture="x86_64",
                         )
+
+
+class PrepareQualificationBundleBuildTest(unittest.TestCase):
+    """Verify compiler trust and reproducible native probe construction."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Load production code and require explicit configured-build inputs."""
+        cls.module = load_preparation_module()
+        cls.lock = json.loads(TARGET_LOCK_PATH.read_text(encoding="utf-8"))
+        required_inputs = {
+            "CMake cache": ARGUMENTS.cmake_cache,
+            "compile commands": ARGUMENTS.compile_commands,
+            "CMake presets": ARGUMENTS.cmake_presets,
+            "warning module": ARGUMENTS.warning_module,
+        }
+        for description, path in required_inputs.items():
+            if path is None or not path.is_file():
+                raise AssertionError(f"{description} input is missing")
+
+    def identity_responses(
+        self,
+        *,
+        compiler_path: str = "/usr/lib/llvm-21/bin/clang",
+        linker_path: str = "/usr/lib/llvm-21/bin/lld",
+        linker_owner: str = "lld-21",
+    ) -> dict[tuple[str, ...], SimpleNamespace]:
+        """Return the fixed successful compiler/linker inspection transcript."""
+        compiler = next(
+            executable
+            for executable in self.lock["existing_executables"]
+            if executable["name"] == "clang++-21"
+        )
+        linker_version = next(
+            package["version"]
+            for package in self.lock["apt"]["prestate"]["packages"]
+            if package["name"] == "lld-21"
+        )
+        linker_digest = "b" * 64
+        return {
+            ("/usr/bin/readlink", "-f", "/usr/bin/clang++-21"): command_result(
+                stdout=f"{compiler_path}\n"
+            ),
+            ("/usr/bin/clang++-21", "--version"): command_result(
+                stdout=f"{compiler['version_line']}\nTarget: x86_64-pc-linux-gnu\n"
+            ),
+            ("/usr/bin/clang++-21", "-dumpmachine"): command_result(
+                stdout="x86_64-pc-linux-gnu\n"
+            ),
+            ("/usr/bin/sha256sum", compiler_path): command_result(
+                stdout=f"{compiler['sha256']}  {compiler_path}\n"
+            ),
+            ("/usr/bin/readlink", "-f", "/usr/bin/ld.lld-21"): command_result(
+                stdout=f"{linker_path}\n"
+            ),
+            (
+                "/usr/bin/dpkg-query",
+                "-W",
+                "-f=${Version}\\n",
+                "lld-21",
+            ): command_result(stdout=f"{linker_version}\n"),
+            ("/usr/bin/dpkg", "-V", "lld-21"): command_result(),
+            ("/usr/bin/dpkg-query", "-S", linker_path): command_result(
+                stdout=f"{linker_owner}: {linker_path}\n"
+            ),
+            ("/usr/bin/ld.lld-21", "--version"): command_result(
+                stdout="Ubuntu LLD 21.1.8 (compatible with GNU linkers)\n"
+            ),
+            ("/usr/bin/sha256sum", linker_path): command_result(
+                stdout=f"{linker_digest}  {linker_path}\n"
+            ),
+        }
+
+    def test_compiler_and_linker_match_locked_live_identity(self) -> None:
+        """Only the fixed package-authenticated Clang and LLD are admissible."""
+        compiler_validator = getattr(self.module, "validate_compiler", None)
+        linker_validator = getattr(self.module, "validate_linker", None)
+        self.assertTrue(callable(compiler_validator), "compiler validator is missing")
+        self.assertTrue(callable(linker_validator), "linker validator is missing")
+        runner = ScriptedCommandRunner(self.identity_responses())
+
+        compiler = compiler_validator(self.lock, runner)
+        linker = linker_validator(self.lock, runner)
+
+        locked_compiler = next(
+            executable
+            for executable in self.lock["existing_executables"]
+            if executable["name"] == "clang++-21"
+        )
+        clang_package = next(
+            package
+            for package in self.lock["apt"]["prestate"]["packages"]
+            if package["name"] == "clang-21"
+        )
+        lld_package = next(
+            package
+            for package in self.lock["apt"]["prestate"]["packages"]
+            if package["name"] == "lld-21"
+        )
+        self.assertEqual(
+            compiler,
+            {
+                "driver_path": "/usr/bin/clang++-21",
+                "resolved_path": locked_compiler["path"],
+                "version": locked_compiler["version_line"],
+                "target_triple": "x86_64-pc-linux-gnu",
+                "sha256": locked_compiler["sha256"],
+                "package": clang_package,
+            },
+        )
+        self.assertEqual(
+            linker,
+            {
+                "driver_path": "/usr/bin/ld.lld-21",
+                "resolved_path": "/usr/lib/llvm-21/bin/lld",
+                "version": "Ubuntu LLD 21.1.8 (compatible with GNU linkers)",
+                "sha256": "b" * 64,
+                "package": lld_package,
+            },
+        )
+        self.assertIn(
+            (("/usr/bin/dpkg", "-V", "lld-21"), None, None, 30),
+            runner.calls,
+        )
+
+    def test_compiler_and_linker_reject_unlocked_resolution(self) -> None:
+        """Relocated, mutated, or unverified tool identities must fail closed."""
+        compiler_validator = getattr(self.module, "validate_compiler", None)
+        linker_validator = getattr(self.module, "validate_linker", None)
+        self.assertTrue(callable(compiler_validator), "compiler validator is missing")
+        self.assertTrue(callable(linker_validator), "linker validator is missing")
+        compiler_runner = ScriptedCommandRunner(
+            self.identity_responses(compiler_path="/tmp/unlocked-clang")
+        )
+        with self.assertRaises(self.module.PreparationError):
+            compiler_validator(self.lock, compiler_runner)
+
+        compiler_digest_responses = self.identity_responses()
+        compiler_digest_responses[
+            ("/usr/bin/sha256sum", "/usr/lib/llvm-21/bin/clang")
+        ] = command_result(
+            stdout=f"{'0' * 64}  /usr/lib/llvm-21/bin/clang\n"
+        )
+        with self.assertRaises(self.module.PreparationError):
+            compiler_validator(
+                self.lock,
+                ScriptedCommandRunner(compiler_digest_responses),
+            )
+
+        relocated_linker_runner = ScriptedCommandRunner(
+            self.identity_responses(linker_path="/tmp/unlocked-lld")
+        )
+        with self.assertRaises(self.module.PreparationError):
+            linker_validator(self.lock, relocated_linker_runner)
+
+        unowned_linker_runner = ScriptedCommandRunner(
+            self.identity_responses(linker_owner="unapproved-package")
+        )
+        with self.assertRaises(self.module.PreparationError):
+            linker_validator(self.lock, unowned_linker_runner)
+
+        unverified_linker_responses = self.identity_responses()
+        unverified_linker_responses[
+            ("/usr/bin/dpkg", "-V", "lld-21")
+        ] = command_result(stdout="??5?????? /usr/lib/llvm-21/bin/lld\n")
+        with self.assertRaises(self.module.PreparationError):
+            linker_validator(
+                self.lock,
+                ScriptedCommandRunner(unverified_linker_responses),
+            )
+
+    def test_compile_arguments_match_configured_probe_contract(self) -> None:
+        """The direct build must not drift from the pinned CMake contract."""
+        argument_builder = getattr(
+            self.module,
+            "qualification_compile_arguments",
+            None,
+        )
+        self.assertTrue(callable(argument_builder), "compile contract is missing")
+        with mock.patch.dict(
+            os.environ,
+            {
+                "CXXFLAGS": "-march=native -ffast-math",
+                "LDFLAGS": "-Wl,--unapproved",
+            },
+        ):
+            arguments = argument_builder(
+                Path("qualification_probe.cpp"),
+                Path("xoas-target0-qualification-probe"),
+            )
+
+        self.assertEqual(arguments[0], "/usr/bin/clang++-21")
+        self.assertEqual(arguments.count("qualification_probe.cpp"), 1)
+        self.assertEqual(arguments.count("xoas-target0-qualification-probe"), 1)
+        self.assertNotIn("-march=native", arguments)
+        self.assertNotIn("-ffast-math", arguments)
+        self.assertNotIn("-Wl,--unapproved", arguments)
+
+        warning_text = ARGUMENTS.warning_module.read_text(encoding="utf-8")
+        warning_flags = tuple(
+            re.findall(r"^\s+(-W[^\s)]+)\)?\s*$", warning_text, re.MULTILINE)
+        )
+        self.assertEqual(
+            tuple(argument for argument in arguments if argument.startswith("-W")),
+            warning_flags,
+        )
+        compile_commands = json.loads(
+            ARGUMENTS.compile_commands.read_text(encoding="utf-8")
+        )
+        configured_probe = next(
+            entry
+            for entry in compile_commands
+            if entry["file"].endswith("/tools/target0/qualification_probe.cpp")
+        )
+        configured_arguments = shlex.split(configured_probe["command"])
+        for required in ("-std=c++23", *warning_flags):
+            self.assertIn(required, configured_arguments)
+            self.assertIn(required, arguments)
+
+        cache_text = ARGUMENTS.cmake_cache.read_text(encoding="utf-8")
+        release_flags = re.search(
+            r"^CMAKE_CXX_FLAGS_RELEASE:STRING=(.+)$",
+            cache_text,
+            re.MULTILINE,
+        )
+        self.assertIsNotNone(release_flags)
+        for release_flag in shlex.split(release_flags.group(1)):
+            self.assertIn(release_flag, arguments)
+
+        presets = json.loads(ARGUMENTS.cmake_presets.read_text(encoding="utf-8"))
+        base = next(
+            preset
+            for preset in presets["configurePresets"]
+            if preset["name"] == "clang-21-base"
+        )
+        release = next(
+            preset
+            for preset in presets["configurePresets"]
+            if preset["name"] == "dev-release"
+        )
+        self.assertEqual(arguments[0], base["cacheVariables"]["CMAKE_CXX_COMPILER"])
+        self.assertIn(
+            release["cacheVariables"]["CMAKE_EXE_LINKER_FLAGS"],
+            arguments,
+        )
+
+    def test_dual_build_requires_identical_private_executables(self) -> None:
+        """Only two byte-identical independent builds may produce acceptance."""
+        builder = getattr(self.module, "build_probe_twice", None)
+        self.assertTrue(callable(builder), "dual-build implementation is missing")
+        source_bytes = b"int main() { return 0; }\n"
+        source_digest = hashlib.sha256(source_bytes).hexdigest()
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            staging_root = Path(temporary_directory)
+            staging_root.chmod(0o700)
+            source = staging_root / "reviewed-probe.cpp"
+            source.write_bytes(source_bytes)
+            runner = CompilerCommandRunner((b"identical-elf", b"identical-elf"))
+            build = builder(
+                source,
+                source_digest,
+                staging_root,
+                "1788026400",
+                runner,
+            )
+
+            accepted = staging_root / build["accepted_executable"]["path"]
+            self.assertEqual(accepted.read_bytes(), b"identical-elf")
+            self.assertEqual(os.stat(accepted).st_mode & 0o777, 0o700)
+            self.assertEqual(build["identical"], True)
+            self.assertEqual(
+                build["builds"][0]["sha256"],
+                build["builds"][1]["sha256"],
+            )
+            self.assertEqual(
+                build["executable_sha256"],
+                hashlib.sha256(b"identical-elf").hexdigest(),
+            )
+            self.assertEqual(len(runner.calls), 2)
+            for command, working_directory, environment, _ in runner.calls:
+                self.assertEqual(
+                    command,
+                    self.module.qualification_compile_arguments(
+                        Path("qualification_probe.cpp"),
+                        Path("xoas-target0-qualification-probe"),
+                    ),
+                )
+                self.assertIsNotNone(working_directory)
+                self.assertEqual(
+                    set(environment),
+                    {
+                        "HOME",
+                        "LANG",
+                        "LC_ALL",
+                        "PATH",
+                        "SOURCE_DATE_EPOCH",
+                        "TMPDIR",
+                    },
+                )
+                self.assertTrue(Path(environment["TMPDIR"]).is_dir())
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            staging_root = Path(temporary_directory)
+            source = staging_root / "reviewed-probe.cpp"
+            source.write_bytes(source_bytes)
+            runner = CompilerCommandRunner((b"first-elf", b"second-elf"))
+            with self.assertRaises(self.module.PreparationError):
+                builder(
+                    source,
+                    source_digest,
+                    staging_root,
+                    "1788026400",
+                    runner,
+                )
+            self.assertFalse((staging_root / "bin").exists())
+
+    def test_failed_build_retains_diagnostics_without_accepting(self) -> None:
+        """Compiler failure evidence must survive without a published binary."""
+        builder = getattr(self.module, "build_probe_twice", None)
+        self.assertTrue(callable(builder), "dual-build implementation is missing")
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            staging_root = Path(temporary_directory)
+            source = staging_root / "reviewed-probe.cpp"
+            source_bytes = b"invalid source\n"
+            source.write_bytes(source_bytes)
+            runner = CompilerCommandRunner((b"unused",), fail_at=0)
+            with self.assertRaises(self.module.PreparationError):
+                builder(
+                    source,
+                    hashlib.sha256(source_bytes).hexdigest(),
+                    staging_root,
+                    "1788026400",
+                    runner,
+                )
+
+            self.assertEqual(
+                (staging_root / "build-01/compiler.stderr.log").read_text(
+                    encoding="utf-8"
+                ),
+                "controlled compiler failure\n",
+            )
+            self.assertFalse((staging_root / "bin").exists())
 
 
 ARGUMENTS = parse_arguments()
