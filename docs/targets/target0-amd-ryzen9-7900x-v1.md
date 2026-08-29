@@ -10,6 +10,8 @@
 
 **Task 4 evidence implementation:** `9d44f6431ebdaea60c796292e9da071f0f49522b`
 
+**Qualification-tool repository implementation:** `5c0dcde`
+
 **Controlling plan:**
 [`2026-08-29-amd-target0-host-qualification.md`](../superpowers/plans/2026-08-29-amd-target0-host-qualification.md)
 
@@ -131,9 +133,28 @@ The physical host has Python 3.14.4 while XOAS configuration pins Python
 configuration on this host. A direct repository-policy diagnostic additionally
 found that host ShellCheck 0.11 reports SC2329 for functions invoked indirectly
 by the existing measurement-session traps, while the pinned development lane is
-green. These are open qualification-tool deployment gaps, not product evidence
-and not reasons to weaken the repository toolchain lock or suppress the rule
-broadly.
+green. The narrow native preparation implementation preserves `gpu-2` as the
+quality authority and does not run the physical host's full CMake/policy lane.
+Its physical Python compatibility is still unproven until an accepted bundle
+is produced. These differences are not product evidence and are not reasons to
+weaken the repository toolchain lock or suppress the rule broadly.
+
+## Qualification-tool deployment state
+
+Repository code now implements the closed native preparation and independent
+replica-verification interfaces. It validates the exact clean checkout before
+creating a private `/var/tmp/xoas-target0-qualification-tools.ATTEMPT` root,
+validates locked compiler/linker/target identities, builds the probe twice,
+requires byte equality, inspects the ELF/runtime closure, runs the interpreted
+and native compatibility suite, and publishes write-once acceptance or, after
+a safe staging root exists, closed rejection evidence.
+
+The equivalent staged implementation tree passed all eight targeted tests on
+`gpu-2`, including the checkout-before-output regression. The exact branch
+subject has not yet passed the complete Debug/Release quality proof. No native
+bundle has been attempted on this host, no replica has been verified on
+`gpu-2`, and no source, installed baseline, measurement control, campaign,
+reboot, qualification state, or performance evidence changed.
 
 ## Deferred comparator boundaries
 
@@ -150,8 +171,9 @@ inapplicability and does not remove oneMKL from the admitted policy.
 The candidate remains unqualified until all applicable gates close:
 
 1. pass independent numerical admission for every applicable baseline adapter;
-2. resolve deployment of the qualification tools without changing the locked
-   development-toolchain contract silently;
+2. prove the exact repository implementation under the complete development
+   quality contract, then produce matching accepted physical and `gpu-2`
+   qualification-tool bundles;
 3. prove the real physical-host measurement session restores exact state;
 4. pass non-claiming smoke, PMU, and noise characterization;
 5. complete campaign one;

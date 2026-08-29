@@ -35,7 +35,7 @@ Read these files before working:
 2. [`docs/architecture/README.md`](docs/architecture/README.md) — actual architecture/decision/evidence inventory and approval state.
 3. [`docs/architecture/000-charter.md`](docs/architecture/000-charter.md) — locked v0 claim, Target 0, numerical boundary, non-goals, and falsification.
 4. [`docs/milestones/status.md`](docs/milestones/status.md) and the active milestone acceptance/implementation plan — canonical frontier, gate state, exact evidence, and current task contract.
-5. For any source, tooling, CI, or review work: [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md) and [`docs/adr/IDR-0001-engineering-quality-system.md`](docs/adr/IDR-0001-engineering-quality-system.md).
+5. For any source, tooling, CI, or review work: [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md) and [`docs/adr/IDR-0001-engineering-quality-system.md`](docs/adr/IDR-0001-engineering-quality-system.md). For Target 0 qualification-tool deployment, also read [`docs/adr/IDR-0002-target0-qualification-tool-deployment.md`](docs/adr/IDR-0002-target0-qualification-tool-deployment.md), [`docs/superpowers/specs/2026-08-29-target0-qualification-tool-deployment-design.md`](docs/superpowers/specs/2026-08-29-target0-qualification-tool-deployment-design.md), and [`docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md`](docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md).
 6. For benchmark, corpus, or performance work: [`docs/architecture/050-benchmark-protocol.md`](docs/architecture/050-benchmark-protocol.md), [`docs/experiments/baseline-matrix.md`](docs/experiments/baseline-matrix.md), and [`docs/experiments/corpus-policy.md`](docs/experiments/corpus-policy.md).
 7. For research-claim work: [`docs/experiments/prior-art-matrix.md`](docs/experiments/prior-art-matrix.md).
 8. For target/toolchain work: [`docs/architecture/proposals/AR-0001-target-0-host-qualification.md`](docs/architecture/proposals/AR-0001-target-0-host-qualification.md), [`docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md`](docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md), and the candidate/approved target manifest. AR-0001 Option 2 is approved: `gpu-2` is development-only, and the designated physical AMD Target 0 candidate must still be qualified. AR-0002 Option 1 is approved: AOCL-BLAS joins the admitted comparator set without removing existing applicable baselines.
@@ -102,6 +102,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md` — approved AOCL-BLAS admission decision for the physical AMD target.
 - `docs/engineering/coding-standards.md` — approved LLVM-derived source, documentation, enforcement, and review contract.
 - `docs/adr/IDR-0001-engineering-quality-system.md` — accepted engineering-quality design and staged implementation decision.
+- `docs/adr/IDR-0002-target0-qualification-tool-deployment.md` — accepted native-build/quality-authority split, closed evidence bundle, replica verification, and deployment limits.
 - `CMakeLists.txt` and `CMakePresets.json` — quality-only C++23 build, test, and sanitizer surface; they do not contain product modules.
 - `.clang-format`, `.clang-tidy`, `.editorconfig`, and `Doxyfile.in` — pinned first-party formatting, static-analysis, editor, and documentation policy.
 - `cmake/quality/` — reusable non-product quality checks, aggregate orchestration, and bounded cleanup.
@@ -119,6 +120,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
 - `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented and Tasks 5–7 remain open.
+- `docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md` — implemented repository-side native preparation/bundle plan; exact-subject quality proof and physical execution remain open.
 - `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate capture and verified provisioning evidence, explicit gaps, and remaining gates; it is not measurement qualification.
 - `toolchains/target0-amd-ryzen9-7900x-v1.lock.json` — exact installed support-package closure, source/build commands, artifact hashes, validation evidence, and rollback boundary for the physical candidate.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, the historical unqualified `gpu-2` capture, and the explicitly unqualified physical AMD candidate manifest. The directory contains no executable benchmark harness or measured performance result.
@@ -126,8 +128,9 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `schemas/development-toolchain-v1.schema.json` — draft-2020-12 installed development-toolchain evidence schema.
 - `schemas/target0-host-qualification-v1.schema.json` — closed fixed-process qualification schema; real instances are build-tree test artifacts, not performance claims.
 - `schemas/target0-toolchain-lock-v1.schema.json` — closed physical-target provisioning, source, validation, artifact, and rollback contract.
-- `tools/target0/` — non-product Target 0 qualification tooling: the deterministic native CPU probe, non-secret host capture/core selector, and reversible measurement-session controller.
-- `tests/target0/` — behavioral, negative, deterministic, schema-closure, fixture-capture, signal, apply-failure, and exact-restoration tests for qualification tooling.
+- `schemas/target0-qualification-tool-bundle-v1.schema.json` — closed non-claiming native deployment-bundle contract for checkout, toolchain, dual build, ELF/runtime, and compatibility evidence.
+- `tools/target0/` — non-product Target 0 qualification tooling: the deterministic native CPU probe, non-secret host capture/core selector, reversible measurement-session controller, native bundle preparer, and fresh-process verifier.
+- `tests/target0/` — behavioral, negative, deterministic, schema-closure, fixture-capture, signal, apply-failure, exact-restoration, compile-contract, ELF/runtime, inventory, and replica-verification tests for qualification tooling.
 
 There is currently no product source/public include tree, product library or executable, independent oracle, executable benchmark harness, database, artifact store, repository README, or product dependency manifest.
 The existing build and test tree enforces engineering quality only.
@@ -186,10 +189,14 @@ files and configuration SHA-256
 `810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3`.
 These artifacts are not numerically admitted and the host remains unqualified.
 The host exposes Python 3.14.4, while repository configuration requires Python
-3.12.3 exactly; the qualification-tool deployment gap must be resolved before
-the real campaign workflow can run there. A direct policy diagnostic also
-found a ShellCheck 0.11 SC2329 difference from the pinned development lane;
-do not weaken the repository policy to make the physical host appear green.
+3.12.3 exactly. The repository now has a narrow native preparation tool that
+preserves `gpu-2` as the full quality authority instead of running the physical
+host's complete CMake/policy lane. Its exact implementation subject still needs
+the complete development quality proof, and physical Python compatibility must
+be established by an accepted native bundle before campaign work. A direct
+policy diagnostic also found a ShellCheck 0.11 SC2329 difference from the
+pinned development lane; do not weaken the repository policy to make the
+physical host appear green.
 
 ### Commands currently verified
 
@@ -406,6 +413,53 @@ success, command failure, `TERM`, and partial apply failure. They do not
 authorize real-host mutation; Tasks 3 and later in the active plan control
 that boundary.
 
+The closed native qualification-bundle implementation and fresh verifier are
+verified on `gpu-2` with:
+
+```bash
+cmake --build --preset dev-debug \
+  --target xoas-target0-qualification-probe target0-host-tools
+ctest --preset dev-debug \
+  -R '^target0-(qualification-bundle|qualification-probe|host-tools-)' \
+  --output-on-failure
+```
+
+The tests cover exact CLI inputs, checkout/lock/target/compiler/linker failure,
+checkout-before-output ordering, fixed compile-contract drift, dual-build byte
+equality, ELF/runtime authentication, compatibility status/logs, canonical
+finalization, closed rejection, inventory mutation, and fresh-process replay.
+They do not create an accepted physical bundle or authorize campaign work.
+
+The physical preparation interface is implemented but remains **unavailable
+for operator use** until the exact pushed subject passes the complete `gpu-2`
+quality proof and the review checkpoint in its controlling plan:
+
+```text
+python3 tools/target0/prepare_qualification_bundle.py
+  --repository-root PATH
+  --expected-commit FULL_SHA
+  --toolchain-lock PATH
+  --output-directory /var/tmp/xoas-target0-qualification-tools.ATTEMPT
+```
+
+The later approved deployment slice may invoke it to obtain native proof; until
+that invocation produces an accepted bundle, this is not a verified
+physical-host command.
+
+Every option is mandatory; the output must be a new canonical immediate child
+of `/var/tmp`. After an accepted physical attempt, verify each retained replica
+in a fresh process with:
+
+```text
+python3 tools/target0/verify_qualification_bundle.py
+  --bundle-directory PATH
+  --schema schemas/target0-qualification-tool-bundle-v1.schema.json
+```
+
+The physical and `gpu-2` inventory and normalized executable-identity digests
+must match before Task 5 core selection. Compatibility-test timings are not
+campaign or benchmark samples.
+
 The only approved quality-build cleanup command is:
 
 ```bash
@@ -448,12 +502,15 @@ aggregate wiring, cleanup boundaries, hosted-workflow policy, and the live
 branch-protection evidence contract with positive and isolated negative probes.
 
 The `tests/target0/` harness adds the non-claiming qualification-process probe
-contract and reversible host-control tests. Run the exact targeted commands
-from section 6; they are required for
+contract, reversible host-control tests, and closed native deployment-bundle
+tests. Run the exact targeted commands from section 6; they are required for
 any change to the process schema, probe CLI, deterministic workload, affinity,
 timing, thread/context-switch observation, capture allowlist, core selector,
 session preconditions, signal forwarding, state application, restoration, or
-evidence publication behavior.
+evidence publication behavior. Changes to preparation, verification, bundle
+schema, compiler/linker identity, source retention, ELF/runtime parsing,
+compatibility execution, finalization, or inventory semantics must run all
+eight Target 0 tests, not only one focused class.
 
 Product unit, property, differential, numerical-semantic, generated-kernel,
 artifact/serialization, regression, and benchmark-smoke suites remain
@@ -578,6 +635,19 @@ Retain, content-address, and bind together:
 - prepacked data and scratch metadata;
 - rejection/selection reason.
 
+The M0 qualification-tool bundle is a separate non-product evidence artifact.
+Its canonical JSON, closed inventory, accepted executable, inspection and
+compatibility logs, acceptance/rejection state, and normalized executable
+identity follow
+[`docs/adr/IDR-0002-target0-qualification-tool-deployment.md`](docs/adr/IDR-0002-target0-qualification-tool-deployment.md).
+Retain a byte-identical accepted bundle on the physical host and `gpu-2`, run
+the fresh verifier on both, and commit only compact digests and non-secret
+external-retention references. Never modify or reuse an accepted or rejected
+attempt root. A changed
+checkout, source, lock, target, compiler, linker, runtime, compatibility result,
+inventory, or executable requires a new attempt and invalidates the old bundle
+for campaign use.
+
 Runtime cache hits validate compatibility and execute a previously verified artifact without discovery. Stale or incompatible artifacts must fail closed to the fallback.
 
 Never hand-edit a generated artifact; change the generator and regenerate.
@@ -625,7 +695,7 @@ Agents must not make architecture decisions on behalf of the integration owner, 
 
 ### Architecture proposals
 
-Use `docs/architecture/proposals/AR-####-short-title.md` for material semantic or architecture changes. `AR-0001` exists; allocate the next unused number.
+Use `docs/architecture/proposals/AR-####-short-title.md` for material semantic or architecture changes. `AR-0001` and `AR-0002` exist; allocate the next unused number.
 
 Each proposal includes:
 
@@ -644,7 +714,7 @@ Approval is required before changing Target 0, numerical semantics, public ABI, 
 
 ### Implementation decisions
 
-Use `docs/adr/IDR-####-short-title.md` for durable semantics-neutral implementation decisions. `IDR-0001` exists; allocate the next unused number.
+Use `docs/adr/IDR-####-short-title.md` for durable semantics-neutral implementation decisions. `IDR-0001` and `IDR-0002` exist; allocate the next unused number.
 
 An IDR records context, decision, alternatives, consequences, affected files/interfaces, verification, and reversal/migration path. It must not be used to smuggle in an architectural change.
 
@@ -729,9 +799,12 @@ The M0 critical path is continued execution of the physical AMD Target 0
 qualification plan. Tasks 1–4 provide the process contract, deterministic
 probe, non-secret host capture/core selector, fixture-verified reversible
 session controller, closed physical-host pre-state, exact installed support
-closure, and verified versioned baseline artifacts. Baseline numerical
-admission, qualification-tool deployment, real measurement controls, campaigns,
-and qualification remain open. The pinned JITSpMM revision has no license statement;
+closure, and verified versioned baseline artifacts. The repository now
+implements the native qualification-tool preparation, closed evidence bundle,
+and fresh replica verifier through `5c0dcde`; full exact-subject quality proof,
+physical execution, and matching `gpu-2` replica evidence remain open. Baseline
+numerical admission, real measurement controls, campaigns, and qualification
+also remain open. The pinned JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound
 benchmark evidence belong on that selected measurement host. Obtain the

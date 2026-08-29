@@ -275,6 +275,7 @@ Cover:
 - stable configuration digest recomputation;
 - Target 0 CPU/OS/architecture match from unprivileged host facts;
 - provisioning execution subject retained separately from campaign commit;
+- production orchestration validates the repository before creating output;
 - no full process environment captured.
 
 Run the focused test and confirm the intended import failure:
@@ -680,9 +681,9 @@ record when that can be done safely; never create the acceptance record.
 The `main()` success path is now complete:
 
 1. parse explicit inputs;
-2. validate safe output intent;
-3. create private staging root;
-4. validate repository, lock, target, compiler, and linker;
+2. validate the exact clean repository identity;
+3. validate safe output intent and create the private staging root;
+4. validate the lock, target, compiler, and linker;
 5. build twice and compare;
 6. inspect ELF and dependencies;
 7. execute target compatibility checks;
@@ -754,6 +755,7 @@ git commit -m "tool: finalize Target 0 qualification bundle"
 - Modify: `docs/milestones/M0-acceptance.md`
 - Modify: `docs/milestones/status.md`
 - Modify: `docs/targets/target0-amd-ryzen9-7900x-v1.md`
+- Modify: `docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md`
 - Modify: `AGENTS.md`
 
 ### Step 1: Record the implementation decision
@@ -822,6 +824,7 @@ git add \
   docs/milestones/M0-acceptance.md \
   docs/milestones/status.md \
   docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md \
+  docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md \
   docs/targets/target0-amd-ryzen9-7900x-v1.md
 git diff --cached --check
 git diff --cached --stat

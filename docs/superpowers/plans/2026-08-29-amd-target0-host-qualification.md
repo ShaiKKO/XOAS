@@ -567,6 +567,19 @@ which passed the pinned `gpu-2` Debug and Release quality aggregates.
 - Modify: `benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`
 - Modify: `docs/targets/target0-amd-ryzen9-7900x-v1.md`
 
+Task 5 has not started. Before core selection or any campaign process, require
+an accepted qualification-tool bundle built natively from the clean physical
+checkout at the exact pushed campaign commit. Copy the complete bundle
+byte-for-byte to `gpu-2`, run the fresh-process verifier on both replicas, and
+require identical inventory and normalized executable-identity digests.
+
+Before each qualification process, independently recompute and retain the
+accepted executable, compiler, linker, fixed source set, provisioning lock,
+checkout commit/tree/clean state, and boot identities. Reject the complete
+campaign if any identity differs from the accepted bundle or changes between
+processes. Compatibility-test durations retained by the deployment bundle are
+not warmup, retained, PMU, noise, campaign, or benchmark samples.
+
 - [ ] **Step 1: Select the measurement core deterministically**
 
 Capture all physical cores, preferred-core ranks, sibling pairs, L3 groups,
@@ -580,10 +593,9 @@ no unexpected user sessions, no thermal alarm, TSC clocksource, unchanged boot
 identity within the campaign, unchanged target/toolchain identity, and a clean
 XOAS checkout at the exact campaign commit.
 
-Before any process runs, independently recompute and retain the probe
-executable SHA-256, compiler executable SHA-256 and version identity, XOAS
-commit/tree state, and boot ID digest. Bind every process record to those
-values in the campaign evidence; reject the campaign if any value changes.
+Before any process runs, enforce the accepted-bundle prerequisite above. Bind
+every process record to the independently recomputed identities in the
+campaign evidence; reject the campaign if any value changes.
 
 - [ ] **Step 3: Execute five fresh qualification processes**
 

@@ -50,6 +50,7 @@ any existing applicable comparator.
 | Target qualification process contract | [`../../schemas/target0-host-qualification-v1.schema.json`](../../schemas/target0-host-qualification-v1.schema.json), [`../../tools/target0/qualification_probe.cpp`](../../tools/target0/qualification_probe.cpp), and behavioral tests | Task 1 implemented at `8a247a2`; this is non-claiming host-qualification tooling and does not qualify the AMD target |
 | Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented at `864f7fa` and repository-root integration repaired at `b7371ae`; no real measurement control was changed |
 | Physical candidate and provisioning lock | [`../targets/target0-amd-ryzen9-7900x-v1.md`](../targets/target0-amd-ryzen9-7900x-v1.md), [`../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json), and closed lock/schema | Task 3 resolved exact pre-state at `ee57ff5`; Task 4 installed and verified the 26-package closure plus AOCL-BLAS, OpenBLAS, and LIBXSMM against clean subject `16d698d`, with repository evidence committed at `9d44f64`; the candidate remains unqualified |
+| Qualification-tool deployment implementation | [`../../tools/target0/prepare_qualification_bundle.py`](../../tools/target0/prepare_qualification_bundle.py), [`../../tools/target0/verify_qualification_bundle.py`](../../tools/target0/verify_qualification_bundle.py), the closed [`../../schemas/target0-qualification-tool-bundle-v1.schema.json`](../../schemas/target0-qualification-tool-bundle-v1.schema.json), and [`../adr/IDR-0002-target0-qualification-tool-deployment.md`](../adr/IDR-0002-target0-qualification-tool-deployment.md) | Repository behavior is implemented through `5c0dcde`; the equivalent staged tree passed all eight targeted tests on `gpu-2`, but exact-subject full quality proof, native physical execution, and cross-host replica verification remain pending |
 
 ## Exit-gate statement
 
@@ -135,6 +136,24 @@ sysfs write failure. This evidence does not establish behavior on the physical
 AMD host. Task 3 subsequently exercised the fixed read-only capture boundary;
 the real session controller remains unexecuted until Task 5.
 
+The qualification-tool bundle implementation's equivalent staged tree passed
+the complete targeted development surface on `gpu-2`:
+
+```bash
+cmake --build --preset dev-debug \
+  --target xoas-target0-qualification-probe target0-host-tools
+ctest --preset dev-debug \
+  -R '^target0-(qualification-bundle|qualification-probe|host-tools-)' \
+  --output-on-failure
+```
+
+All eight tests passed, including real probe execution, capture/session
+fixtures, closed schema, preflight, dual-build, ELF/runtime inspection, and
+fresh-process finalization verification. A regression test first reproduced
+and then closed checkout-before-output ordering drift. This is not the Task 7
+clean exact-commit Debug/Release quality proof and not physical deployment
+evidence.
+
 ### External corpus evidence
 
 Official NIST artifacts were downloaded into temporary storage, never committed, and checked:
@@ -208,7 +227,7 @@ Self-review is not represented as independent review.
 
 1. The build-plan front matter still says `Proposed architectural program`; the user handoff approved it as execution authority. The charter and index record the authority distinction without rewriting technical semantics.
 2. The historical `gpu-2` VM still denies unprivileged cycles and instructions and remains ineligible. The designated AMD candidate exposes working privileged events, but its PMU policy and reboot stability are not yet qualified.
-3. The physical host exposes Python 3.14.4 while repository configuration pins Python 3.12.3; a direct policy diagnostic also observes ShellCheck 0.11 SC2329 differences from the pinned development lane. Qualification-tool deployment is not yet closed.
+3. The physical host exposes Python 3.14.4 while repository configuration pins Python 3.12.3; a direct policy diagnostic also observes ShellCheck 0.11 SC2329 differences from the pinned development lane. The narrow repository deployment implementation avoids replacing the `gpu-2` quality authority, but physical Python compatibility has not yet been proven by an accepted native bundle.
 4. JITSpMM has no license statement at the pinned inspection revision; no build or use is authorized unless M2 resolves that boundary.
 5. Corpus supports are specified but not materialized by code; no canonical support digests exist.
 6. Independent review remains absent. Task 6 self-review is recorded but is not substituted for it.
@@ -219,7 +238,7 @@ Self-review is not represented as independent review.
 M0 remains **OPEN**. Closing it requires:
 
 1. qualified, approved Target 0 manifest for the designated physical AMD host required by Option 2;
-2. exact qualification-tool deployment and two accepted controlled campaigns;
+2. complete exact-subject quality proof, matching accepted physical and `gpu-2` qualification-tool bundles, and two accepted controlled campaigns;
 3. resolution of the Task 7 versus M2 numerical-admission dependency conflict;
 4. independent review or explicit user acceptance of the documented review model.
 
@@ -227,13 +246,14 @@ M0 remains **OPEN**. Closing it requires:
 
 The earliest valid slice is still within M0:
 
-1. resolve an exact, reviewed deployment path for the already-implemented
-   qualification tools on the physical host without weakening the development
-   lock or repository checks;
-2. execute the Task 5 pre-session and reversible-control checks;
-3. run non-claiming qualification smoke, PMU, and noise characterization;
-4. complete campaign one;
-5. stop for separate approval before any controlled campaign reboot.
+1. prove the exact qualification-tool implementation subject under the complete
+   Debug and Release `gpu-2` quality gates and close the accepted review model;
+2. execute the reviewed native preparation command on the clean physical
+   checkout and prove matching physical/`gpu-2` bundle identities;
+3. execute the Task 5 pre-session and reversible-control checks;
+4. run non-claiming qualification smoke, PMU, and noise characterization;
+5. complete campaign one;
+6. stop for separate approval before any controlled campaign reboot.
 
 The reviewed engineering-quality-gates plan is now unblocked as independent development-environment work, but it cannot substitute for the measurement-host critical path or authorize M1 product code.
 
