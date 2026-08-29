@@ -31,6 +31,36 @@ TARGET_LOCK_PATH = (
 TARGET_LOCK_SCHEMA_PATH = (
     REPOSITORY_ROOT / "schemas/target0-toolchain-lock-v1.schema.json"
 )
+ELF_FILE_OUTPUT = (
+    "ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), "
+    "dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, "
+    "for GNU/Linux 3.2.0, "
+    "BuildID[sha1]=0123456789abcdef0123456789abcdef01234567, not stripped\n"
+)
+ELF_HEADER_OUTPUT = """ELF Header:
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Type:                              DYN (Position-Independent Executable file)
+  Machine:                           Advanced Micro Devices X86-64
+"""
+ELF_NOTES_OUTPUT = """Displaying notes found in: .note.gnu.build-id
+  Owner                Data size Description
+  GNU                  0x00000014 NT_GNU_BUILD_ID
+    Build ID: 0123456789abcdef0123456789abcdef01234567
+"""
+ELF_DYNAMIC_OUTPUT = """Dynamic section contains 4 entries:
+ 0x0000000000000001 (NEEDED) Shared library: [libstdc++.so.6]
+ 0x0000000000000001 (NEEDED) Shared library: [libm.so.6]
+ 0x0000000000000001 (NEEDED) Shared library: [libgcc_s.so.1]
+ 0x0000000000000001 (NEEDED) Shared library: [libc.so.6]
+"""
+ELF_LDD_OUTPUT = """linux-vdso.so.1 (0x00007fff00000000)
+libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f0000000000)
+libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f0000000000)
+libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f0000000000)
+libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f0000000000)
+/lib64/ld-linux-x86-64.so.2 (0x00007f0000000000)
+"""
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -961,6 +991,544 @@ class PrepareQualificationBundleBuildTest(unittest.TestCase):
                 "controlled compiler failure\n",
             )
             self.assertFalse((staging_root / "bin").exists())
+
+
+class PrepareQualificationBundleInspectionTest(unittest.TestCase):
+    """Verify pure ELF and loader-output parsing fails closed."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Load the production inspection module once."""
+        cls.module = load_preparation_module()
+        cls.lock = json.loads(TARGET_LOCK_PATH.read_text(encoding="utf-8"))
+
+    def inspection_responses(
+        self,
+        executable: Path,
+        *,
+        realpath_override: str | None = None,
+        owner_override: str | None = None,
+    ) -> tuple[
+        dict[tuple[str, ...], SimpleNamespace],
+        list[dict[str, object]],
+    ]:
+        """Return one complete deterministic runtime-inspection transcript."""
+        dependencies = (
+            (
+                "libstdc++.so.6",
+                "/lib/x86_64-linux-gnu/libstdc++.so.6",
+                "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34",
+                "libstdc++6:amd64",
+                "16-20260322-1ubuntu1",
+                2900000,
+                "1" * 64,
+            ),
+            (
+                "libm.so.6",
+                "/lib/x86_64-linux-gnu/libm.so.6",
+                "/usr/lib/x86_64-linux-gnu/libm.so.6",
+                "libc6:amd64",
+                "2.43-2ubuntu2.3",
+                940000,
+                "2" * 64,
+            ),
+            (
+                "libgcc_s.so.1",
+                "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+                "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1",
+                "libgcc-s1:amd64",
+                "16-20260322-1ubuntu1",
+                190000,
+                "3" * 64,
+            ),
+            (
+                "libc.so.6",
+                "/lib/x86_64-linux-gnu/libc.so.6",
+                "/usr/lib/x86_64-linux-gnu/libc.so.6",
+                "libc6:amd64",
+                "2.43-2ubuntu2.3",
+                2200000,
+                "4" * 64,
+            ),
+            (
+                "ld-linux-x86-64.so.2",
+                "/lib64/ld-linux-x86-64.so.2",
+                "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+                "libc6:amd64",
+                "2.43-2ubuntu2.3",
+                240000,
+                "5" * 64,
+            ),
+        )
+        responses = {
+            (
+                "/usr/bin/file",
+                "--brief",
+                "--dereference",
+                str(executable),
+            ): command_result(stdout=ELF_FILE_OUTPUT),
+            (
+                "/usr/bin/readelf",
+                "-h",
+                "-W",
+                str(executable),
+            ): command_result(stdout=ELF_HEADER_OUTPUT),
+            (
+                "/usr/bin/readelf",
+                "-n",
+                "-W",
+                str(executable),
+            ): command_result(stdout=ELF_NOTES_OUTPUT),
+            (
+                "/usr/bin/readelf",
+                "-d",
+                "-W",
+                str(executable),
+            ): command_result(stdout=ELF_DYNAMIC_OUTPUT),
+            ("/usr/bin/ldd", str(executable)): command_result(stdout=ELF_LDD_OUTPUT),
+        }
+        expected = []
+        for index, (
+            soname,
+            loader_path,
+            realpath,
+            package,
+            version,
+            size_bytes,
+            digest,
+        ) in enumerate(dependencies):
+            observed_realpath = (
+                realpath_override
+                if index == 0 and realpath_override is not None
+                else realpath
+            )
+            observed_package = (
+                owner_override
+                if index == 0 and owner_override is not None
+                else package
+            )
+            responses[("/usr/bin/readlink", "-f", loader_path)] = command_result(
+                stdout=f"{observed_realpath}\n"
+            )
+            responses[
+                ("/usr/bin/stat", "--format=%s", observed_realpath)
+            ] = command_result(stdout=f"{size_bytes}\n")
+            responses[("/usr/bin/sha256sum", observed_realpath)] = command_result(
+                stdout=f"{digest}  {observed_realpath}\n"
+            )
+            responses[("/usr/bin/dpkg-query", "-S", observed_realpath)] = (
+                command_result(stdout=f"{observed_package}: {observed_realpath}\n")
+            )
+            responses[
+                (
+                    "/usr/bin/dpkg-query",
+                    "-W",
+                    "-f=${Version}\\n",
+                    package,
+                )
+            ] = command_result(stdout=f"{version}\n")
+            expected.append(
+                {
+                    "soname": soname,
+                    "loader_path": loader_path,
+                    "realpath": realpath,
+                    "size_bytes": size_bytes,
+                    "sha256": digest,
+                    "package": {"name": package, "version": version},
+                }
+            )
+        return responses, expected
+
+    def test_valid_elf_and_loader_outputs_have_one_closed_identity(self) -> None:
+        """Canonical tool output must retain exact ELF and dependency facts."""
+        file_parser = getattr(self.module, "parse_file_identity", None)
+        header_parser = getattr(self.module, "parse_readelf_header", None)
+        note_parser = getattr(self.module, "parse_readelf_notes", None)
+        dynamic_parser = getattr(self.module, "parse_readelf_dynamic", None)
+        ldd_parser = getattr(self.module, "parse_ldd_dependencies", None)
+        for parser, description in (
+            (file_parser, "file parser"),
+            (header_parser, "ELF header parser"),
+            (note_parser, "ELF note parser"),
+            (dynamic_parser, "dynamic section parser"),
+            (ldd_parser, "loader parser"),
+        ):
+            self.assertTrue(callable(parser), f"{description} is missing")
+
+        interpreter = file_parser(ELF_FILE_OUTPUT)
+        header = header_parser(ELF_HEADER_OUTPUT)
+        build_id = note_parser(ELF_NOTES_OUTPUT)
+        needed = dynamic_parser(ELF_DYNAMIC_OUTPUT)
+        dependencies = ldd_parser(ELF_LDD_OUTPUT, needed, interpreter)
+
+        self.assertEqual(interpreter, "/lib64/ld-linux-x86-64.so.2")
+        self.assertEqual(
+            header,
+            {
+                "class": "ELF64",
+                "endianness": "little",
+                "machine": "Advanced Micro Devices X86-64",
+                "type": "DYN",
+            },
+        )
+        self.assertEqual(
+            build_id,
+            "0123456789abcdef0123456789abcdef01234567",
+        )
+        self.assertEqual(
+            needed,
+            (
+                "libstdc++.so.6",
+                "libm.so.6",
+                "libgcc_s.so.1",
+                "libc.so.6",
+            ),
+        )
+        self.assertEqual(
+            dependencies,
+            (
+                ("libstdc++.so.6", "/lib/x86_64-linux-gnu/libstdc++.so.6"),
+                ("libm.so.6", "/lib/x86_64-linux-gnu/libm.so.6"),
+                ("libgcc_s.so.1", "/lib/x86_64-linux-gnu/libgcc_s.so.1"),
+                ("libc.so.6", "/lib/x86_64-linux-gnu/libc.so.6"),
+                ("ld-linux-x86-64.so.2", interpreter),
+            ),
+        )
+        self.assertIsNone(note_parser("no GNU build identity\n"))
+
+    def test_malformed_or_ambiguous_elf_outputs_are_rejected(self) -> None:
+        """Wrong architecture and ambiguous dynamic facts cannot be accepted."""
+        malformed_outputs = (
+            (
+                self.module.parse_file_identity,
+                (
+                    ELF_FILE_OUTPUT.replace(
+                        "interpreter /lib64",
+                        "interpreter relative",
+                    ),
+                ),
+            ),
+            (
+                self.module.parse_readelf_header,
+                (ELF_HEADER_OUTPUT.replace("ELF64", "ELF32"),),
+            ),
+            (
+                self.module.parse_readelf_notes,
+                (ELF_NOTES_OUTPUT + "    Build ID: " + "a" * 40 + "\n",),
+            ),
+            (
+                self.module.parse_readelf_dynamic,
+                (
+                    ELF_DYNAMIC_OUTPUT
+                    + " 0x1 (NEEDED) Shared library: [libc.so.6]\n",
+                ),
+            ),
+        )
+        for parser, arguments in malformed_outputs:
+            with self.subTest(parser=parser.__name__):
+                with self.assertRaises(self.module.PreparationError):
+                    parser(*arguments)
+
+    def test_loader_rejects_unresolved_duplicate_relative_and_unexpected(self) -> None:
+        """Every loaded file must uniquely resolve from the ELF dependency set."""
+        parser = getattr(self.module, "parse_ldd_dependencies", None)
+        self.assertTrue(callable(parser), "loader parser is missing")
+        needed = (
+            "libstdc++.so.6",
+            "libm.so.6",
+            "libgcc_s.so.1",
+            "libc.so.6",
+        )
+        interpreter = "/lib64/ld-linux-x86-64.so.2"
+        mutations = (
+            ELF_LDD_OUTPUT.replace(
+                "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6",
+                "libm.so.6 => not found",
+            ),
+            ELF_LDD_OUTPUT
+            + "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x1)\n",
+            ELF_LDD_OUTPUT.replace(
+                "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+                "relative/libgcc_s.so.1",
+            ),
+            ELF_LDD_OUTPUT.replace(
+                "linux-vdso.so.1 (0x00007fff00000000)",
+                "libunexpected.so.1 => /lib/libunexpected.so.1 (0x1)",
+            ),
+        )
+        for output in mutations:
+            with self.subTest(output=output.splitlines()[0]):
+                with self.assertRaises(self.module.PreparationError):
+                    parser(output, needed, interpreter)
+
+    def test_inspection_retains_elf_logs_and_authenticated_dependencies(self) -> None:
+        """Runtime inspection must bind every system dependency and command log."""
+        inspector = getattr(self.module, "inspect_elf_runtime", None)
+        self.assertTrue(callable(inspector), "runtime inspector is missing")
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            staging_root = Path(temporary_directory)
+            staging_root.chmod(0o700)
+            executable_directory = staging_root / "bin"
+            executable_directory.mkdir(mode=0o700)
+            executable = executable_directory / "xoas-target0-qualification-probe"
+            executable.write_bytes(b"fixture ELF")
+            executable.chmod(0o700)
+            responses, expected_dependencies = self.inspection_responses(executable)
+            runner = ScriptedCommandRunner(responses)
+
+            inspection = inspector(executable, staging_root, self.lock, runner)
+
+            self.assertEqual(
+                inspection["elf"],
+                {
+                    "class": "ELF64",
+                    "endianness": "little",
+                    "machine": "Advanced Micro Devices X86-64",
+                    "type": "DYN",
+                    "interpreter": "/lib64/ld-linux-x86-64.so.2",
+                    "build_id": "0123456789abcdef0123456789abcdef01234567",
+                    "needed": [
+                        "libstdc++.so.6",
+                        "libm.so.6",
+                        "libgcc_s.so.1",
+                        "libc.so.6",
+                    ],
+                    "inspection_logs": inspection["elf"]["inspection_logs"],
+                },
+            )
+            self.assertEqual(
+                inspection["runtime_dependencies"],
+                expected_dependencies,
+            )
+            self.assertEqual(
+                [
+                    record["name"]
+                    for record in inspection["elf"]["inspection_logs"][:5]
+                ],
+                [
+                    "file",
+                    "readelf-header",
+                    "readelf-notes",
+                    "readelf-dynamic",
+                    "ldd",
+                ],
+            )
+            self.assertEqual(len(inspection["elf"]["inspection_logs"]), 30)
+            for log in inspection["elf"]["inspection_logs"]:
+                status_path = staging_root / f"inspection/{log['name']}.json"
+                self.assertEqual(
+                    hashlib.sha256(status_path.read_bytes()).hexdigest(),
+                    log["sha256"],
+                )
+                status = json.loads(status_path.read_text(encoding="utf-8"))
+                self.assertNotIn("environment", status)
+            for _, _, environment, _ in runner.calls:
+                self.assertEqual(
+                    environment,
+                    {
+                        "HOME": "/nonexistent",
+                        "LANG": "C.UTF-8",
+                        "LC_ALL": "C.UTF-8",
+                        "PATH": "/usr/bin:/usr/sbin",
+                    },
+                )
+
+    def test_inspection_rejects_non_system_realpath_and_wrong_owner(self) -> None:
+        """A writable injected file or false package attribution must reject."""
+        inspector = getattr(self.module, "inspect_elf_runtime", None)
+        self.assertTrue(callable(inspector), "runtime inspector is missing")
+        for realpath_override, owner_override in (
+            ("/var/tmp/injected-libstdc++.so.6", None),
+            (None, "unapproved-package:amd64"),
+        ):
+            with self.subTest(
+                realpath=realpath_override,
+                owner=owner_override,
+            ):
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    staging_root = Path(temporary_directory)
+                    executable_directory = staging_root / "bin"
+                    executable_directory.mkdir()
+                    executable = (
+                        executable_directory / "xoas-target0-qualification-probe"
+                    )
+                    executable.write_bytes(b"fixture ELF")
+                    executable.chmod(0o700)
+                    responses, _ = self.inspection_responses(
+                        executable,
+                        realpath_override=realpath_override,
+                        owner_override=owner_override,
+                    )
+                    with self.assertRaises(self.module.PreparationError):
+                        inspector(
+                            executable,
+                            staging_root,
+                            self.lock,
+                            ScriptedCommandRunner(responses),
+                        )
+
+    def compatibility_commands(
+        self,
+        accepted_probe: Path,
+    ) -> tuple[tuple[str, tuple[str, ...]], ...]:
+        """Return the exact physical compatibility-test command contract."""
+        return (
+            (
+                "python-byte-compilation",
+                (
+                    "/usr/bin/python3",
+                    "-m",
+                    "py_compile",
+                    "tools/target0/prepare_qualification_bundle.py",
+                    "tools/target0/capture_host.py",
+                ),
+            ),
+            (
+                "bash-syntax",
+                (
+                    "/usr/bin/bash",
+                    "-n",
+                    "tools/target0/measurement_session.sh",
+                ),
+            ),
+            (
+                "capture-host-fixtures",
+                ("/usr/bin/python3", "tests/target0/capture_host_test.py"),
+            ),
+            (
+                "measurement-session-fixtures",
+                (
+                    "/usr/bin/python3",
+                    "tests/target0/measurement_session_test.py",
+                ),
+            ),
+            (
+                "qualification-probe-behavior",
+                (
+                    "/usr/bin/python3",
+                    "tests/target0/qualification_probe_test.py",
+                    "--probe",
+                    str(accepted_probe),
+                    "--schema",
+                    "schemas/target0-host-qualification-v1.schema.json",
+                ),
+            ),
+        )
+
+    def test_compatibility_tests_use_allowlisted_environment_and_logs(self) -> None:
+        """Physical compatibility checks must retain a closed passing record."""
+        orchestrator = getattr(self.module, "run_compatibility_tests", None)
+        self.assertTrue(callable(orchestrator), "compatibility runner is missing")
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            staging_root = Path(temporary_directory)
+            bin_directory = staging_root / "bin"
+            bin_directory.mkdir()
+            accepted_probe = bin_directory / "xoas-target0-qualification-probe"
+            accepted_probe.write_bytes(b"fixture ELF")
+            accepted_probe.chmod(0o700)
+            commands = self.compatibility_commands(accepted_probe)
+            responses = {
+                command: command_result(stdout=f"{name} passed\n")
+                for name, command in commands
+            }
+            runner = ScriptedCommandRunner(responses)
+
+            records = orchestrator(
+                REPOSITORY_ROOT,
+                accepted_probe,
+                staging_root,
+                runner,
+            )
+
+            self.assertEqual(
+                [record["name"] for record in records],
+                [name for name, _ in commands],
+            )
+            self.assertTrue(all(record["status"] == "passed" for record in records))
+            for record in records:
+                self.assertEqual(record["exit_status"], 0)
+                retained = staging_root / f"compatibility/{record['name']}.json"
+                self.assertEqual(
+                    json.loads(retained.read_text(encoding="utf-8")),
+                    record,
+                )
+                self.assertNotIn("environment", record)
+            for _, working_directory, environment, _ in runner.calls:
+                self.assertEqual(working_directory, REPOSITORY_ROOT)
+                self.assertEqual(
+                    set(environment),
+                    {
+                        "HOME",
+                        "LANG",
+                        "LC_ALL",
+                        "PATH",
+                        "PYTHONPYCACHEPREFIX",
+                        "TMPDIR",
+                    },
+                )
+                self.assertEqual(environment["HOME"], "/nonexistent")
+                self.assertNotIn("SSH_AUTH_SOCK", environment)
+                self.assertNotIn("CXXFLAGS", environment)
+
+    def test_each_failed_compatibility_command_rejects_after_logging(self) -> None:
+        """No failed physical check may produce a compatibility acceptance set."""
+        orchestrator = getattr(self.module, "run_compatibility_tests", None)
+        self.assertTrue(callable(orchestrator), "compatibility runner is missing")
+        command_names = [name for name, _ in self.compatibility_commands(Path("/x"))]
+        for failure_index, failure_name in enumerate(command_names):
+            with self.subTest(name=failure_name):
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    staging_root = Path(temporary_directory)
+                    bin_directory = staging_root / "bin"
+                    bin_directory.mkdir()
+                    accepted_probe = (
+                        bin_directory / "xoas-target0-qualification-probe"
+                    )
+                    accepted_probe.write_bytes(b"fixture ELF")
+                    accepted_probe.chmod(0o700)
+                    commands = self.compatibility_commands(accepted_probe)
+                    responses = {
+                        command: command_result(
+                            returncode=1 if index == failure_index else 0,
+                            stderr="controlled failure\n"
+                            if index == failure_index
+                            else "",
+                        )
+                        for index, (_, command) in enumerate(commands)
+                    }
+                    with self.assertRaises(self.module.PreparationError):
+                        orchestrator(
+                            REPOSITORY_ROOT,
+                            accepted_probe,
+                            staging_root,
+                            ScriptedCommandRunner(responses),
+                        )
+                    failure_record = json.loads(
+                        (
+                            staging_root
+                            / f"compatibility/{failure_name}.json"
+                        ).read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(failure_record["status"], "failed")
+                    self.assertEqual(failure_record["exit_status"], 1)
+
+    def test_schema_meta_and_instance_validation_fail_closed(self) -> None:
+        """Installed draft-2020-12 validation must reject invalid contracts."""
+        validator = getattr(self.module, "validate_schema_instance", None)
+        self.assertTrue(callable(validator), "schema instance validator is missing")
+        example = json.loads(ARGUMENTS.example.read_text(encoding="utf-8"))
+        validator(ARGUMENTS.schema, example)
+
+        claiming = copy.deepcopy(example)
+        claiming["performance_claim"] = True
+        with self.assertRaises(self.module.PreparationError):
+            validator(ARGUMENTS.schema, claiming)
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            invalid_schema = Path(temporary_directory) / "invalid.schema.json"
+            invalid_schema.write_text('{"type": 7}\n', encoding="utf-8")
+            with self.assertRaises(self.module.PreparationError):
+                validator(invalid_schema, {})
 
 
 ARGUMENTS = parse_arguments()
