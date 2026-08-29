@@ -11,6 +11,8 @@ include(CTest)
 find_package(Git REQUIRED)
 find_program(XOAS_CLANG_FORMAT_EXECUTABLE NAMES clang-format-21 REQUIRED)
 
+include(cmake/quality/XoasWarnings.cmake)
+
 add_custom_target(
   format-check
   COMMAND

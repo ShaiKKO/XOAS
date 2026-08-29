@@ -62,3 +62,55 @@ add_test(
     -DXOAS_FORMAT_EXPECT_FAILURE=ON
     -DXOAS_FORMAT_VERIFY_NONMUTATION=ON
     -P "${PROJECT_SOURCE_DIR}/cmake/quality/FormatCheck.cmake")
+
+add_test(
+  NAME quality-compiler-warning-negative
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+    "-DXOAS_COMPILER_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/compiler/warning-negative.cpp.in"
+    "-DXOAS_COMPILER_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/compiler-warning-negative"
+    "-DXOAS_WARNING_FLAGS_ENCODED=${xoasWarningFlagsEncoded}"
+    -DXOAS_COMPILER_EXPECT_FAILURE=ON
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/CompilerCheck.cmake")
+
+add_library(
+  xoas_quality_compiler_positive OBJECT
+  fixtures/compiler/compliant.cpp)
+target_include_directories(
+  xoas_quality_compiler_positive
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/compiler")
+target_link_libraries(xoas_quality_compiler_positive PRIVATE xoas_warnings)
+
+set(xoasHeaderSelfSufficientSource
+    "${CMAKE_CURRENT_BINARY_DIR}/compiler-header-self-sufficient.cpp")
+file(
+  GENERATE
+  OUTPUT "${xoasHeaderSelfSufficientSource}"
+  CONTENT
+    "/// \\file\n/// Verifies that the compiler fixture header is self-sufficient.\n\n#include \"compliant.h\"\n")
+add_library(
+  xoas_quality_compiler_header_self_sufficient OBJECT
+  "${xoasHeaderSelfSufficientSource}")
+target_include_directories(
+  xoas_quality_compiler_header_self_sufficient
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/compiler")
+target_link_libraries(
+  xoas_quality_compiler_header_self_sufficient PRIVATE xoas_warnings)
+
+add_custom_target(
+  warnings
+  DEPENDS
+    xoas_quality_compiler_positive
+    xoas_quality_compiler_header_self_sufficient)
+
+add_test(
+  NAME quality-compiler-positive
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+    "-DXOAS_COMPILER_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/compiler/compliant.cpp"
+    "-DXOAS_COMPILER_INCLUDE_DIRECTORY=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/compiler"
+    "-DXOAS_COMPILER_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/compiler-positive"
+    "-DXOAS_WARNING_FLAGS_ENCODED=${xoasWarningFlagsEncoded}"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/CompilerCheck.cmake")

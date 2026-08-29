@@ -186,11 +186,11 @@ Update its contract state and evidence commands; leave every other unimplemented
 - Modify: `tests/quality/CMakeLists.txt`
 - Modify: `tests/quality/contracts/expected-gates.json`
 
-- [ ] **Step 1: Write a compiler-warning failure test**
+- [x] **Step 1: Write a compiler-warning failure test**
 
 Compile the copied negative fixture through a CMake script using the same interface policy intended for first-party targets. Require a selected high-signal warning to be promoted to an error. Confirm the test is red before adding the interface target.
 
-- [ ] **Step 2: Add one repository-owned warnings interface**
+- [x] **Step 2: Add one repository-owned warnings interface**
 
 Define `xoas_warnings` as the sole first-party warning-policy target. Start with:
 
@@ -216,11 +216,11 @@ Define `xoas_warnings` as the sole first-party warning-policy target. Start with
 
 Probe every additional flag with the locked Clang and omit only an unsupported flag with recorded evidence. Do not add global suppression flags.
 
-- [ ] **Step 3: Configure exact debug and release presets**
+- [x] **Step 3: Configure exact debug and release presets**
 
 Use Ninja, `clang-21`, `clang++-21`, and `ld.lld-21`. Require C++23 without compiler extensions and export `compile_commands.json`. Keep build roots below `build/` and make preset inheritance explicit.
 
-- [ ] **Step 4: Prove header self-sufficiency and both build types**
+- [x] **Step 4: Prove header self-sufficiency and both build types**
 
 Build the public fixture header as the first include in its source and in a one-header translation unit. Run:
 
@@ -235,7 +235,7 @@ ctest --preset dev-release -R quality-compiler-positive --output-on-failure
 
 Expected: negative warning fixture fails for the intended diagnostic; documented compliant fixture passes warning-free in debug and release.
 
-- [ ] **Step 5: Update the warning contract evidence**
+- [x] **Step 5: Update the warning contract evidence**
 
 Record the exact accepted flag list and compiler identity digest. Mark `warnings` green only after both configurations pass.
 

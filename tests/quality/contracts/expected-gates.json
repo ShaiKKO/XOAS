@@ -32,12 +32,19 @@
     },
     {
       "name": "warnings",
-      "state": "red",
+      "state": "green",
       "change_classes": ["handwritten_cpp"],
       "positive_fixtures": ["tests/quality/fixtures/compiler/compliant.cpp"],
       "negative_fixtures": ["tests/quality/fixtures/compiler/warning-negative.cpp.in"],
       "ci_required": true,
-      "evidence_commands": []
+      "evidence_commands": [
+        "cmake --preset dev-debug",
+        "cmake --build --preset dev-debug --target warnings",
+        "ctest --preset dev-debug -R quality-compiler --output-on-failure",
+        "cmake --preset dev-release",
+        "cmake --build --preset dev-release --target warnings",
+        "ctest --preset dev-release -R quality-compiler-positive --output-on-failure"
+      ]
     },
     {
       "name": "tidy",

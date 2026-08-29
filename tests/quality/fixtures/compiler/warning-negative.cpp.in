@@ -1,0 +1,8 @@
+/// \file
+/// Provides compiler-warning rejection input for the quality harness.
+
+namespace xoas::quality {
+
+int narrowUnsignedValue(unsigned int value) { return value; }
+
+} // namespace xoas::quality
