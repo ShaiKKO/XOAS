@@ -37,6 +37,15 @@ Approved proposals override the affected sections of lower-authority documents o
 
 Use the next unused `../adr/IDR-####-short-title.md` number for a durable, semantics-neutral implementation decision.
 
+## Implementation plans
+
+| Document | State | Scope |
+|---|---|---|
+| [`../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) | Prepared after written-spec approval; execution blocked on AR-0001's measurement-role decision | Reversible exact-version provisioning and verification of the primary development toolchain; excludes baselines and measurement qualification |
+| [`../superpowers/plans/2026-08-28-engineering-quality-gates.md`](../superpowers/plans/2026-08-28-engineering-quality-gates.md) | Prepared; depends on the verified toolchain plan; execution not started | Local quality fixtures/targets, pinned hosted CI, and protected `main`; excludes product/compiler implementation |
+
+An implementation plan does not change architecture authority. Its execution must preserve the controlling specification and record exact commits and evidence.
+
 ## Milestone control and acceptance
 
 | Document                                                                             | State                       | Purpose                                                   |

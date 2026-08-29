@@ -2,6 +2,8 @@
 
 **Status:** Approved design; mandatory for new first-party code.
 
+**Written-spec approval:** Approved by the user on 2026-08-28.
+
 **Approval:** User / architecture authority, 2026-08-28.
 
 **Enforcement state:** The contract is active for review, but its automated toolchain is not yet implemented.

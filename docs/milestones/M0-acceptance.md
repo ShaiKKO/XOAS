@@ -125,11 +125,12 @@ M0 remains **OPEN**. Closing it requires:
 
 The earliest valid slice is still within M0:
 
-1. obtain the remaining AR-0001 measurement-role decision;
-2. write and review a reversible host-provisioning/qualification plan for the selected host;
-3. install and pin the C++ toolchain and admitted baselines;
-4. enable/verify measurement controls and PMU evidence;
-5. run non-claiming qualification smoke and noise characterization;
-6. update the target manifest and this acceptance record.
+1. obtain and record the remaining AR-0001 measurement-role decision;
+2. execute the reviewed reversible `gpu-2` development-toolchain plan without treating it as measurement qualification;
+3. write and review the qualification/baseline plan for the selected measurement host;
+4. install and pin the admitted baselines on that selected measurement host;
+5. enable/verify measurement controls and PMU evidence;
+6. run non-claiming qualification smoke and noise characterization;
+7. update the target manifest and this acceptance record.
 
 M1 product implementation does not begin while M0 remains open.

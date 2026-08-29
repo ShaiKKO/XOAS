@@ -2,6 +2,8 @@
 
 **Status:** Accepted design; enforcement implementation pending
 
+**Written-spec approval:** Approved by the user on 2026-08-28.
+
 **Decision date:** 2026-08-28
 
 **Decision owner:** User / architecture authority

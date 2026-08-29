@@ -441,6 +441,8 @@ Read and update [`docs/milestones/status.md`](docs/milestones/status.md).
 
 Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, candidate-host capture, approved engineering-quality design, and target-host proposal exist. The user has designated `gpu-2` as the primary development environment; whether it may also become the Target 0 measurement host remains open. No product implementation begins before M0 closes.
 
+The written engineering-quality specification is approved. Its dependency-ordered execution plans are [`docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) and [`docs/superpowers/plans/2026-08-28-engineering-quality-gates.md`](docs/superpowers/plans/2026-08-28-engineering-quality-gates.md). Neither plan has been executed; the planned commands and target names are not yet repository capabilities.
+
 The earliest executable slice remains M0 target qualification: obtain the `AR-0001` decision, provision and pin the selected C++ toolchain and admitted baselines on the approved host, establish the required measurement controls and PMU evidence, run non-claiming qualification/noise checks, execute full schema validation, obtain the required review, and update the acceptance record. Do not begin M1 product scaffolding to bypass these blockers.
 
 Do not embed percentage estimates. Record states, exact commits, evidence, deviations, and gates.
