@@ -1,0 +1,241 @@
+{
+  "manifest_version": "xoas.development-toolchain.v1",
+  "lock_id": "gpu-2-development-toolchain-v1-20260829t013505z",
+  "captured_at_utc": "2026-08-29T01:35:05Z",
+  "execution_subject": "ef69e48d4d47cc26fb59999ccc283a835f122c4a",
+  "state": "resolved_not_installed",
+  "host": {
+    "hostname": "gpu-2",
+    "operating_system": "Ubuntu 24.04.4 LTS",
+    "codename": "noble",
+    "architecture": "amd64"
+  },
+  "archive": {
+    "source_url": "https://apt.llvm.org/noble/",
+    "suite": "llvm-toolchain-noble-21",
+    "component": "main",
+    "key_fingerprint": "6084F3CF814B57C1CF12EFD515CF4D18AF4F7421",
+    "keyring_sha256": "99f4985fd25cdf4c15b07fd6139d5e205cbd39bab1c65d83484efc92a1d67344",
+    "source_file_sha256": "8045d768789c700c422e596754817f155032b7dd78ac30a025629007900adb3d",
+    "apt_refreshed_at_utc": "2026-08-29T01:33:11Z"
+  },
+  "requested_packages": [
+    {
+      "name": "build-essential",
+      "version": "12.10ubuntu1",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble/main",
+      "reason": "Host libstdc++ headers and standard native build utilities",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "cmake",
+      "version": "3.28.3-1build7",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble/main",
+      "reason": "Repository configuration and quality-target orchestration",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "ninja-build",
+      "version": "1.11.1-2",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble/universe",
+      "reason": "Deterministic primary CMake build executor",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "doxygen",
+      "version": "1.9.8+ds-2ubuntu0.1",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble-updates/universe",
+      "reason": "Public-interface documentation validation",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "graphviz",
+      "version": "2.42.2-9ubuntu0.1",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble-updates/universe",
+      "reason": "Doxygen graph rendering support",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "pkg-config",
+      "version": "1.8.1-2build1",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble/main",
+      "reason": "Native dependency discovery for verified development probes",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "sqlite3",
+      "version": "3.45.1-1ubuntu2.7",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble-updates/main",
+      "reason": "Artifact and experiment database inspection tooling",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "libsqlite3-dev",
+      "version": "3.45.1-1ubuntu2.7",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble-updates/main",
+      "reason": "SQLite development headers and link metadata",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "python3-jsonschema",
+      "version": "4.10.3-2ubuntu1",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble/main",
+      "reason": "Draft 2020-12 schema and manifest validation",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "python3-yaml",
+      "version": "6.0.1-2build2",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble/main",
+      "reason": "Hosted-workflow syntax validation",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "shellcheck",
+      "version": "0.9.0-1",
+      "origin_class": "ubuntu_noble",
+      "origin_url": "http://debmirror.eu-de.otc-service.com/ubuntu",
+      "origin_suite": "noble/universe",
+      "reason": "First-party shell tooling diagnostics",
+      "hold_policy": "version_drift_gate"
+    },
+    {
+      "name": "clang-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "origin_class": "apt_llvm_noble_21",
+      "origin_url": "https://apt.llvm.org/noble",
+      "origin_suite": "llvm-toolchain-noble-21/main",
+      "reason": "Pinned C++23 compiler driver",
+      "hold_policy": "entry_package_hold"
+    },
+    {
+      "name": "clang-tools-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "origin_class": "apt_llvm_noble_21",
+      "origin_url": "https://apt.llvm.org/noble",
+      "origin_suite": "llvm-toolchain-noble-21/main",
+      "reason": "Pinned Clang source-analysis utilities",
+      "hold_policy": "entry_package_hold"
+    },
+    {
+      "name": "clang-format-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "origin_class": "apt_llvm_noble_21",
+      "origin_url": "https://apt.llvm.org/noble",
+      "origin_suite": "llvm-toolchain-noble-21/main",
+      "reason": "Pinned non-mutating C++ formatting enforcement",
+      "hold_policy": "entry_package_hold"
+    },
+    {
+      "name": "clang-tidy-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "origin_class": "apt_llvm_noble_21",
+      "origin_url": "https://apt.llvm.org/noble",
+      "origin_suite": "llvm-toolchain-noble-21/main",
+      "reason": "Pinned C++ static-analysis enforcement",
+      "hold_policy": "entry_package_hold"
+    },
+    {
+      "name": "clangd-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "origin_class": "apt_llvm_noble_21",
+      "origin_url": "https://apt.llvm.org/noble",
+      "origin_suite": "llvm-toolchain-noble-21/main",
+      "reason": "Pinned editor language-service implementation",
+      "hold_policy": "entry_package_hold"
+    },
+    {
+      "name": "lld-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "origin_class": "apt_llvm_noble_21",
+      "origin_url": "https://apt.llvm.org/noble",
+      "origin_suite": "llvm-toolchain-noble-21/main",
+      "reason": "Pinned LLVM linker",
+      "hold_policy": "entry_package_hold"
+    },
+    {
+      "name": "llvm-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "origin_class": "apt_llvm_noble_21",
+      "origin_url": "https://apt.llvm.org/noble",
+      "origin_suite": "llvm-toolchain-noble-21/main",
+      "reason": "Pinned LLVM archive coverage and profiling tools",
+      "hold_policy": "entry_package_hold"
+    },
+    {
+      "name": "libclang-rt-21-dev",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "origin_class": "apt_llvm_noble_21",
+      "origin_url": "https://apt.llvm.org/noble",
+      "origin_suite": "llvm-toolchain-noble-21/main",
+      "reason": "Pinned AddressSanitizer and UndefinedBehaviorSanitizer runtimes",
+      "hold_policy": "entry_package_hold"
+    }
+  ],
+  "installed_package_closure": [],
+  "expected_binaries": [
+    {"name": "clang-21"},
+    {"name": "clang++-21"},
+    {"name": "clang-format-21"},
+    {"name": "clang-tidy-21"},
+    {"name": "clangd-21"},
+    {"name": "ld.lld-21"},
+    {"name": "llvm-ar-21"},
+    {"name": "llvm-cov-21"},
+    {"name": "llvm-profdata-21"},
+    {"name": "cmake"},
+    {"name": "ninja"},
+    {"name": "doxygen"},
+    {"name": "dot"},
+    {"name": "pkg-config"},
+    {"name": "sqlite3"},
+    {"name": "shellcheck"},
+    {"name": "python3"},
+    {"name": "git"}
+  ],
+  "validations": [
+    {"name": "cxx23_warning_clean", "result": "pending"},
+    {"name": "clang_format_negative_positive", "result": "pending"},
+    {"name": "clang_tidy_reserved_identifier", "result": "pending"},
+    {"name": "address_sanitizer_negative", "result": "pending"},
+    {"name": "undefined_behavior_sanitizer_negative", "result": "pending"},
+    {"name": "sanitizer_positive", "result": "pending"},
+    {"name": "cmake_ninja_ctest", "result": "pending"},
+    {"name": "doxygen_warnings_as_errors", "result": "pending"},
+    {"name": "sqlite_pkg_config", "result": "pending"},
+    {"name": "jsonschema_and_yaml", "result": "pending"}
+  ],
+  "rollback": {
+    "system_paths": [
+      "/usr/share/keyrings/xoas-llvm-archive-keyring.gpg",
+      "/etc/apt/sources.list.d/xoas-llvm-21.list"
+    ],
+    "prestate_package_count": 768,
+    "prestate_package_list_sha256": "865058047b8e7d9430cd10fc591f601c9ac6a950f89055543129fd75283a3d0d",
+    "removal_simulation_state": "not_run"
+  },
+  "pre_existing_holds": [],
+  "configuration_sha256": "bf49239db2f78403ee592c1d1ddfaebdd7d9597433b6d39bbcfc7d0c4427347a",
+  "build_ready": false,
+  "target0_measurement_qualified": false
+}

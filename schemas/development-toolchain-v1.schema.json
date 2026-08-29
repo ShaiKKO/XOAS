@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xoas.dev/schemas/development-toolchain-v1.schema.json",
+  "title": "XOAS Development Toolchain Lock v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "lock_id",
+    "captured_at_utc",
+    "execution_subject",
+    "state",
+    "host",
+    "archive",
+    "requested_packages",
+    "installed_package_closure",
+    "expected_binaries",
+    "validations",
+    "rollback",
+    "pre_existing_holds",
+    "configuration_sha256",
+    "build_ready",
+    "target0_measurement_qualified"
+  ],
+  "properties": {
+    "manifest_version": {
+      "const": "xoas.development-toolchain.v1"
+    },
+    "lock_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]+$"
+    },
+    "captured_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "execution_subject": {
+      "$ref": "#/$defs/gitCommit"
+    },
+    "state": {
+      "enum": [
+        "resolved_not_installed",
+        "installed_unverified",
+        "installed_verified"
+      ]
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hostname", "operating_system", "codename", "architecture"],
+      "properties": {
+        "hostname": {"const": "gpu-2"},
+        "operating_system": {"const": "Ubuntu 24.04.4 LTS"},
+        "codename": {"const": "noble"},
+        "architecture": {"const": "amd64"}
+      }
+    },
+    "archive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_url",
+        "suite",
+        "component",
+        "key_fingerprint",
+        "keyring_sha256",
+        "source_file_sha256",
+        "apt_refreshed_at_utc"
+      ],
+      "properties": {
+        "source_url": {"const": "https://apt.llvm.org/noble/"},
+        "suite": {"const": "llvm-toolchain-noble-21"},
+        "component": {"const": "main"},
+        "key_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9A-F]{40}$"
+        },
+        "keyring_sha256": {"$ref": "#/$defs/sha256"},
+        "source_file_sha256": {"$ref": "#/$defs/sha256"},
+        "apt_refreshed_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "requested_packages": {
+      "type": "array",
+      "minItems": 19,
+      "maxItems": 19,
+      "items": {"$ref": "#/$defs/requestedPackage"}
+    },
+    "installed_package_closure": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/installedPackage"}
+    },
+    "expected_binaries": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "items": {"$ref": "#/$defs/binaryIdentity"}
+    },
+    "validations": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {"$ref": "#/$defs/validation"}
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "system_paths",
+        "prestate_package_count",
+        "prestate_package_list_sha256",
+        "removal_simulation_state"
+      ],
+      "properties": {
+        "system_paths": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "enum": [
+              "/usr/share/keyrings/xoas-llvm-archive-keyring.gpg",
+              "/etc/apt/sources.list.d/xoas-llvm-21.list"
+            ]
+          }
+        },
+        "prestate_package_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prestate_package_list_sha256": {"$ref": "#/$defs/sha256"},
+        "removal_simulation_state": {
+          "enum": ["not_run", "passed"]
+        },
+        "removal_simulation_summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "pre_existing_holds": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "configuration_sha256": {"$ref": "#/$defs/sha256"},
+    "build_ready": {"type": "boolean"},
+    "target0_measurement_qualified": {"const": false}
+  },
+  "$defs": {
+    "gitCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "requestedPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "origin_class",
+        "origin_url",
+        "origin_suite",
+        "reason",
+        "hold_policy"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9+.-]+$"
+        },
+        "version": {"type": "string", "minLength": 1},
+        "origin_class": {
+          "enum": ["ubuntu_noble", "apt_llvm_noble_21"]
+        },
+        "origin_url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "origin_suite": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1},
+        "hold_policy": {
+          "enum": ["entry_package_hold", "version_drift_gate"]
+        }
+      }
+    },
+    "installedPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "architecture"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "architecture": {"type": "string", "minLength": 1}
+      }
+    },
+    "binaryIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "pattern": "^/usr/"},
+        "version_line": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "result"],
+      "properties": {
+        "name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]+$"},
+        "result": {"enum": ["pending", "passed", "failed"]},
+        "evidence": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"state": {"const": "resolved_not_installed"}},
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "installed_package_closure": {"maxItems": 0},
+          "build_ready": {"const": false},
+          "expected_binaries": {
+            "items": {
+              "not": {"required": ["path", "version_line", "sha256"]}
+            }
+          },
+          "validations": {
+            "items": {
+              "properties": {"result": {"const": "pending"}}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"state": {"const": "installed_verified"}},
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "installed_package_closure": {"minItems": 1},
+          "build_ready": {"const": true},
+          "expected_binaries": {
+            "items": {"required": ["path", "version_line", "sha256"]}
+          },
+          "validations": {
+            "items": {
+              "required": ["evidence"],
+              "properties": {"result": {"const": "passed"}}
+            }
+          },
+          "rollback": {
+            "properties": {
+              "removal_simulation_state": {"const": "passed"}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -60,6 +60,9 @@ An implementation plan does not change architecture authority. Its execution mus
 | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
 | [`../../AGENTS.md`](../../AGENTS.md)                                                                                         | Active operating manual          | Repository-wide engineering rules; never overrides architecture                    |
 | [`../engineering/coding-standards.md`](../engineering/coding-standards.md)                                                   | Approved normative design; automation pending | Source naming/comments, quality gates, suppression policy, review, and CI authority |
+| [`../toolchain/gpu-2-development-toolchain-v1.md`](../toolchain/gpu-2-development-toolchain-v1.md)                           | Pre-install intent; package installation not started | Non-secret provisioning pre-state, source authentication, rollback, and probe evidence |
+| [`../../toolchains/gpu-2-development-toolchain-v1.lock.json`](../../toolchains/gpu-2-development-toolchain-v1.lock.json)     | Exact pre-install lock; `build_ready=false` | Versioned package intent, executable/probe contract, and stable configuration digest |
+| [`../../schemas/development-toolchain-v1.schema.json`](../../schemas/development-toolchain-v1.schema.json)                   | Draft 2020-12 lock schema | Closed machine-readable development-toolchain evidence contract |
 | [`../repository_discovery_and_project_understanding_report.md`](../repository_discovery_and_project_understanding_report.md) | Point-in-time discovery snapshot | Verified repository, development-host, toolchain, and evidence state at 2026-08-28 |
 
 ## Research and benchmark evidence
