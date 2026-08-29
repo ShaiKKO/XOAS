@@ -163,6 +163,8 @@ The local Apple M4/macOS machine is not valid for Target 0 performance evidence.
 
 ### Commands currently verified
 
+The following repository-inspection commands are verified in the local primary checkout. Do not infer that every local utility is installed on `gpu-2`:
+
 ```bash
 git status --short --branch
 git branch --show-current
@@ -194,6 +196,8 @@ shellcheck --version
 python3 --version
 git --version
 ```
+
+`ripgrep` is not installed on `gpu-2` and was outside the approved development-toolchain lock. Use `git ls-files`, `find`, or `grep` there when `rg` is unavailable; add packages only through a reviewed toolchain update.
 
 Run full schema and toolchain-lock validation from the repository root on `gpu-2`:
 
