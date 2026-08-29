@@ -128,6 +128,8 @@ XOAS did not register or select a Clang alternative; `update-alternatives --quer
 The plan's prohibition is enforced as no project-managed global Clang alternative, while this package-managed Ubuntu default is retained and disclosed.
 
 The full installed dependency closure, including architecture and every observed APT origin line, is retained in the machine-readable lock.
+The raw dpkg pre-state, both install logs, standalone closure, removal simulation, package specifications, pre-install simulation, and pre-install lock/schema are retained outside Git on `gpu-2` under the mode-0700 operator-private directory `$HOME/.local/state/xoas/development-toolchains/gpu-2-v1-20260829/`.
+Every retained file and `SHA256SUMS` is mode 0600; `sha256sum -c SHA256SUMS` passed before the byte-matched `/tmp` copies were removed.
 
 ## Behavioral Verification
 
