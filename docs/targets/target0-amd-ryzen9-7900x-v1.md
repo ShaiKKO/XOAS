@@ -4,6 +4,8 @@
 
 **Performance claim:** none
 
+**Task 3 implementation:** `ee57ff5e4af01fecb11fffd985e376d636560434`
+
 **Controlling plan:**
 [`2026-08-29-amd-target0-host-qualification.md`](../superpowers/plans/2026-08-29-amd-target0-host-qualification.md)
 

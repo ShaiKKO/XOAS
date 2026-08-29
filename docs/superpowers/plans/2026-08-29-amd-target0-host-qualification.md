@@ -372,7 +372,7 @@ Set `target0_measurement_qualified=false`, `performance_claim=false`, and name
 every remaining campaign, baseline, restoration, review, and reboot gate. Do
 not compute the final compatibility digest; M1 owns canonical binary identity.
 
-- [ ] **Step 7: Validate and commit the lock**
+- [x] **Step 7: Validate and commit the lock**
 
 ```bash
 python3 -m jsonschema -i toolchains/target0-amd-ryzen9-7900x-v1.lock.json schemas/target0-toolchain-lock-v1.schema.json
@@ -382,6 +382,8 @@ git diff --check
 git add AGENTS.md cmake/quality/RepositoryPolicy.cmake docs/architecture/README.md docs/milestones/M0-acceptance.md docs/milestones/status.md docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md schemas/target0-toolchain-lock-v1.schema.json toolchains/target0-amd-ryzen9-7900x-v1.lock.json docs/targets/target0-amd-ryzen9-7900x-v1.md benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json
 git commit -m "ops: lock Target 0 provisioning intent"
 ```
+
+Implemented at `ee57ff5e4af01fecb11fffd985e376d636560434`.
 
 ---
 
