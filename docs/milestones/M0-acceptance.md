@@ -48,7 +48,7 @@ any existing applicable comparator.
 | Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Historical candidate capture committed at `6e6adf3`; its development toolchain is now verified, but Option 2 keeps it ineligible as the reference target |
 | Architecture index and operating manual | [`../architecture/README.md`](../architecture/README.md) and root [`../../AGENTS.md`](../../AGENTS.md) | Integrated and verified at `3d635d3` |
 | Target qualification process contract | [`../../schemas/target0-host-qualification-v1.schema.json`](../../schemas/target0-host-qualification-v1.schema.json), [`../../tools/target0/qualification_probe.cpp`](../../tools/target0/qualification_probe.cpp), and behavioral tests | Task 1 implemented at `8a247a2`; this is non-claiming host-qualification tooling and does not qualify the AMD target |
-| Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented and fixture-verified; no real host control was changed and Tasks 3–7 remain open |
+| Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented and fixture-verified at `864f7fa`; no real host control was changed and Tasks 3–7 remain open |
 
 ## Exit-gate statement
 

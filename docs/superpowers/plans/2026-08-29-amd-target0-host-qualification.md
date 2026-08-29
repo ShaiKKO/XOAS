@@ -281,6 +281,8 @@ git diff --cached --check
 git commit -m "tool: add reversible Target 0 host controls"
 ```
 
+Implemented at `864f7fa17aa576831aaa2e54fa16cfe34817baa2`.
+
 ---
 
 ## Task 3: Capture Pre-State and Freeze the Exact Provisioning Lock
