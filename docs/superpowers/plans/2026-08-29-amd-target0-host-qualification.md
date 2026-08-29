@@ -72,9 +72,9 @@ and [`docs/experiments/baseline-matrix.md`](../../experiments/baseline-matrix.md
 - Create: `schemas/target0-host-qualification-v1.schema.json`
 - Create: `tools/target0/CMakeLists.txt`
 - Create: `tools/target0/qualification_probe.cpp`
+- Create: `tests/target0/CMakeLists.txt`
 - Create: `tests/target0/qualification_probe_test.py`
 - Modify: `CMakeLists.txt`
-- Modify: `tests/CMakeLists.txt`
 
 **Interfaces:**
 
@@ -85,6 +85,11 @@ and [`docs/experiments/baseline-matrix.md`](../../experiments/baseline-matrix.md
   object containing process/round order, CPU observations, raw nanoseconds,
   checksum, thread count, context-switch deltas, timer-overhead samples, and
   failure status.
+- The process record contains only facts observed or computed by the running
+  probe. Task 5 binds it to the externally recomputed probe executable
+  SHA-256, compiler identity, repository commit/tree state, and boot ID digest
+  in the retained campaign evidence. This keeps provenance independent of the
+  executable it authenticates and avoids an undeclared C++ hashing dependency.
 
 - [ ] **Step 1: Add failing CLI and schema tests**
 
@@ -119,11 +124,10 @@ fails.
 - [ ] **Step 2: Define the closed process-result schema**
 
 Use draft 2020-12 and `additionalProperties: false` for every closed object.
-Require exact manifest version, non-claiming boolean, probe executable SHA-256,
-compiler identity, repository commit/tree state, boot ID digest, CPU request,
-affinity mask, warm-up and retained counts, fixed iteration count, seed,
-timer clock, timer-overhead vector, process context-switch deltas, maximum
-thread count, ordered raw samples, checksum, status, and failure reasons.
+Require exact manifest version, non-claiming boolean, CPU request, affinity
+mask, warm-up and retained counts, fixed iteration count, seed, timer clock,
+timer-overhead vector, process context-switch deltas, maximum thread count,
+ordered raw samples, checksum, status, and failure reasons.
 
 Each raw sample requires `round`, `elapsed_ns`, start/end CPU, checksum, and
 voluntary/involuntary context-switch deltas. Reject nonpositive durations,
@@ -168,7 +172,7 @@ python3 -m jsonschema \
 - [ ] **Step 5: Commit the probe contract**
 
 ```bash
-git add CMakeLists.txt tests/CMakeLists.txt schemas/target0-host-qualification-v1.schema.json tools/target0/CMakeLists.txt tools/target0/qualification_probe.cpp tests/target0/qualification_probe_test.py
+git add CMakeLists.txt tests/target0/CMakeLists.txt schemas/target0-host-qualification-v1.schema.json tools/target0/CMakeLists.txt tools/target0/qualification_probe.cpp tests/target0/qualification_probe_test.py
 git diff --cached --check
 git commit -m "test: add Target 0 qualification probe"
 ```
@@ -184,7 +188,7 @@ git commit -m "test: add Target 0 qualification probe"
 - Create: `tests/target0/capture_host_test.py`
 - Create: `tests/target0/measurement_session_test.py`
 - Modify: `tools/target0/CMakeLists.txt`
-- Modify: `tests/CMakeLists.txt`
+- Modify: `tests/target0/CMakeLists.txt`
 
 **Interfaces:**
 
@@ -249,7 +253,8 @@ Do not modify persistent files or global IRQ affinity.
 - [ ] **Step 5: Run script, Python, and policy checks**
 
 ```bash
-python3 -m unittest tests.target0.capture_host_test tests.target0.measurement_session_test
+python3 tests/target0/capture_host_test.py
+python3 tests/target0/measurement_session_test.py
 shellcheck tools/target0/measurement_session.sh
 cmake --build --preset dev-debug --target repository-policy
 ctest --preset dev-debug -R target0-host-tools --output-on-failure
@@ -259,7 +264,7 @@ git diff --check
 - [ ] **Step 6: Commit the host tools**
 
 ```bash
-git add tools/target0/capture_host.py tools/target0/measurement_session.sh tests/target0/capture_host_test.py tests/target0/measurement_session_test.py tools/target0/CMakeLists.txt tests/CMakeLists.txt
+git add tools/target0/capture_host.py tools/target0/measurement_session.sh tests/target0/capture_host_test.py tests/target0/measurement_session_test.py tools/target0/CMakeLists.txt tests/target0/CMakeLists.txt
 git diff --cached --check
 git commit -m "tool: add reversible Target 0 host controls"
 ```
@@ -526,6 +531,11 @@ Require exclusive-use confirmation, load below `0.5` at one-minute average,
 no unexpected user sessions, no thermal alarm, TSC clocksource, unchanged boot
 identity within the campaign, unchanged target/toolchain identity, and a clean
 XOAS checkout at the exact campaign commit.
+
+Before any process runs, independently recompute and retain the probe
+executable SHA-256, compiler executable SHA-256 and version identity, XOAS
+commit/tree state, and boot ID digest. Bind every process record to those
+values in the campaign evidence; reject the campaign if any value changes.
 
 - [ ] **Step 3: Execute five fresh qualification processes**
 
