@@ -631,7 +631,7 @@ response to match the desired checks, providing App IDs, and booleans.
 
 Re-read the protection API and branch record. Confirm `protected: true`, all five contexts, force-push prohibition, deletion prohibition, and PR policy. Do not test by force-pushing or deleting a branch.
 
-- [ ] **Step 5: Record the applied timestamp and commit identity**
+- [x] **Step 5: Record the applied timestamp and commit identity**
 
 Update the record and IDR with the exact CI commit, successful run IDs, protection response digest, and operator. Commit through the now-required pull-request path if protection prevents direct update.
 
@@ -649,7 +649,7 @@ Update the record and IDR with the exact CI commit, successful run IDs, protecti
 - Modify: `docs/milestones/status.md`
 - Modify: `docs/architecture/README.md`
 
-- [ ] **Step 1: Replace planned-state language with exact verified commands**
+- [x] **Step 1: Replace planned-state language with exact verified commands**
 
 Update root `AGENTS.md` with:
 
@@ -663,11 +663,11 @@ Update root `AGENTS.md` with:
 
 Do not include commands that were not executed successfully.
 
-- [ ] **Step 2: Update enforcement status**
+- [x] **Step 2: Update enforcement status**
 
 Mark the standard automated only after local and hosted results pass. Mark IDR-0001 enforcement implemented only after protection is verified. Keep exceptions/RTTI, license-header text, M0 measurement qualification, baselines, and product implementation open.
 
-- [ ] **Step 3: Run full final verification on the exact review commit**
+- [x] **Step 3: Run full final verification on the exact review commit**
 
 ```bash
 cmake --preset dev-debug
@@ -681,11 +681,11 @@ git status --short --branch
 
 Then require the five hosted contexts to pass for the same commit or the resulting pull-request merge commit, and verify branch protection again.
 
-- [ ] **Step 4: Inspect generated and retained artifacts**
+- [x] **Step 4: Inspect generated and retained artifacts**
 
 Inspect the generated fixture source, Doxygen warnings log, compile commands, sanitizer harness logs, CTest results, action lock, and branch-protection record. Confirm build artifacts are ignored and no credential or network access datum is tracked.
 
-- [ ] **Step 5: Commit through protected main and report exact evidence**
+- [x] **Step 5: Commit through protected main and report exact evidence**
 
 Use the required pull-request/check path. Report:
 

@@ -1,6 +1,6 @@
 # IDR-0001: LLVM-Derived Engineering Quality System
 
-**Status:** Accepted design; development toolchain verified; enforcement implementation pending
+**Status:** Accepted and implemented; enforced on protected `main`
 
 **Written-spec approval:** Approved by the user on 2026-08-28.
 
@@ -12,7 +12,8 @@
 
 ## Context
 
-XOAS is beginning from an evidence-first architecture with no product source or build system.
+XOAS is beginning from an evidence-first architecture with no product source.
+The implemented build system currently owns engineering-quality fixtures only.
 The project will generate and execute numerical code whose correctness depends on explicit IR ownership, numerical legality, target compatibility, and reproducible artifacts.
 Permissive or informal source practices would make those obligations harder to audit and preserve.
 
@@ -318,8 +319,12 @@ five exact names and App IDs, strict freshness, administrator enforcement, the
 pull-request path with zero external approvals, stale-review dismissal, linear
 history, and conversation resolution.
 It also proved force pushes and branch deletion disabled.
-Publication of this record through the protected pull-request path remains the
-final Task 10 step.
+PR
+[`#1`](https://github.com/ShaiKKO/XOAS/pull/1)
+published this record through the protected path as merge commit
+`6516866b4266a7418fb62997acd664c74fc23ec3` at `2026-08-29T07:09:27Z`.
+Post-merge hosted run `33240177610` passed all five required checks, and a
+subsequent protection read confirmed the rule unchanged at that exact commit.
 
 The exact manifest and identifier options are reviewable in the repository's
 `.clang-tidy` file.

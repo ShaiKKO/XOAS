@@ -101,6 +101,14 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/architecture/proposals/AR-0001-target-0-host-qualification.md` — approved primary-development designation and open load-bearing measurement-host decision.
 - `docs/engineering/coding-standards.md` — approved LLVM-derived source, documentation, enforcement, and review contract.
 - `docs/adr/IDR-0001-engineering-quality-system.md` — accepted engineering-quality design and staged implementation decision.
+- `CMakeLists.txt` and `CMakePresets.json` — quality-only C++23 build, test, and sanitizer surface; they do not contain product modules.
+- `.clang-format`, `.clang-tidy`, `.editorconfig`, and `Doxyfile.in` — pinned first-party formatting, static-analysis, editor, and documentation policy.
+- `cmake/quality/` — reusable non-product quality checks, aggregate orchestration, and bounded cleanup.
+- `tests/quality/` — positive/negative policy fixtures, closed quality contract, and CTest registrations; it is not a product test suite.
+- `.github/workflows/quality.yml` — SHA-pinned GitHub-hosted enforcement with five required jobs.
+- `toolchains/github-actions-v1.lock.json` — exact hosted action, runner, archive, and package lock.
+- `docs/engineering/main-branch-protection-v1.json` and its adjacent request file — schema-valid live protection evidence, exact mutation body, and reversal.
+- `tools/ci/install-locked-toolchain.sh` — ephemeral hosted-runner installer; do not run it on a persistent host as a convenience command.
 - `docs/toolchain/gpu-2-development-toolchain-v1.md` — verified non-secret development-toolchain provenance, rollback, executable identities, and behavioral evidence.
 - `toolchains/gpu-2-development-toolchain-v1.lock.json` — exact installed package closure and executable/probe identity; `build_ready=true` applies only to development.
 - `docs/experiments/prior-art-matrix.md` — required and direct-comparator capability review.
@@ -113,7 +121,8 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; schema and synthetic example fully validated on `gpu-2`.
 - `schemas/development-toolchain-v1.schema.json` — draft-2020-12 installed development-toolchain evidence schema.
 
-There is currently no product source/public include tree, build system, test tree, executable benchmark harness, database, artifact store, script directory, repository README, or dependency manifest.
+There is currently no product source/public include tree, product library or executable, independent oracle, executable benchmark harness, database, artifact store, repository README, or product dependency manifest.
+The existing build and test tree enforces engineering quality only.
 
 ### Planned paths
 
@@ -151,7 +160,8 @@ Structural optimization and algebraic optimization are separate pipelines with s
 
 ### Current verified state
 
-The repository has no build system or product code. Therefore no configure, product build, formatter, C++ lint/static-analysis, sanitizer, executable benchmark, or generated-artifact cleanup command exists yet. Do not substitute a guessed generic command.
+The repository has a verified quality-only CMake build and test system but no product code.
+Its targets validate policy fixtures and future first-party source; they do not build a synthesizer or benchmark executable.
 
 The primary Linux development server is `gpu-2`, Ubuntu 24.04.4 LTS on x86-64 KVM/OpenStack. AR-0001 Option 2 makes it development-only; it is not the Target 0 measurement host. Access credentials and network coordinates are external secrets and must never be committed.
 
@@ -281,36 +291,98 @@ assert holds == lock["installation"]["holds"]
 PY
 ```
 
-The one-time provisioning probe also configured a temporary CMake 3.28 project with `/usr/bin/clang++-21` and Ninja, built it, and passed CTest. No repository CMake project or reusable build command exists yet; the quality-gates implementation must add that command when it creates the persistent fixture.
+The one-time provisioning probe configured a temporary CMake 3.28 project with `/usr/bin/clang++-21` and Ninja, built it, and passed CTest.
+The repository quality project now provides the persistent verified commands below.
 
 These are inspection, document/schema, and development-toolchain commands, not a product verification suite. The M0 plan and acceptance record contain the exact cross-manifest assertions and source-hash checks used for their checkpoint.
 
 The immutable provisioning capture recorded `kernel.yama.ptrace_scope=2` and therefore isolated LeakSanitizer with `detect_leaks=0`. The user later approved `/etc/sysctl.d/90-xoas-lsan.conf` (SHA-256 `d36ae5ec5e8d2cbdf78a80b7b076629b7d71164e8bab7993be7aac4006b97188`) setting `kernel.yama.ptrace_scope = 1` on `gpu-2`. The persistent sanitizer gate must keep `detect_leaks=1`, verify that exact live host setting, and report this weaker development-host ptrace posture. This does not qualify `gpu-2` for Target 0 measurement.
 
+### Verified repository quality commands
+
+Run these commands from the repository root on `gpu-2`.
+The presets require the exact versioned tools recorded by the development lock.
+
+```bash
+cmake --preset dev-debug
+cmake --build --preset dev-debug --target warnings
+ctest --preset dev-debug --output-on-failure
+
+cmake --preset dev-release
+cmake --build --preset dev-release --target warnings
+ctest --preset dev-release --output-on-failure
+
+cmake --preset asan-ubsan
+cmake --build --preset asan-ubsan --target asan-ubsan
+ctest --preset asan-ubsan -R '^quality-sanitizer-' --output-on-failure
+```
+
+The stable non-mutating quality targets are:
+
+```bash
+cmake --preset dev-debug
+cmake --build --preset dev-debug --target format-check
+cmake --build --preset dev-debug --target tidy
+cmake --build --preset dev-debug --target docs-check
+cmake --build --preset dev-debug --target repository-policy
+cmake --build --preset dev-debug --target quality
+```
+
+`quality` includes formatting, Debug warnings, Clang-Tidy, Doxygen, the complete
+Debug CTest suite, repository policy, and the isolated ASan/UBSan preset.
+The rewriting `format` target is developer-only and must be invoked deliberately;
+hosted CI uses `format-check` and never rewrites source.
+
+The only approved quality-build cleanup command is:
+
+```bash
+cmake -DXOAS_REPOSITORY_ROOT="$PWD" \
+  -P cmake/quality/CleanBuildTrees.cmake
+```
+
+It may remove only `build/dev-debug`, `build/dev-release`, and
+`build/asan-ubsan` after resolving them below the verified repository root.
+It refuses redirected paths and never removes the `build/` parent.
+
 ### Required future toolchain direction
 
 The build plan selects C++23, CMake, Ninja, and Clang as the initial core toolchain; Python is limited to corpus generation, orchestration, plotting, and report assembly. Semantic compiler logic must not exist only in Python.
 
-When M1 creates the build system, add the exact version floors, install provenance, configure presets, build commands, formatting, lint/static analysis, sanitizers, and safe cleanup commands here in the same change. Until then, do not invent or copy generic CMake commands.
+M1 must extend this quality-only surface rather than bypass it when product modules are authorized.
+Add product-specific targets and tests only with exact verified commands and the controlling milestone contract.
 
 ### Approved quality-system direction
 
 [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md) is mandatory for new first-party code.
 It requires standards-safe LLVM-derived naming, `///` Doxygen blocks for files/non-trivial classes/public interfaces, rare rationale-focused `//` comments, distinct handwritten/generated/vendor policies, pinned Clang-native checks, sanitizers, protected-main CI, and narrow justified suppressions.
 
-The design is approved, but `.clang-format`, `.clang-tidy`, Doxygen/CMake quality targets, CI workflows, and protected-branch checks do not yet exist.
-Do not claim automated enforcement or invent their commands before a reviewed implementation plan provisions and verifies the pinned toolchain.
+The design is implemented locally and in pinned GitHub-hosted CI.
+Protected `main` requires `repository-policy`, `static-quality`,
+`debug-build-and-test`, `release-build-and-test`, and `sanitizers`, each bound
+to GitHub Actions App ID `15368`.
+The exact protection evidence and reversal are retained in
+`docs/engineering/main-branch-protection-v1.json`.
 The exceptions/RTTI policy is deliberately deferred to a separate M1 IDR.
 
 ## 7. Test commands and taxonomy
 
 ### Current command registry
 
-No test harness or executable exists. Unit, property, differential, numerical, code-generation, artifact/serialization, regression, and benchmark-smoke commands are currently **unavailable**.
+The executable quality harness exists under `tests/quality/` and runs through
+the Debug, Release, and sanitizer commands in section 6.
+It covers formatting, warnings, Clang-Tidy, documentation, repository policy,
+aggregate wiring, cleanup boundaries, hosted-workflow policy, and the live
+branch-protection evidence contract with positive and isolated negative probes.
+
+Product unit, property, differential, numerical-semantic, generated-kernel,
+artifact/serialization, regression, and benchmark-smoke suites remain
+**unavailable** because no product implementation is authorized or present.
 
 A successful no-op or missing-test invocation is not evidence. The change that introduces each harness must add its exact invocation here and to the relevant acceptance record.
 
-M0 documentation/evidence checks currently consist of the JSON commands in section 6, `git diff --check`, the relative-link/secret/placeholder audit in `docs/milestones/M0-implementation-plan.md`, and its standard-library cross-manifest assertions. They do not qualify product behavior.
+Quality tests do not qualify product behavior or performance.
+Use `ctest --preset dev-debug -N` to inspect the registered quality inventory;
+do not convert the absence of product tests into a passing product claim.
 
 ### Required taxonomy
 
@@ -325,12 +397,18 @@ M0 documentation/evidence checks currently consist of the JSON commands in secti
 
 ### Mandatory suites by change class
 
-- Documentation-only: link/path check, placeholder/conflict scan, `git diff --check`, and status consistency.
+- Documentation-only: `repository-policy`, `docs-check`, relevant CTest policy checks, `git diff --check`, and status consistency.
 - Semantic/core/schema: unit + property + round-trip/hash-stability + invalid-input tests.
 - Structure/transform: unit + positive/negative legality + coverage/duplicate checks + differential + numerical tests.
 - Codegen/compiler driver: all preceding suites + generated artifact inspection + ABI/load + guard-page tests.
 - Runtime/cache: serialization/compatibility/invalidation + fallback + regression tests.
 - Performance claim: all correctness gates first, then the controlled benchmark protocol and retained raw evidence.
+
+Every C++ or quality-infrastructure change runs the Debug `quality` aggregate,
+the Release warning build and CTest suite, and its targeted red/green evidence.
+Generated source is owned by its generator and must regenerate deterministically.
+Vendored source remains isolated under an approved classification; a new
+generated or vendor root requires a reviewed standard/IDR update.
 
 ## 8. Numerical and correctness rules
 
@@ -487,9 +565,9 @@ An IDR records context, decision, alternatives, consequences, affected files/int
 
 - Inspect branch, HEAD, worktrees, remotes, and dirty state before work.
 - `main` is the published integration branch and tracks `origin/main`. The discovery report's unborn-repository statement is historical snapshot evidence, not current state.
-- Work directly in the primary checkout for the current stage. Use `milestone/mN-short-name` or `task/mN-short-name` when a bounded branch materially improves isolation or review; do not create a branch or linked worktree without a concrete need.
-- Normal scoped commits and pushes are part of the authorized engineering workflow. Review and verify the exact staged paths before committing, then push the tested integration state.
-- Before production C++ merges, protect `main` with the required quality checks defined by the approved engineering-quality design. Until live protection is verified, report it as planned rather than enforced.
+- Work in the primary checkout by default, but protected `main` now makes a bounded `milestone/mN-short-name` or `task/mN-short-name` branch and pull request the normal integration path. A linked worktree still requires a concrete isolation need.
+- Normal scoped commits, task-branch pushes, pull requests, and green-check merges are part of the authorized engineering workflow. Review and verify exact staged paths before committing.
+- `main` is live-protected with administrator enforcement, linear history, the five App-bound quality checks, a pull-request path, conversation resolution, and force-push/deletion prohibitions. Do not use an administrative bypass without explicit authority for that bypass.
 - Preserve all user and agent work. Never reset, clean, checkout over, or delete unrelated changes.
 - Do not broadly stage. Stage exact reviewed paths.
 - Keep commits single-purpose and bind acceptance claims to exact commits.
@@ -555,9 +633,12 @@ Read and update [`docs/milestones/status.md`](docs/milestones/status.md).
 
 Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, historical candidate-host capture, approved engineering-quality design, and target-host decision exist. AR-0001 Option 2 designates `gpu-2` as development-only; no controlled Target 0 measurement host is designated. No product implementation begins before M0 closes.
 
-The written engineering-quality specification is approved. The first dependency-ordered plan, [`docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md), has been executed and behaviorally verified. The dependent [`docs/superpowers/plans/2026-08-28-engineering-quality-gates.md`](docs/superpowers/plans/2026-08-28-engineering-quality-gates.md) remains unexecuted; its planned target names are not yet repository capabilities.
+The written engineering-quality specification is implemented and enforced.
+The development-toolchain plan and the local/hosted quality-gates plan have
+been executed; stable targets, pinned hosted jobs, and protected-main controls
+are repository capabilities with retained evidence.
 
-The M0 critical path is designation and qualification of a controlled Target 0 measurement host. Baseline installation, measurement controls, PMU evidence, noise checks, and target-bound benchmark evidence belong on that selected measurement host. The engineering-quality-gates plan may proceed independently now that its toolchain prerequisite is closed. Obtain the required independent review or explicit review-model acceptance and update the acceptance record before M0 closes. Do not begin M1 product scaffolding to bypass these blockers.
+The M0 critical path is designation and qualification of a controlled Target 0 measurement host. Baseline installation, measurement controls, PMU evidence, noise checks, and target-bound benchmark evidence belong on that selected measurement host. Obtain the required independent review or explicit review-model acceptance and update the acceptance record before M0 closes. Do not begin M1 product scaffolding to bypass these blockers.
 
 Do not embed percentage estimates. Record states, exact commits, evidence, deviations, and gates.
 
