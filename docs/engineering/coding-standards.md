@@ -1,13 +1,13 @@
 # XOAS Coding and Engineering Standards
 
-**Status:** Approved design; mandatory for new first-party code.
+**Status:** Approved, implemented, and mandatory for first-party code.
 
 **Written-spec approval:** Approved by the user on 2026-08-28.
 
 **Approval:** User / architecture authority, 2026-08-28.
 
-**Enforcement state:** The contract is active for review, but its automated toolchain is not yet implemented.
-Do not claim automated enforcement until the pinned tools, repository configuration, CI checks, and protected-branch rules are installed and verified.
+**Enforcement state:** Automated locally and in pinned GitHub-hosted CI; protected `main` requires the verified checks.
+Automation is necessary but does not replace semantic, architecture, numerical, or evidence review.
 
 **Decision record:** [`../adr/IDR-0001-engineering-quality-system.md`](../adr/IDR-0001-engineering-quality-system.md).
 
@@ -136,7 +136,7 @@ Every generated source artifact includes a stable header naming:
 
 ## 5. Formatting and mechanical source rules
 
-The future `.clang-format` is based on the pinned LLVM style and records every XOAS override explicitly.
+The repository `.clang-format` is based on the pinned LLVM style and records every XOAS override explicitly.
 
 - C++ source uses spaces, two-space indentation, and an 80-column target.
 - Tabs and trailing whitespace are prohibited.
@@ -185,7 +185,7 @@ The initial set covers applicable `bugprone`, `clang-analyzer`, `performance`, `
 - misleading or mismatched argument comments.
 
 Every configured diagnostic is an error in required checks.
-The exact list is frozen only after the pinned toolchain is provisioned and its checks are reviewed against representative XOAS fixtures.
+The exact list is frozen in the reviewed `.clang-tidy` manifest after toolchain provisioning and positive/negative fixture verification.
 
 ### 6.3 Suppressions
 
@@ -233,13 +233,20 @@ A syntactically valid comment that merely repeats the declaration does not satis
 | Runtime or cache | Compatibility, invalidation, fallback, serialization, and corrupted-artifact rejection tests |
 | Performance claim | Every correctness gate first, then the locked benchmark protocol and retained raw evidence |
 
-The implementation exposes stable CMake quality targets, including equivalents of `format-check`, `tidy`, `docs-check`, `test`, `asan-ubsan`, and one aggregate `quality` target.
-Exact names and commands become authoritative only when implemented, verified, and added to root `AGENTS.md`.
+The implementation exposes stable CMake targets named `format-check`, `tidy`,
+`docs-check`, `warnings`, `asan-ubsan`, `repository-policy`, and `quality`.
+Their exact verified commands and bounded cleanup path are authoritative in root
+`AGENTS.md`.
 
 ## 10. CI and protected-main policy
 
 Protected `main` requires all configured quality checks before merge.
 Short-lived branches may use the primary checkout; a linked worktree is not required.
+The required check names are `repository-policy`, `static-quality`,
+`debug-build-and-test`, `release-build-and-test`, and `sanitizers`, each bound
+to GitHub Actions App ID `15368`.
+The live configuration, request digest, and reversal are retained in
+[`main-branch-protection-v1.json`](main-branch-protection-v1.json).
 
 Each pull request records:
 

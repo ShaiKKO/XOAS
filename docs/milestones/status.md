@@ -1,6 +1,6 @@
 # Milestone Status Ledger
 
-**Snapshot date:** 2026-08-28
+**Snapshot date:** 2026-08-29
 
 **Controlling program:** [Exact-Instance Matrix Kernel Synthesizer build plan](../exact_instance_matrix_kernel_synthesizer_build_plan.md)
 
@@ -19,9 +19,9 @@ This is the canonical frontier ledger. Update it whenever a milestone changes st
 
 M0 is the earliest open milestone. The repository-discovery checkpoint was performed before the first commit; `main` now contains the published foundation and prior-art checkpoints, but M0 is not closed.
 
-M0 Task 1 is closed at commit `60044e8`; Task 2 prior-art/baseline policy at `30616bc`; Task 3 benchmark contract at `00afbf7`; Task 4 corpus policy/manifests at `8a7032b`; Task 5 candidate-target capture/proposal at `6e6adf3`; and Task 6 manual integration at verified subject `3d635d3`. AR-0001 Option 2 is approved and integrated at `6904d49e4978f48d9ca3c5db29fac59bbc3233c6`; the `gpu-2` development toolchain is verified at `ce1d27df6fda8b3d91dacadb6afbc6a2c83509c5`; designation and qualification of the replacement measurement host remain open.
+M0 Task 1 is closed at commit `60044e8`; Task 2 prior-art/baseline policy at `30616bc`; Task 3 benchmark contract at `00afbf7`; Task 4 corpus policy/manifests at `8a7032b`; Task 5 candidate-target capture/proposal at `6e6adf3`; and Task 6 manual integration at verified subject `3d635d3`. AR-0001 Option 2 is approved and integrated at `6904d49e4978f48d9ca3c5db29fac59bbc3233c6`; the `gpu-2` development toolchain is verified at `ce1d27df6fda8b3d91dacadb6afbc6a2c83509c5`; the engineering-quality system is published through protected-main merge `6516866b4266a7418fb62997acd664c74fc23ec3`. Designation and qualification of the replacement measurement host remain open.
 
-The named M0 document, policy, schema, corpus, and candidate-capture deliverables now exist and passed the Task 6 checks. The user approved AR-0001 Option 2 and the written engineering-quality specification. `gpu-2` is development-only, and the Target 0 measurement-host slot is unfilled. The exact development toolchain is installed and behaviorally verified, and full draft-2020-12 validation of the benchmark schema/example has passed. The dependent local/hosted quality-enforcement plan is now unblocked but remains unexecuted. Work that can proceed without widening scope is designating and qualifying a controlled measurement host with admitted baselines, executing the reviewed quality-gates plan, and completing independent review/acceptance.
+The named M0 document, policy, schema, corpus, and candidate-capture deliverables now exist and passed the Task 6 checks. The user approved AR-0001 Option 2 and the written engineering-quality specification. `gpu-2` is development-only, and the Target 0 measurement-host slot is unfilled. The exact development toolchain is installed and behaviorally verified, full draft-2020-12 validation of the benchmark schema/example has passed, and the local/hosted quality system is enforced on protected `main`. Work that can proceed without widening scope is designating and qualifying a controlled measurement host with admitted baselines and completing independent M0 review/acceptance.
 
 Load-bearing infrastructure boundary before the reference-target manifest can be locked:
 
@@ -31,7 +31,7 @@ Load-bearing infrastructure boundary before the reference-target manifest can be
 
 | Milestone | State | Implementing commits | Evidence | Open gate items |
 |---|---|---|---|---|
-| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines); `00afbf7` (benchmark contract); `8a7032b` (corpus); `6e6adf3` (candidate target/proposal); `3d635d3` (verified integration subject); `6904d49` (Option 2 decision); `11d1b19` (toolchain intent); `ce1d27d` (verified development toolchain) | All named M0 documents/manifests exist; AR-0001 Option 2 and engineering-quality design approved; development toolchain behaviorally verified; full schema validation passed | Designate/qualify measurement host and its compiler/baselines; independent review/acceptance |
+| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines); `00afbf7` (benchmark contract); `8a7032b` (corpus); `6e6adf3` (candidate target/proposal); `3d635d3` (verified integration subject); `6904d49` (Option 2 decision); `ce1d27d` (verified development toolchain); `2c07fef` (aggregate local quality); `651b912` (authoritative hosted checks); `6516866` (protected-main evidence) | All named M0 documents/manifests exist; AR-0001 Option 2 and engineering-quality design approved; development toolchain and local/hosted/protected-main enforcement verified; full schema validation passed | Designate/qualify measurement host and its compiler/baselines; independent review/acceptance |
 | M1 — Core types and canonical identity | Not started | None | None | M0 gate must close first |
 | M2 — Reference semantics and honest baselines | Not started | None | None | M1 gate and target/baseline setup |
 | M3 — Contribution graph and scalar code generation | Not started | None | None | M2 gate |
@@ -48,7 +48,7 @@ Load-bearing infrastructure boundary before the reference-target manifest can be
 
 ## Dependency audit
 
-- No product code, tests, build system, executable benchmark harness, generated kernel artifacts, database, or cached plans exist. An M0 benchmark-result schema and synthetic example now exist as evidence contracts only.
+- No product code, product tests, executable benchmark harness, generated kernel artifacts, database, or cached plans exist. The current CMake/test system is quality infrastructure only. An M0 benchmark-result schema and synthetic example exist as evidence contracts only.
 - No later-milestone code currently depends on an open earlier gate.
 - The only repository document present before discovery was the build plan; its front matter says “Proposed architectural program,” while the user's handoff treats the architecture as approved and locked for execution. The user instruction controls current work. The M0 architecture index and charter now record that authority distinction without editing the build plan's technical semantics.
 
