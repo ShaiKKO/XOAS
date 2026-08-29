@@ -590,16 +590,20 @@ Use `gh run list` and `gh run view` to require all five named contexts to succee
 **Files:**
 
 - Create: `docs/engineering/main-branch-protection-v1.json`
+- Create: `docs/engineering/main-branch-protection-v1.request.json`
 - Create: `schemas/branch-protection-v1.schema.json`
+- Create: `cmake/quality/BranchProtectionRecordCheck.cmake`
+- Modify: `cmake/quality/RepositoryPolicy.cmake`
+- Modify: `tests/quality/CMakeLists.txt`
 - Modify: `docs/adr/IDR-0001-engineering-quality-system.md`
 
-- [ ] **Step 1: Capture the live pre-state**
+- [x] **Step 1: Capture the live pre-state**
 
 Use read-only GitHub API calls to record repository visibility, default branch, administrative permission, current protection state, and the exact successful check contexts. Exclude tokens and HTTP authorization metadata.
 
 Expected initial state from planning discovery: public repository, `main` default, owner has admin permission, and `main` is unprotected. Recheck at execution because this state can drift.
 
-- [ ] **Step 2: Write the desired closed protection record**
+- [x] **Step 2: Write the desired closed protection record**
 
 Define `schemas/branch-protection-v1.schema.json`, then create a conforming closed record containing:
 
@@ -616,11 +620,14 @@ Define `schemas/branch-protection-v1.schema.json`, then create a conforming clos
 
 Do not claim the repository can enforce self-review as independent approval.
 
-- [ ] **Step 3: Apply protection through one reviewed API request**
+- [x] **Step 3: Apply protection through one reviewed API request**
 
-Use `gh api --method PUT` with the exact JSON file as input. Do not construct a mutable partial rule interactively. Require the response to match the desired contexts and booleans.
+Use `gh api --method PUT` with the exact request JSON file as input. Keep the
+schema-valid evidence record separate so audit metadata cannot enter the API
+payload. Do not construct a mutable partial rule interactively. Require the
+response to match the desired checks, providing App IDs, and booleans.
 
-- [ ] **Step 4: Prove enforcement without destructive pushes**
+- [x] **Step 4: Prove enforcement without destructive pushes**
 
 Re-read the protection API and branch record. Confirm `protected: true`, all five contexts, force-push prohibition, deletion prohibition, and PR policy. Do not test by force-pushing or deleting a branch.
 

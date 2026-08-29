@@ -1,0 +1,107 @@
+{
+  "record_version": "xoas.branch-protection.v1",
+  "repository": "ShaiKKO/XOAS",
+  "branch": "main",
+  "captured_at_utc": "2026-08-29T06:59:55Z",
+  "pre_state": {
+    "captured_subject_commit": "651b912fde16059ffb7b2c73eb8cd0c4ea33d853",
+    "visibility": "public",
+    "default_branch": "main",
+    "administrative_permission": true,
+    "push_permission": true,
+    "branch_protected": false,
+    "protection_endpoint_state": "branch_not_protected"
+  },
+  "hosted_verification": {
+    "subject_commit": "651b912fde16059ffb7b2c73eb8cd0c4ea33d853",
+    "workflow_run_id": 33239718597,
+    "workflow_conclusion": "success",
+    "run_created_at_utc": "2026-08-29T06:58:02Z",
+    "run_updated_at_utc": "2026-08-29T06:58:35Z",
+    "jobs": [
+      {
+        "name": "repository-policy",
+        "job_id": 99066852531,
+        "conclusion": "success",
+        "provider_app_id": 15368,
+        "provider_app_slug": "github-actions",
+        "completed_at_utc": "2026-08-29T06:58:34Z"
+      },
+      {
+        "name": "static-quality",
+        "job_id": 99066852558,
+        "conclusion": "success",
+        "provider_app_id": 15368,
+        "provider_app_slug": "github-actions",
+        "completed_at_utc": "2026-08-29T06:58:34Z"
+      },
+      {
+        "name": "debug-build-and-test",
+        "job_id": 99066852576,
+        "conclusion": "success",
+        "provider_app_id": 15368,
+        "provider_app_slug": "github-actions",
+        "completed_at_utc": "2026-08-29T06:58:32Z"
+      },
+      {
+        "name": "release-build-and-test",
+        "job_id": 99066852438,
+        "conclusion": "success",
+        "provider_app_id": 15368,
+        "provider_app_slug": "github-actions",
+        "completed_at_utc": "2026-08-29T06:58:32Z"
+      },
+      {
+        "name": "sanitizers",
+        "job_id": 99066852549,
+        "conclusion": "success",
+        "provider_app_id": 15368,
+        "provider_app_slug": "github-actions",
+        "completed_at_utc": "2026-08-29T06:58:29Z"
+      }
+    ]
+  },
+  "required_checks": [
+    {
+      "context": "repository-policy",
+      "app_id": 15368
+    },
+    {
+      "context": "static-quality",
+      "app_id": 15368
+    },
+    {
+      "context": "debug-build-and-test",
+      "app_id": 15368
+    },
+    {
+      "context": "release-build-and-test",
+      "app_id": 15368
+    },
+    {
+      "context": "sanitizers",
+      "app_id": 15368
+    }
+  ],
+  "protection_request": {
+    "path": "docs/engineering/main-branch-protection-v1.request.json",
+    "sha256": "956b6dafaf3a53db2242807126ed58fee9776ef1d6af9f582941d707ff679772"
+  },
+  "semantic_approval_policy": "The repository owner remains responsible for explicit semantic and architecture approval; zero required external approvals does not convert self-review into independent review.",
+  "reversal": {
+    "method": "DELETE",
+    "endpoint": "repos/ShaiKKO/XOAS/branches/main/protection",
+    "request_body": null,
+    "expected_status": 204,
+    "restores": "The captured unprotected main-branch state; it does not recreate any rule introduced independently after this record."
+  },
+  "application": {
+    "state": "applied",
+    "applied_at_utc": "2026-08-29T07:04:51Z",
+    "applied_by": "ShaiKKO",
+    "protection_subject_commit": "651b912fde16059ffb7b2c73eb8cd0c4ea33d853",
+    "response_digest_algorithm": "canonical-json-sha256",
+    "response_sha256": "6711e4883dabca2abd56499280b90819d6f60d6e8b7e4fb67902ffae8e543547",
+    "verified_at_utc": "2026-08-29T07:05:42Z"
+  }
+}
