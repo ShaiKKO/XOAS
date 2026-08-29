@@ -48,7 +48,7 @@
     },
     {
       "name": "tidy",
-      "state": "red",
+      "state": "green",
       "change_classes": ["handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache"],
       "positive_fixtures": ["tests/quality/fixtures/tidy/compliant.cpp"],
       "negative_fixtures": [
@@ -57,7 +57,11 @@
         "tests/quality/fixtures/tidy/performance.cpp.in"
       ],
       "ci_required": true,
-      "evidence_commands": []
+      "evidence_commands": [
+        "cmake --preset dev-debug",
+        "cmake --build --preset dev-debug --target tidy",
+        "ctest --preset dev-debug -R quality-tidy --output-on-failure"
+      ]
     },
     {
       "name": "docs-check",

@@ -114,3 +114,82 @@ add_test(
     "-DXOAS_COMPILER_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/compiler-positive"
     "-DXOAS_WARNING_FLAGS_ENCODED=${xoasWarningFlagsEncoded}"
     -P "${PROJECT_SOURCE_DIR}/cmake/quality/CompilerCheck.cmake")
+
+function(xoasAddTidyFixtureTest testName inputName expectedCheck)
+  add_test(
+    NAME "quality-tidy-${testName}"
+    COMMAND
+      "${CMAKE_COMMAND}"
+      "-DXOAS_CLANG_TIDY=${XOAS_CLANG_TIDY_EXECUTABLE}"
+      "-DXOAS_TIDY_CONFIG=${PROJECT_SOURCE_DIR}/.clang-tidy"
+      "-DXOAS_TIDY_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/tidy/${inputName}"
+      "-DXOAS_TIDY_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/tidy-${testName}"
+      "-DXOAS_TIDY_EXPECTED_CHECK=${expectedCheck}"
+      -DXOAS_TIDY_EXPECT_FAILURE=ON
+      -P "${PROJECT_SOURCE_DIR}/cmake/quality/TidyFixtureCheck.cmake")
+endfunction()
+
+xoasAddTidyFixtureTest(
+  reserved-identifier reserved-identifier.cpp.in bugprone-reserved-identifier)
+xoasAddTidyFixtureTest(
+  identifier-naming identifier-naming.cpp.in readability-identifier-naming)
+xoasAddTidyFixtureTest(
+  performance performance.cpp.in performance-unnecessary-value-param)
+xoasAddTidyFixtureTest(
+  suspicious-control suspicious-control.cpp.in bugprone-suspicious-semicolon)
+xoasAddTidyFixtureTest(
+  header-guard header-guard.h.in llvm-header-guard)
+
+add_test(
+  NAME quality-tidy-portable-header-guard-negative
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_HEADER_GUARD_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/tidy/header-guard.h.in"
+    -DXOAS_HEADER_GUARD_RELATIVE_PATH=tests/quality/fixtures/tidy/header-guard.h
+    -DXOAS_HEADER_GUARD_EXPECT_FAILURE=ON
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/HeaderGuardCheck.cmake")
+
+add_test(
+  NAME quality-tidy-portable-header-guard-positive
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_HEADER_GUARD_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/compiler/compliant.h"
+    -DXOAS_HEADER_GUARD_RELATIVE_PATH=tests/quality/fixtures/compiler/compliant.h
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/HeaderGuardCheck.cmake")
+
+add_library(
+  xoas_quality_format_compliant OBJECT
+  fixtures/format/compliant.cpp)
+target_link_libraries(xoas_quality_format_compliant PRIVATE xoas_warnings)
+
+add_library(
+  xoas_quality_tidy_compliant OBJECT
+  fixtures/tidy/compliant.cpp)
+target_link_libraries(xoas_quality_tidy_compliant PRIVATE xoas_warnings)
+
+add_test(
+  NAME quality-tidy-compliant
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CLANG_TIDY=${XOAS_CLANG_TIDY_EXECUTABLE}"
+    "-DXOAS_TIDY_CONFIG=${PROJECT_SOURCE_DIR}/.clang-tidy"
+    "-DXOAS_TIDY_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/tidy/compliant.cpp"
+    "-DXOAS_TIDY_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/tidy-compliant"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/TidyFixtureCheck.cmake")
+
+add_custom_target(
+  tidy
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CLANG_TIDY=${XOAS_CLANG_TIDY_EXECUTABLE}"
+    "-DXOAS_GIT=${GIT_EXECUTABLE}"
+    "-DXOAS_REPOSITORY_ROOT=${PROJECT_SOURCE_DIR}"
+    "-DXOAS_COMPILATION_DATABASE=${PROJECT_BINARY_DIR}"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/TidyCheck.cmake"
+  DEPENDS
+    xoas_quality_compiler_header_self_sufficient
+    xoas_quality_compiler_positive
+    xoas_quality_format_compliant
+    xoas_quality_tidy_compliant
+  COMMENT "Running the explicit Clang-Tidy policy"
+  VERBATIM)

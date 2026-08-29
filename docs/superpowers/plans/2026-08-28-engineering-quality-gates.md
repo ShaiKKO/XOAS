@@ -258,11 +258,11 @@ Record the exact accepted flag list and compiler identity digest. Mark `warnings
 - Modify: `tests/quality/contracts/expected-gates.json`
 - Modify: `docs/adr/IDR-0001-engineering-quality-system.md`
 
-- [ ] **Step 1: Inventory checks from the locked binary**
+- [x] **Step 1: Inventory checks from the locked binary**
 
 Run `clang-tidy-21 --list-checks -checks='*'` and save the reviewed supported-check inventory in the IDR evidence section. Do not enable an unavailable, renamed, or experimental diagnostic by assumption.
 
-- [ ] **Step 2: Write independent negative fixtures**
+- [x] **Step 2: Write independent negative fixtures**
 
 Create isolated build-tree copies proving at least:
 
@@ -274,7 +274,7 @@ Create isolated build-tree copies proving at least:
 
 Run the test group before `.clang-tidy` exists and retain the expected failures.
 
-- [ ] **Step 3: Create the explicit check manifest**
+- [x] **Step 3: Create the explicit check manifest**
 
 Begin with `Checks: '-*'`, then enumerate each admitted diagnostic by full name. Cover the supported high-signal checks in the approved `clang-analyzer`, `bugprone`, `performance`, `portability`, `readability`, selected `modernize`, `misc`, and LLVM header-guard families. Do not use a category-wide wildcard as the final policy.
 
@@ -292,11 +292,11 @@ Macros: UPPER_SNAKE_CASE
 
 Set `WarningsAsErrors: '*'` and a repository-anchored header filter.
 
-- [ ] **Step 4: Implement tracked handwritten-source traversal**
+- [x] **Step 4: Implement tracked handwritten-source traversal**
 
 `TidyCheck.cmake` must consume the debug compilation database, process only tracked handwritten C/C++ paths, and reject any unclassified source. Exclude generated/vendor fixture roots exactly. Expose `tidy`.
 
-- [ ] **Step 5: Prove each rule and the aggregate target**
+- [x] **Step 5: Prove each rule and the aggregate target**
 
 ```bash
 cmake --preset dev-debug
@@ -306,7 +306,7 @@ ctest --preset dev-debug -R quality-tidy --output-on-failure
 
 Expected: compliant fixture passes; every negative fixture fails for its named diagnostic; no bare or broad suppression is present.
 
-- [ ] **Step 6: Freeze the manifest decision**
+- [x] **Step 6: Freeze the manifest decision**
 
 Record the exact check list, locked clang-tidy identity, exclusions, and unsupported candidate disposition in IDR-0001. Mark `tidy` green.
 

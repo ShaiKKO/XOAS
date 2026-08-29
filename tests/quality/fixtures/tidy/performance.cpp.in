@@ -1,0 +1,12 @@
+/// \file
+/// Provides performance-rule rejection input for the quality harness.
+
+#include <string>
+
+namespace xoas::quality {
+
+[[nodiscard]] std::size_t measureText(std::string value) {
+  return value.size();
+}
+
+} // namespace xoas::quality

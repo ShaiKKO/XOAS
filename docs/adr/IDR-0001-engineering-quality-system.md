@@ -173,3 +173,46 @@ The following remain deliberately unresolved for the enforcement implementation:
 - whether a future self-hosted runner is justified.
 
 An unresolved version is not permission to use an unpinned latest tool in production enforcement.
+
+## Enforcement evidence
+
+### Clang-Tidy 21 inventory and manifest
+
+The locked `clang-tidy-21` binary reports 582 supported checks.
+Its executable SHA-256 is
+`1bc7e7d6a046528a574a82f7d5e7ec9c4d5ff11f1611a07df99040aa6d012f73`.
+The normalized supported-check inventory has SHA-256
+`a4a217e7f9ddd872009a497a087c1188cd0824a1a684a44e84fb8b514cc0251d`
+and is retained in the operator-private quality evidence on `gpu-2`.
+
+The initial repository manifest begins from `-*` and admits every check by its
+full name.
+It covers explicit core analyzer checks plus reviewed `bugprone`, `performance`,
+`portability`, `readability`, selected `modernize`, `misc`, and LLVM header
+policy checks.
+Category wildcards, alpha diagnostics, platform-specific Objective-C checks,
+embedded-CERT profiles, and checks that imply an exception/RTTI decision are
+not admitted.
+Target-specific SIMD diagnostics are also omitted because Target 0 intentionally
+permits explicit ISA code once that implementation stage is authorized.
+The proposed `clang-analyzer-cplusplus.SmartPtr` spelling was rejected by
+`--verify-config`; the locked inventory exposes only the non-diagnostic
+`clang-analyzer-cplusplus.SmartPtrModeling` checker, so neither is admitted.
+
+`llvm-header-guard` is admitted and retained as an isolated upstream behavior
+fixture, but Clang-Tidy 21 derives its suggested guard from the canonical
+absolute host path.
+That produces machine-specific `HOME_UBUNTU_...` names on `gpu-2` and different
+names on hosted CI, contradicting XOAS's repository-relative guard contract.
+The aggregate invocation therefore disables exactly `llvm-header-guard` and
+replaces it with the tested `xoas-portable-header-guard` check, which derives
+`XOAS_...` from the tracked repository path.
+No other configured diagnostic is suppressed by the aggregate.
+
+The exact manifest and identifier options are reviewable in the repository's
+`.clang-tidy` file.
+The accepted manifest enumerates 85 checks and has SHA-256
+`a5772aebf276a6350c7f49a6ffa5569fdd5d4321a3334c152c60f6a639a577e3`.
+The `--verify-config` gate rejects unavailable or misspelled diagnostics, and
+the implementation tests the admitted rules against positive and isolated
+negative fixtures before the manifest becomes required.

@@ -1,0 +1,16 @@
+/// \file
+/// Provides identifier-naming rejection input for the quality harness.
+
+namespace xoas::quality {
+
+class invalid_type_name {
+public:
+  int InvalidMethodName(int InvalidParameterName) {
+    return InvalidParameterName;
+  }
+
+private:
+  int invalid_member_name = 0;
+};
+
+} // namespace xoas::quality

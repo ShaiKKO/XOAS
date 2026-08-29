@@ -1,0 +1,118 @@
+---
+Checks: >-
+  -*,
+  bugprone-argument-comment,
+  bugprone-branch-clone,
+  bugprone-dangling-handle,
+  bugprone-infinite-loop,
+  bugprone-macro-parentheses,
+  bugprone-macro-repeated-side-effects,
+  bugprone-narrowing-conversions,
+  bugprone-optional-value-conversion,
+  bugprone-reserved-identifier,
+  bugprone-return-const-ref-from-parameter,
+  bugprone-sizeof-expression,
+  bugprone-suspicious-semicolon,
+  bugprone-swapped-arguments,
+  bugprone-too-small-loop-variable,
+  bugprone-unchecked-optional-access,
+  bugprone-undefined-memory-manipulation,
+  bugprone-use-after-move,
+  bugprone-virtual-near-miss,
+  clang-analyzer-core.BitwiseShift,
+  clang-analyzer-core.CallAndMessage,
+  clang-analyzer-core.DivideZero,
+  clang-analyzer-core.NonNullParamChecker,
+  clang-analyzer-core.NullDereference,
+  clang-analyzer-core.StackAddressEscape,
+  clang-analyzer-core.UndefinedBinaryOperatorResult,
+  clang-analyzer-core.VLASize,
+  clang-analyzer-core.uninitialized.ArraySubscript,
+  clang-analyzer-core.uninitialized.Assign,
+  clang-analyzer-core.uninitialized.Branch,
+  clang-analyzer-core.uninitialized.UndefReturn,
+  clang-analyzer-cplusplus.InnerPointer,
+  clang-analyzer-cplusplus.Move,
+  clang-analyzer-cplusplus.NewDelete,
+  clang-analyzer-cplusplus.NewDeleteLeaks,
+  clang-analyzer-cplusplus.PureVirtualCall,
+  clang-analyzer-cplusplus.SelfAssignment,
+  clang-analyzer-deadcode.DeadStores,
+  clang-analyzer-security.FloatLoopCounter,
+  clang-analyzer-security.insecureAPI.strcpy,
+  llvm-header-guard,
+  llvm-include-order,
+  misc-header-include-cycle,
+  misc-include-cleaner,
+  misc-misleading-identifier,
+  misc-misplaced-const,
+  misc-redundant-expression,
+  misc-static-assert,
+  misc-unused-alias-decls,
+  misc-unused-using-decls,
+  modernize-make-unique,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-use-nodiscard,
+  modernize-use-nullptr,
+  modernize-use-override,
+  performance-for-range-copy,
+  performance-inefficient-algorithm,
+  performance-inefficient-string-concatenation,
+  performance-inefficient-vector-operation,
+  performance-move-const-arg,
+  performance-unnecessary-copy-initialization,
+  performance-unnecessary-value-param,
+  portability-avoid-pragma-once,
+  portability-std-allocator-const,
+  portability-template-virtual-member-function,
+  readability-braces-around-statements,
+  readability-duplicate-include,
+  readability-else-after-return,
+  readability-identifier-naming,
+  readability-inconsistent-declaration-parameter-name,
+  readability-misleading-indentation,
+  readability-redundant-access-specifiers,
+  readability-redundant-casting,
+  readability-redundant-control-flow,
+  readability-redundant-declaration,
+  readability-redundant-function-ptr-dereference,
+  readability-redundant-member-init,
+  readability-redundant-preprocessor,
+  readability-redundant-smartptr-get,
+  readability-redundant-string-cstr,
+  readability-redundant-string-init,
+  readability-static-accessed-through-instance,
+  readability-static-definition-in-anonymous-namespace,
+  readability-string-compare,
+  readability-uniqueptr-delete-release,
+  readability-uppercase-literal-suffix
+WarningsAsErrors: '*'
+HeaderFilterRegex: '(^|/)(include|src|tests|cmake|tools)/'
+FormatStyle: file
+CheckOptions:
+  bugprone-argument-comment.StrictMode: true
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.ClassConstantCase: CamelCase
+  readability-identifier-naming.ClassMemberCase: camelBack
+  readability-identifier-naming.ConceptCase: CamelCase
+  readability-identifier-naming.ConstexprVariableCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.EnumConstantCase: CamelCase
+  readability-identifier-naming.FunctionCase: camelBack
+  readability-identifier-naming.GlobalConstantCase: CamelCase
+  readability-identifier-naming.LocalConstantCase: CamelCase
+  readability-identifier-naming.LocalVariableCase: camelBack
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+  readability-identifier-naming.MethodCase: camelBack
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.ParameterCase: camelBack
+  readability-identifier-naming.PrivateMemberCase: camelBack
+  readability-identifier-naming.PrivateMemberSuffix: _
+  readability-identifier-naming.StaticConstantCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.TemplateParameterCase: CamelCase
+  readability-identifier-naming.TypeAliasCase: CamelCase
+  readability-uppercase-literal-suffix.NewSuffixes: 'L;U;UL;ULL;F'
+SystemHeaders: false
+...

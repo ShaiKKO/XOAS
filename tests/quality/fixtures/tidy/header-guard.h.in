@@ -1,0 +1,13 @@
+#ifndef INVALID_HEADER_GUARD
+#define INVALID_HEADER_GUARD
+
+/// \file
+/// Provides header-guard rejection input for the quality harness.
+
+namespace xoas::quality {
+
+constexpr int HeaderGuardSentinel = 1;
+
+} // namespace xoas::quality
+
+#endif // INVALID_HEADER_GUARD

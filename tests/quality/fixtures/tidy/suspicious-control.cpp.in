@@ -1,0 +1,12 @@
+/// \file
+/// Provides suspicious-control-flow rejection input for the quality harness.
+
+namespace xoas::quality {
+
+[[nodiscard]] bool isPositive(int value) {
+  if (value > 0)
+    ;
+  return true;
+}
+
+} // namespace xoas::quality

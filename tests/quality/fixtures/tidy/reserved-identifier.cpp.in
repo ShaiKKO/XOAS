@@ -1,0 +1,8 @@
+/// \file
+/// Provides reserved-identifier rejection input for the quality harness.
+
+namespace xoas::quality {
+
+constexpr int __reservedIdentifier = 1;
+
+} // namespace xoas::quality
