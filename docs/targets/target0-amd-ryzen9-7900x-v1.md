@@ -8,6 +8,8 @@
 
 **Task 4 provisioning subject:** `16d698dd80cabee0a5b6b5046914edde4535464a`
 
+**Task 4 evidence implementation:** `9d44f6431ebdaea60c796292e9da071f0f49522b`
+
 **Controlling plan:**
 [`2026-08-29-amd-target0-host-qualification.md`](../superpowers/plans/2026-08-29-amd-target0-host-qualification.md)
 

@@ -540,7 +540,7 @@ step records the rollback without executing it, Task 4 records the template and
 the fact that no actual quarantine path exists. Package removal is outside this
 plan and requires a separate administrator review.
 
-- [ ] **Step 8: Validate and commit provisioning evidence**
+- [x] **Step 8: Validate and commit provisioning evidence**
 
 ```bash
 python3 -m jsonschema -i toolchains/target0-amd-ryzen9-7900x-v1.lock.json schemas/target0-toolchain-lock-v1.schema.json
@@ -548,6 +548,11 @@ git diff --check
 git add toolchains/target0-amd-ryzen9-7900x-v1.lock.json docs/targets/target0-amd-ryzen9-7900x-v1.md benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json
 git commit -m "ops: verify Target 0 baseline stack"
 ```
+
+Implemented at `9d44f6431ebdaea60c796292e9da071f0f49522b`. The physical-host
+installed-lock and live 288-file digest check passed. The repository-policy
+diagnostic passed with only the documented temporary SC2329 exclusion required
+by the host's newer ShellCheck; no exclusion was committed.
 
 ---
 
