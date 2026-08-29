@@ -118,11 +118,14 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-implementation-plan.md` — executable M0 plan and commit boundaries.
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
-- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification and baseline-provisioning plan; Task 1 is implemented and later tasks remain open.
-- `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, and the historical unqualified `gpu-2` candidate-target capture. AR-0001 Option 2 excludes that host from current Target 0 measurement authority. The directory contains no executable harness or measured performance result.
+- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification and baseline-provisioning plan; Tasks 1–3 are implemented and Tasks 4–7 remain open.
+- `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate pre-state, source/package provenance, blockers, and remaining gates; it is not qualification evidence.
+- `toolchains/target0-amd-ryzen9-7900x-v1.lock.json` — the only authorized Task 4 provisioning input; currently resolved and uninstalled.
+- `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, the historical unqualified `gpu-2` capture, and the explicitly unqualified physical AMD candidate manifest. The directory contains no executable benchmark harness or measured performance result.
 - `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; schema and synthetic example fully validated on `gpu-2`.
 - `schemas/development-toolchain-v1.schema.json` — draft-2020-12 installed development-toolchain evidence schema.
 - `schemas/target0-host-qualification-v1.schema.json` — closed fixed-process qualification schema; real instances are build-tree test artifacts, not performance claims.
+- `schemas/target0-toolchain-lock-v1.schema.json` — closed physical-target provisioning, source, validation, artifact, and rollback contract.
 - `tools/target0/` — non-product Target 0 qualification tooling: the deterministic native CPU probe, non-secret host capture/core selector, and reversible measurement-session controller.
 - `tests/target0/` — behavioral, negative, deterministic, schema-closure, fixture-capture, signal, apply-failure, and exact-restoration tests for qualification tooling.
 
@@ -189,7 +192,9 @@ rg --files -uu -g '!.git/**'
 git diff --check
 python3 -m json.tool schemas/benchmark-result-v1.schema.json >/dev/null
 python3 -m json.tool schemas/development-toolchain-v1.schema.json >/dev/null
+python3 -m json.tool schemas/target0-toolchain-lock-v1.schema.json >/dev/null
 python3 -m json.tool toolchains/gpu-2-development-toolchain-v1.lock.json >/dev/null
+python3 -m json.tool toolchains/target0-amd-ryzen9-7900x-v1.lock.json >/dev/null
 find benchmarks/manifests -name '*.json' -print0 | xargs -0 -n1 python3 -m json.tool >/dev/null
 ```
 
@@ -233,6 +238,10 @@ checks = (
     (
         Path("schemas/development-toolchain-v1.schema.json"),
         Path("toolchains/gpu-2-development-toolchain-v1.lock.json"),
+    ),
+    (
+        Path("schemas/target0-toolchain-lock-v1.schema.json"),
+        Path("toolchains/target0-amd-ryzen9-7900x-v1.lock.json"),
     ),
 )
 for schema_path, instance_path in checks:
@@ -692,12 +701,15 @@ been executed; stable targets, pinned hosted jobs, and protected-main controls
 are repository capabilities with retained evidence.
 
 The M0 critical path is continued execution of the physical AMD Target 0
-qualification plan. Tasks 1–2 provide the closed process schema, deterministic
-probe, non-secret host capture/core selector, and fixture-verified reversible
-session controller. Real-host pre-state capture, provisioning, campaigns, and
-qualification remain open. Baseline installation, measurement controls, PMU
-evidence, noise checks, and target-bound benchmark evidence belong on that
-selected measurement host. Obtain the required independent review or explicit
+qualification plan. Tasks 1–3 provide the process contract, deterministic
+probe, non-secret host capture/core selector, fixture-verified reversible
+session controller, closed physical-host pre-state, and schema-valid uninstalled
+provisioning lock. Baseline installation, measurement controls, campaigns, and
+qualification remain open. The pinned JITSpMM revision has no license statement;
+its adapter and any use remain blocked and deferred to M2 without removing it
+from the admitted comparator set. PMU evidence, noise checks, and target-bound
+benchmark evidence belong on that selected measurement host. Obtain the
+required independent review or explicit
 review-model acceptance and update the acceptance record before M0 closes. Do
 not begin M1 product scaffolding to bypass these blockers.
 

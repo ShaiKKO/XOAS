@@ -293,14 +293,19 @@ Implemented at `864f7fa17aa576831aaa2e54fa16cfe34817baa2`.
 - Create: `toolchains/target0-amd-ryzen9-7900x-v1.lock.json`
 - Create: `docs/targets/target0-amd-ryzen9-7900x-v1.md`
 - Create: `benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`
+- Modify: `AGENTS.md`
+- Modify: `cmake/quality/RepositoryPolicy.cmake`
 - Modify: `docs/architecture/README.md`
+- Modify: `docs/milestones/M0-acceptance.md`
+- Modify: `docs/milestones/status.md`
+- Modify: `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md`
 
 **Interfaces:**
 
 - The lock is the only provisioning input for Task 4.
 - The target manifest remains `candidate_unqualified` until Task 7.
 
-- [ ] **Step 1: Verify the exact repository and host boundary**
+- [x] **Step 1: Verify the exact repository and host boundary**
 
 Locally require a clean reviewed commit. On the authenticated physical host,
 require bare metal, Ubuntu 26.04 `resolute`, x86-64, Ryzen 9 7900X family
@@ -308,7 +313,7 @@ require bare metal, Ubuntu 26.04 `resolute`, x86-64, Ryzen 9 7900X family
 passwordless non-interactive sudo, and working privileged cycles/instructions.
 Stop on any mismatch.
 
-- [ ] **Step 2: Capture collision-free pre-state**
+- [x] **Step 2: Capture collision-free pre-state**
 
 Require `/opt/xoas/target0-v1` to be absent. Record package holds and the exact
 `dpkg-query -W` pre-state in the target record. Require the host checkout to be
@@ -316,7 +321,7 @@ clean at the approved planning commit; create a normal `$HOME/XOAS` clone only
 if no checkout exists, after proving `$HOME` is a non-root directory below
 `/home`.
 
-- [ ] **Step 3: Define the closed toolchain lock schema**
+- [x] **Step 3: Define the closed toolchain lock schema**
 
 Require OS/architecture, repository commit, APT package name/candidate/origin,
 existing executable hashes, fixed source repository/tag/commit/license,
@@ -325,7 +330,7 @@ validation probes, rollback/quarantine path, and qualification booleans.
 Forbid access and credential fields. Use `additionalProperties: false` at every
 closed object.
 
-- [ ] **Step 4: Refresh APT metadata and resolve support packages**
+- [x] **Step 4: Refresh APT metadata and resolve support packages**
 
 Resolve exact candidates after `sudo apt-get update` for:
 
@@ -345,7 +350,7 @@ Record candidates before installation and prove one simulated install using
 `apt-get --simulate install name=version...`. Do not install baseline library
 packages; their source builds are isolated in Task 4.
 
-- [ ] **Step 5: Freeze source and license identities**
+- [x] **Step 5: Freeze source and license identities**
 
 Use `git ls-remote` to require every global-constraint commit. Clone into a
 temporary root, checkout detached at the exact commit, verify the tag resolves
@@ -356,7 +361,12 @@ Record oneMKL as `not_installed_pending_M2_applicability_review`; record
 JITSpMM as `source_identity_pinned_adapter_deferred_M2`. Neither status removes
 an admitted baseline or asserts performance inapplicability.
 
-- [ ] **Step 6: Write candidate manifest and review record**
+The pinned JITSpMM revision contains no license or copyright statement. The
+lock records the missing identity explicitly, forbids source use, and defers
+the license/adapter boundary to M2 without removing the comparator from
+admission.
+
+- [x] **Step 6: Write candidate manifest and review record**
 
 Set `target0_measurement_qualified=false`, `performance_claim=false`, and name
 every remaining campaign, baseline, restoration, review, and reboot gate. Do
@@ -367,8 +377,9 @@ not compute the final compatibility digest; M1 owns canonical binary identity.
 ```bash
 python3 -m jsonschema -i toolchains/target0-amd-ryzen9-7900x-v1.lock.json schemas/target0-toolchain-lock-v1.schema.json
 python3 -m json.tool benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json >/dev/null
+cmake --build --preset dev-debug --target repository-policy docs-check
 git diff --check
-git add schemas/target0-toolchain-lock-v1.schema.json toolchains/target0-amd-ryzen9-7900x-v1.lock.json docs/targets/target0-amd-ryzen9-7900x-v1.md benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json docs/architecture/README.md
+git add AGENTS.md cmake/quality/RepositoryPolicy.cmake docs/architecture/README.md docs/milestones/M0-acceptance.md docs/milestones/status.md docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md schemas/target0-toolchain-lock-v1.schema.json toolchains/target0-amd-ryzen9-7900x-v1.lock.json docs/targets/target0-amd-ryzen9-7900x-v1.md benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json
 git commit -m "ops: lock Target 0 provisioning intent"
 ```
 

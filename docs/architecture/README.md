@@ -44,7 +44,7 @@ Use the next unused `../adr/IDR-####-short-title.md` number for a durable, seman
 |---|---|---|
 | [`../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) | Executed and verified at `ce1d27d` | Reversible exact-version provisioning and verification of the primary development toolchain; excludes baselines and measurement qualification |
 | [`../superpowers/plans/2026-08-28-engineering-quality-gates.md`](../superpowers/plans/2026-08-28-engineering-quality-gates.md) | Executed and enforced through protected-main merge `6516866`; command/status activation verified | Local quality fixtures/targets, pinned hosted CI, and protected `main`; excludes product/compiler implementation |
-| [`../superpowers/plans/2026-08-29-amd-target0-host-qualification.md`](../superpowers/plans/2026-08-29-amd-target0-host-qualification.md) | Written; execution requires user review | Physical AMD host tooling, source-built baselines, reversible controls, reboot-separated qualification, and M0 decision |
+| [`../superpowers/plans/2026-08-29-amd-target0-host-qualification.md`](../superpowers/plans/2026-08-29-amd-target0-host-qualification.md) | Tasks 1–3 executed through the resolved, uninstalled provisioning lock; Tasks 4–7 remain open | Physical AMD host tooling, source-built baselines, reversible controls, reboot-separated qualification, and M0 decision |
 
 An implementation plan does not change architecture authority. Its execution must preserve the controlling specification and record exact commits and evidence.
 
@@ -65,6 +65,9 @@ An implementation plan does not change architecture authority. Its execution mus
 | [`../toolchain/gpu-2-development-toolchain-v1.md`](../toolchain/gpu-2-development-toolchain-v1.md)                           | Installed and behaviorally verified on `gpu-2` | Non-secret provisioning pre-state, source authentication, rollback, and probe evidence |
 | [`../../toolchains/gpu-2-development-toolchain-v1.lock.json`](../../toolchains/gpu-2-development-toolchain-v1.lock.json)     | Exact installed lock; `build_ready=true`; Target 0 qualification false | Versioned package closure, executable identities, probe evidence, and stable configuration digest |
 | [`../../schemas/development-toolchain-v1.schema.json`](../../schemas/development-toolchain-v1.schema.json)                   | Draft 2020-12 lock schema | Closed machine-readable development-toolchain evidence contract |
+| [`../targets/target0-amd-ryzen9-7900x-v1.md`](../targets/target0-amd-ryzen9-7900x-v1.md)                                   | Candidate unqualified; provisioning resolved but not installed | Non-secret physical-host boundary, package/source identities, blockers, and remaining qualification gates |
+| [`../../toolchains/target0-amd-ryzen9-7900x-v1.lock.json`](../../toolchains/target0-amd-ryzen9-7900x-v1.lock.json)           | Resolved and schema-valid; no package or baseline installation performed | Only authorized Task 4 provisioning input, full package pre-state, source locks, validation probes, and rollback boundary |
+| [`../../schemas/target0-toolchain-lock-v1.schema.json`](../../schemas/target0-toolchain-lock-v1.schema.json)               | Draft 2020-12 closed provisioning-lock schema | Target, repository, APT, executable, source, license, validation, installed-artifact, and rollback contract |
 | [`../engineering/main-branch-protection-v1.json`](../engineering/main-branch-protection-v1.json)                             | Applied and independently verified; published by PR #1 at `6516866` | Exact pre-state, required App-bound checks, request digest, response digest, operator, and reversal |
 | [`../repository_discovery_and_project_understanding_report.md`](../repository_discovery_and_project_understanding_report.md) | Point-in-time discovery snapshot | Verified repository, development-host, toolchain, and evidence state at 2026-08-28 |
 
@@ -81,10 +84,12 @@ An implementation plan does not change architecture authority. Its execution mus
 | [`../../benchmarks/manifests/application-target-v0.json`](../../benchmarks/manifests/application-target-v0.json) | Frozen sources, not materialized | Six visible NIST-derived product cases, including one proof target |
 | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen and not measured; measurements sealed until M7 | Six NIST-derived holdout cases and early-access invalidation rule |
 | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Development-host capture with verified toolchain; not qualified for measurement | Non-secret CPU/OS/topology/timer/PMU/toolchain evidence and qualification blockers |
+| [`../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json) | Physical Target 0 candidate; explicitly unqualified and non-claiming | Closed host capture, provisioning pre-state, baseline disposition, and every remaining qualification gate |
 
 No qualified Target 0 manifest exists. The historical `gpu-2` candidate
-manifest cannot satisfy plan or runtime compatibility, and the newly
-designated physical AMD candidate has not yet produced a repository manifest.
+manifest cannot satisfy plan or runtime compatibility. The physical AMD
+candidate now has a repository manifest and resolved provisioning lock, but no
+support package or baseline is installed and no qualification campaign has run.
 
 Performance results do not become architectural authority. They may motivate a proposal, support a gate decision, or falsify a claim.
 

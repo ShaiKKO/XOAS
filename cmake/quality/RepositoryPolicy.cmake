@@ -250,6 +250,7 @@ foreach(stageEntry IN LISTS stageEntries)
 endforeach()
 
 set(schemaScript [=[
+import hashlib
 import json
 import subprocess
 import sys
@@ -285,6 +286,9 @@ schema_instances = {
     "schemas/development-toolchain-v1.schema.json": [
         "toolchains/gpu-2-development-toolchain-v1.lock.json"
     ],
+    "schemas/target0-toolchain-lock-v1.schema.json": [
+        "toolchains/target0-amd-ryzen9-7900x-v1.lock.json"
+    ],
     "schemas/quality-gates-v1.schema.json": [
         "tests/quality/contracts/expected-gates.json"
     ],
@@ -308,6 +312,62 @@ for schema_path, instance_paths in schema_instances.items():
     validator = Draft202012Validator(schema)
     for instance_path in instance_paths:
         validator.validate(documents[instance_path])
+
+target0_lock = documents["toolchains/target0-amd-ryzen9-7900x-v1.lock.json"]
+prestate = target0_lock["apt"]["prestate"]
+packages = prestate["packages"]
+if prestate["package_count"] != len(packages):
+    raise RuntimeError("Target 0 package pre-state count does not match its array")
+package_pairs = [(item["name"], item["version"]) for item in packages]
+if package_pairs != sorted(package_pairs):
+    raise RuntimeError("Target 0 package pre-state is not canonically sorted")
+if len({item["name"] for item in packages}) != len(packages):
+    raise RuntimeError("Target 0 package pre-state contains duplicate names")
+package_bytes = "".join(
+    f"{item['name']}\t{item['version']}\n" for item in packages
+).encode("utf-8")
+if hashlib.sha256(package_bytes).hexdigest() != prestate["packages_sha256"]:
+    raise RuntimeError("Target 0 package pre-state digest does not match its array")
+holds_bytes = "".join(f"{item}\n" for item in prestate["holds"]).encode("utf-8")
+if hashlib.sha256(holds_bytes).hexdigest() != prestate["holds_sha256"]:
+    raise RuntimeError("Target 0 package-hold digest does not match its array")
+requested_names = {
+    item["name"] for item in target0_lock["apt"]["requested_packages"]
+}
+expected_requested_names = {
+    "build-essential",
+    "doxygen",
+    "gfortran",
+    "graphviz",
+    "hwloc",
+    "libnuma-dev",
+    "lm-sensors",
+    "pkg-config",
+    "shellcheck",
+}
+if requested_names != expected_requested_names:
+    raise RuntimeError("Target 0 requested support-package set differs")
+source_ids = {item["id"] for item in target0_lock["source_locks"]}
+expected_source_ids = {
+    "aocl-blas-5.3.2",
+    "aocl-integration-5.3.2",
+    "jitspmm-inspection",
+    "libxsmm-2.1.0",
+    "openblas-0.3.34",
+}
+if source_ids != expected_source_ids:
+    raise RuntimeError("Target 0 source-lock set differs")
+jitspmm = next(
+    item for item in target0_lock["source_locks"]
+    if item["id"] == "jitspmm-inspection"
+)
+if jitspmm["license"] != {
+    "status": "missing_at_pinned_revision",
+    "path": None,
+    "sha256": None,
+    "use_authorized": False,
+}:
+    raise RuntimeError("JITSpMM missing-license boundary changed")
 ]=])
 execute_process(
   COMMAND
