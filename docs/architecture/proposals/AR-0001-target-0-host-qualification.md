@@ -1,6 +1,6 @@
 # AR-0001: Target 0 Host Qualification
 
-**Status:** Approved — Option 2, development host only
+**Status:** Approved — Option 2; physical AMD replacement host designated for qualification
 
 **Decision owner:** User / architecture authority
 
@@ -10,7 +10,10 @@
 
 On 2026-08-28, the user explicitly approved **Option 2**.
 `gpu-2` remains XOAS's primary development environment and is not the Target 0 measurement host.
-XOAS must designate and qualify a more controllable x86-64 Linux host before M0 can lock its reference target or admit performance-gate evidence.
+On 2026-08-29, the user designated a physical AMD Ryzen 9 7900X Linux
+desktop as the replacement Target 0 measurement-host candidate. The candidate
+must still pass every qualification requirement below before M0 can lock its
+reference target or admit performance-gate evidence.
 
 This decision does not prohibit non-claiming compiler, test-harness, or benchmark-smoke development on `gpu-2`.
 It prohibits using that host's measurements for Target 0 proof, product-class, break-even, cache-compatibility, or winning-plan claims.
@@ -105,7 +108,11 @@ This option would identify the target as the observed VM fingerprint, use wall t
 
 ## Approved option
 
-Option 2 controls M0: `gpu-2` is the primary development host but not the Target 0 measurement host. XOAS must designate a controlled x86-64 host and capture a new reference manifest. Provider evidence may later motivate a proposal to promote `gpu-2`, but cannot change this decision implicitly.
+Option 2 controls M0: `gpu-2` is the primary development host but not the
+Target 0 measurement host. The physical AMD Ryzen 9 7900X Linux desktop is the
+designated replacement candidate and must produce a qualified reference
+manifest. Provider evidence may later motivate a proposal to promote `gpu-2`,
+but cannot change this decision implicitly.
 
 Do not change the CPU-only Target 0 scope. The visible NVIDIA L4 is irrelevant to this decision.
 
@@ -173,3 +180,9 @@ On 2026-08-28, the user explicitly designated `gpu-2` as the primary development
 On 2026-08-28, after reviewing the written specification and the explicit AR-0001 recommendation, the user approved Option 2.
 This selects development-only use for `gpu-2`, leaves the Target 0 measurement-host slot unfilled, preserves every measurement gate, and unblocks the separately reviewed development-toolchain plan.
 The decision is integrated at commit `6904d49e4978f48d9ca3c5db29fac59bbc3233c6` (`docs: approve gpu-2 development-only role`).
+
+On 2026-08-29, the user designated the physical AMD Ryzen 9 7900X Linux
+desktop as the replacement Target 0 measurement-host candidate. Read-only
+access confirmed bare-metal execution and working privileged cycles and
+instructions counters. The designation fills the candidate slot but does not
+qualify the host, close M0, or authorize performance claims.

@@ -25,7 +25,8 @@ If two sources conflict, stop work affected by the conflict, quote the exact sec
 
 | Document | State | Requested decision |
 |---|---|---|
-| [`proposals/AR-0001-target-0-host-qualification.md`](proposals/AR-0001-target-0-host-qualification.md) | Approved — Option 2 | `gpu-2` is development-only; designate and qualify a controlled Target 0 measurement host |
+| [`proposals/AR-0001-target-0-host-qualification.md`](proposals/AR-0001-target-0-host-qualification.md) | Approved — Option 2; replacement candidate designated | `gpu-2` is development-only; qualify the designated physical AMD host before measurement use |
+| [`proposals/AR-0002-amd-target-baseline-admission.md`](proposals/AR-0002-amd-target-baseline-admission.md) | Option 1 selected in principle; written decision awaiting review | Add AOCL-BLAS as an AMD-vendor comparator without removing existing applicable baselines |
 
 Approved proposals override the affected sections of lower-authority documents only to the extent their requested decision says so. Rejected and superseded proposals remain evidence and must be labeled accordingly.
 
@@ -80,7 +81,9 @@ An implementation plan does not change architecture authority. Its execution mus
 | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen and not measured; measurements sealed until M7 | Six NIST-derived holdout cases and early-access invalidation rule |
 | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Development-host capture with verified toolchain; not qualified for measurement | Non-secret CPU/OS/topology/timer/PMU/toolchain evidence and qualification blockers |
 
-No qualified Target 0 manifest exists. The candidate manifest cannot satisfy plan or runtime compatibility.
+No qualified Target 0 manifest exists. The historical `gpu-2` candidate
+manifest cannot satisfy plan or runtime compatibility, and the newly
+designated physical AMD candidate has not yet produced a repository manifest.
 
 Performance results do not become architectural authority. They may motivate a proposal, support a gate decision, or falsify a claim.
 
