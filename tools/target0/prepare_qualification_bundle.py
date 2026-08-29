@@ -624,7 +624,7 @@ def qualification_compile_arguments(
         "-O3",
         "-DNDEBUG",
         *_WARNING_FLAGS,
-        f"-fuse-ld={_LINKER_DRIVER}",
+        f"--ld-path={_LINKER_DRIVER}",
         str(source),
         "-o",
         str(output),

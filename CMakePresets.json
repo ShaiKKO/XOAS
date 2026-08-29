@@ -23,9 +23,9 @@
       "binaryDir": "${sourceDir}/build/dev-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=/usr/bin/ld.lld-21",
-        "CMAKE_MODULE_LINKER_FLAGS": "-fuse-ld=/usr/bin/ld.lld-21",
-        "CMAKE_SHARED_LINKER_FLAGS": "-fuse-ld=/usr/bin/ld.lld-21"
+        "CMAKE_EXE_LINKER_FLAGS": "--ld-path=/usr/bin/ld.lld-21",
+        "CMAKE_MODULE_LINKER_FLAGS": "--ld-path=/usr/bin/ld.lld-21",
+        "CMAKE_SHARED_LINKER_FLAGS": "--ld-path=/usr/bin/ld.lld-21"
       }
     },
     {
@@ -35,9 +35,9 @@
       "binaryDir": "${sourceDir}/build/dev-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=/usr/bin/ld.lld-21",
-        "CMAKE_MODULE_LINKER_FLAGS": "-fuse-ld=/usr/bin/ld.lld-21",
-        "CMAKE_SHARED_LINKER_FLAGS": "-fuse-ld=/usr/bin/ld.lld-21"
+        "CMAKE_EXE_LINKER_FLAGS": "--ld-path=/usr/bin/ld.lld-21",
+        "CMAKE_MODULE_LINKER_FLAGS": "--ld-path=/usr/bin/ld.lld-21",
+        "CMAKE_SHARED_LINKER_FLAGS": "--ld-path=/usr/bin/ld.lld-21"
       }
     },
     {
@@ -47,9 +47,9 @@
       "binaryDir": "${sourceDir}/build/asan-ubsan",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=/usr/bin/ld.lld-21",
-        "CMAKE_MODULE_LINKER_FLAGS": "-fuse-ld=/usr/bin/ld.lld-21",
-        "CMAKE_SHARED_LINKER_FLAGS": "-fuse-ld=/usr/bin/ld.lld-21",
+        "CMAKE_EXE_LINKER_FLAGS": "--ld-path=/usr/bin/ld.lld-21",
+        "CMAKE_MODULE_LINKER_FLAGS": "--ld-path=/usr/bin/ld.lld-21",
+        "CMAKE_SHARED_LINKER_FLAGS": "--ld-path=/usr/bin/ld.lld-21",
         "XOAS_ENABLE_SANITIZERS": true
       }
     }

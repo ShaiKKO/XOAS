@@ -27,7 +27,7 @@
       "-Wsign-conversion",
       "-Wundef",
       "-Wzero-as-null-pointer-constant",
-      "-fuse-ld=/usr/bin/ld.lld-21",
+      "--ld-path=/usr/bin/ld.lld-21",
       "qualification_probe.cpp",
       "-o",
       "xoas-target0-qualification-probe"

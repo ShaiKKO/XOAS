@@ -1025,6 +1025,42 @@ class PrepareQualificationBundleBuildTest(unittest.TestCase):
                 )
             self.assertFalse((staging_root / "bin").exists())
 
+    def test_direct_build_executes_cleanly_with_locked_clang_and_lld(self) -> None:
+        """The realized direct build must succeed without driver diagnostics."""
+        source_bytes = b"int main() { return 0; }\n"
+        source_digest = hashlib.sha256(source_bytes).hexdigest()
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            staging_root = Path(temporary_directory)
+            staging_root.chmod(0o700)
+            source = staging_root / "reviewed-probe.cpp"
+            source.write_bytes(source_bytes)
+
+            try:
+                build = self.module.build_probe_twice(
+                    source,
+                    source_digest,
+                    staging_root,
+                    "1788026400",
+                    self.module.run_command,
+                )
+            except self.module.PreparationError as error:
+                stderr_path = staging_root / "build-01/compiler.stderr.log"
+                stderr = (
+                    stderr_path.read_text(encoding="utf-8")
+                    if stderr_path.is_file()
+                    else "compiler diagnostics were not retained"
+                )
+                self.fail(f"{error}: {stderr}")
+
+            self.assertIs(build["identical"], True)
+            for build_name in ("build-01", "build-02"):
+                self.assertEqual(
+                    (staging_root / build_name / "compiler.stderr.log").read_text(
+                        encoding="utf-8"
+                    ),
+                    "",
+                )
+
     def test_failed_build_retains_diagnostics_without_accepting(self) -> None:
         """Compiler failure evidence must survive without a published binary."""
         builder = getattr(self.module, "build_probe_twice", None)
