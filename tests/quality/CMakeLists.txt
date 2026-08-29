@@ -423,6 +423,17 @@ add_test(
     "-DXOAS_WORKFLOW=${PROJECT_SOURCE_DIR}/.github/workflows/quality.yml"
     -P "${PROJECT_SOURCE_DIR}/cmake/quality/CiWorkflowCheck.cmake")
 
+add_test(
+  NAME quality-branch-protection-record
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_BRANCH_PROTECTION_RECORD=${PROJECT_SOURCE_DIR}/docs/engineering/main-branch-protection-v1.json"
+    "-DXOAS_BRANCH_PROTECTION_REQUEST=${PROJECT_SOURCE_DIR}/docs/engineering/main-branch-protection-v1.request.json"
+    "-DXOAS_BRANCH_PROTECTION_SCHEMA=${PROJECT_SOURCE_DIR}/schemas/branch-protection-v1.schema.json"
+    "-DXOAS_PYTHON=${Python3_EXECUTABLE}"
+    "-DXOAS_QUALITY_CONTRACT=${XOAS_QUALITY_CONTRACT}"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/BranchProtectionRecordCheck.cmake")
+
 execute_process(
   COMMAND "${GIT_EXECUTABLE}" ls-files
   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"

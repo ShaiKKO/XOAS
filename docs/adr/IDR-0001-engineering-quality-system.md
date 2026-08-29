@@ -292,6 +292,35 @@ The Debug runner recorded every step successful by `06:36:39Z`, while its
 check context did not become terminal until `06:50:10Z`; Task 9 remained open
 until that objective terminal result was available.
 
+### Main protection request
+
+The live pre-state captured at `2026-08-29T06:59:55Z` found public repository
+`ShaiKKO/XOAS`, default branch `main`, administrative permission for the active
+operator, exact subject `651b912fde16059ffb7b2c73eb8cd0c4ea33d853`, and no
+existing branch protection.
+Hosted run `33239718597` verified that subject with all five required check
+names emitted successfully by GitHub Actions App ID `15368`.
+
+The reviewed mutation body is retained separately in
+[`../engineering/main-branch-protection-v1.request.json`](../engineering/main-branch-protection-v1.request.json)
+with SHA-256
+`956b6dafaf3a53db2242807126ed58fee9776ef1d6af9f582941d707ff679772`.
+The schema-valid
+[`../engineering/main-branch-protection-v1.json`](../engineering/main-branch-protection-v1.json)
+binds the pre-state, green hosted evidence, desired request, semantic-approval
+responsibility, and exact reversal.
+The single reviewed request was applied at `2026-08-29T07:04:51Z` by the active
+`ShaiKKO` operator.
+The canonical JSON SHA-256 of GitHub's PUT response is
+`6711e4883dabca2abd56499280b90819d6f60d6e8b7e4fb67902ffae8e543547`.
+An independent GET at `2026-08-29T07:05:42Z` proved `main` protected with the
+five exact names and App IDs, strict freshness, administrator enforcement, the
+pull-request path with zero external approvals, stale-review dismissal, linear
+history, and conversation resolution.
+It also proved force pushes and branch deletion disabled.
+Publication of this record through the protected pull-request path remains the
+final Task 10 step.
+
 The exact manifest and identifier options are reviewable in the repository's
 `.clang-tidy` file.
 The accepted manifest enumerates 85 checks and has SHA-256

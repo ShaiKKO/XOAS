@@ -1,0 +1,330 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xoas.dev/schemas/branch-protection-v1.schema.json",
+  "title": "XOAS main branch protection evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_version",
+    "repository",
+    "branch",
+    "captured_at_utc",
+    "pre_state",
+    "hosted_verification",
+    "required_checks",
+    "protection_request",
+    "semantic_approval_policy",
+    "reversal",
+    "application"
+  ],
+  "properties": {
+    "record_version": {
+      "const": "xoas.branch-protection.v1"
+    },
+    "repository": {
+      "const": "ShaiKKO/XOAS"
+    },
+    "branch": {
+      "const": "main"
+    },
+    "captured_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pre_state": {
+      "$ref": "#/$defs/preState"
+    },
+    "hosted_verification": {
+      "$ref": "#/$defs/hostedVerification"
+    },
+    "required_checks": {
+      "$ref": "#/$defs/requiredChecks"
+    },
+    "protection_request": {
+      "$ref": "#/$defs/protectionRequest"
+    },
+    "semantic_approval_policy": {
+      "const": "The repository owner remains responsible for explicit semantic and architecture approval; zero required external approvals does not convert self-review into independent review."
+    },
+    "reversal": {
+      "$ref": "#/$defs/reversal"
+    },
+    "application": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/pendingApplication"
+        },
+        {
+          "$ref": "#/$defs/appliedApplication"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "checkName": {
+      "enum": [
+        "repository-policy",
+        "static-quality",
+        "debug-build-and-test",
+        "release-build-and-test",
+        "sanitizers"
+      ]
+    },
+    "preState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "captured_subject_commit",
+        "visibility",
+        "default_branch",
+        "administrative_permission",
+        "push_permission",
+        "branch_protected",
+        "protection_endpoint_state"
+      ],
+      "properties": {
+        "captured_subject_commit": {
+          "$ref": "#/$defs/sha40"
+        },
+        "visibility": {
+          "const": "public"
+        },
+        "default_branch": {
+          "const": "main"
+        },
+        "administrative_permission": {
+          "const": true
+        },
+        "push_permission": {
+          "const": true
+        },
+        "branch_protected": {
+          "const": false
+        },
+        "protection_endpoint_state": {
+          "const": "branch_not_protected"
+        }
+      }
+    },
+    "hostedJob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "job_id",
+        "conclusion",
+        "provider_app_id",
+        "provider_app_slug",
+        "completed_at_utc"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/checkName"
+        },
+        "job_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "conclusion": {
+          "const": "success"
+        },
+        "provider_app_id": {
+          "const": 15368
+        },
+        "provider_app_slug": {
+          "const": "github-actions"
+        },
+        "completed_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "hostedVerification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_commit",
+        "workflow_run_id",
+        "workflow_conclusion",
+        "run_created_at_utc",
+        "run_updated_at_utc",
+        "jobs"
+      ],
+      "properties": {
+        "subject_commit": {
+          "$ref": "#/$defs/sha40"
+        },
+        "workflow_run_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "workflow_conclusion": {
+          "const": "success"
+        },
+        "run_created_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "run_updated_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "jobs": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/hostedJob"
+          }
+        }
+      }
+    },
+    "requiredCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["context", "app_id"],
+      "properties": {
+        "context": {
+          "$ref": "#/$defs/checkName"
+        },
+        "app_id": {
+          "const": 15368
+        }
+      }
+    },
+    "requiredChecks": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/requiredCheck"
+      }
+    },
+    "protectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "docs/engineering/main-branch-protection-v1.request.json"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "reversal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "endpoint",
+        "request_body",
+        "expected_status",
+        "restores"
+      ],
+      "properties": {
+        "method": {
+          "const": "DELETE"
+        },
+        "endpoint": {
+          "const": "repos/ShaiKKO/XOAS/branches/main/protection"
+        },
+        "request_body": {
+          "type": "null"
+        },
+        "expected_status": {
+          "const": 204
+        },
+        "restores": {
+          "const": "The captured unprotected main-branch state; it does not recreate any rule introduced independently after this record."
+        }
+      }
+    },
+    "pendingApplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "applied_at_utc",
+        "applied_by",
+        "protection_subject_commit",
+        "response_digest_algorithm",
+        "response_sha256",
+        "verified_at_utc"
+      ],
+      "properties": {
+        "state": {
+          "const": "pending"
+        },
+        "applied_at_utc": {
+          "type": "null"
+        },
+        "applied_by": {
+          "type": "null"
+        },
+        "protection_subject_commit": {
+          "type": "null"
+        },
+        "response_digest_algorithm": {
+          "const": "canonical-json-sha256"
+        },
+        "response_sha256": {
+          "type": "null"
+        },
+        "verified_at_utc": {
+          "type": "null"
+        }
+      }
+    },
+    "appliedApplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "applied_at_utc",
+        "applied_by",
+        "protection_subject_commit",
+        "response_digest_algorithm",
+        "response_sha256",
+        "verified_at_utc"
+      ],
+      "properties": {
+        "state": {
+          "const": "applied"
+        },
+        "applied_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "applied_by": {
+          "const": "ShaiKKO"
+        },
+        "protection_subject_commit": {
+          "$ref": "#/$defs/sha40"
+        },
+        "response_digest_algorithm": {
+          "const": "canonical-json-sha256"
+        },
+        "response_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "verified_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
