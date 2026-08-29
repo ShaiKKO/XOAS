@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Callable
 import datetime
 import hashlib
 import json
@@ -16,16 +15,26 @@ import subprocess
 import sys
 import time
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, Protocol
 
 
-CommandRunner = Callable[[tuple[str, ...]], SimpleNamespace]
 QUALIFICATION_WINDOW_SECONDS = 60
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 
 class CaptureError(RuntimeError):
     """Report a host fact that makes qualification capture invalid."""
+
+
+class CommandRunner(Protocol):
+    """Run one bounded command, optionally in an explicit directory."""
+
+    def __call__(
+        self,
+        command: tuple[str, ...],
+        working_directory: Path | None = None,
+    ) -> SimpleNamespace:
+        """Return the command status and captured output."""
 
 
 def _source_path(source_root: Path, absolute_path: str) -> Path:
@@ -392,7 +401,10 @@ def _package_records(command_runner: CommandRunner) -> list[dict[str, str]]:
     return records
 
 
-def _real_command_runner(command: tuple[str, ...]) -> SimpleNamespace:
+def _real_command_runner(
+    command: tuple[str, ...],
+    working_directory: Path | None = None,
+) -> SimpleNamespace:
     """Run one bounded read-only command without shell interpretation."""
     try:
         result = subprocess.run(
@@ -401,6 +413,7 @@ def _real_command_runner(command: tuple[str, ...]) -> SimpleNamespace:
             capture_output=True,
             text=True,
             timeout=30,
+            cwd=working_directory,
         )
     except (OSError, subprocess.TimeoutExpired) as error:
         return SimpleNamespace(returncode=127, stdout="", stderr=str(error))
@@ -497,8 +510,8 @@ def build_capture(
             "true",
         )
     )
-    git_commit = command_runner(("git", "rev-parse", "HEAD"))
-    git_status = command_runner(("git", "status", "--porcelain"))
+    git_commit = command_runner(("git", "rev-parse", "HEAD"), repository_root)
+    git_status = command_runner(("git", "status", "--porcelain"), repository_root)
     if git_commit.returncode != 0 or git_status.returncode != 0:
         raise CaptureError("repository identity is unavailable")
 

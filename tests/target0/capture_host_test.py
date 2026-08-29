@@ -22,8 +22,14 @@ class FakeCommandRunner:
     def __init__(self, *, virtualization: str = "none", perf_available: bool = True):
         self.virtualization = virtualization
         self.perf_available = perf_available
+        self.calls: list[tuple[tuple[str, ...], Path | None]] = []
 
-    def __call__(self, command: tuple[str, ...]) -> SimpleNamespace:
+    def __call__(
+        self,
+        command: tuple[str, ...],
+        working_directory: Path | None = None,
+    ) -> SimpleNamespace:
+        self.calls.append((command, working_directory))
         if command == ("systemd-detect-virt",):
             return SimpleNamespace(
                 returncode=1 if self.virtualization == "none" else 0,
@@ -203,6 +209,26 @@ class CaptureHostTest(unittest.TestCase):
         serialized = json.dumps(record, sort_keys=True)
         for forbidden_text in ("hostname", "username", "home_directory", "ssh", "ip_address"):
             self.assertNotIn(forbidden_text, serialized)
+
+    def test_capture_executes_git_in_declared_repository(self) -> None:
+        """Repository identity must not depend on the caller's directory."""
+        module = load_capture_module(self)
+        runner = FakeCommandRunner()
+
+        module.build_capture(
+            phase="prestate",
+            source_root=self.fixture_root,
+            command_runner=runner,
+            captured_at_utc="2026-08-29T00:00:00Z",
+            repository_root=REPOSITORY_ROOT,
+        )
+
+        git_calls = [
+            working_directory
+            for command, working_directory in runner.calls
+            if command[:2] in {("git", "rev-parse"), ("git", "status")}
+        ]
+        self.assertEqual(git_calls, [REPOSITORY_ROOT, REPOSITORY_ROOT])
 
     def test_capture_rejects_invalid_host_boundaries(self) -> None:
         """Qualification capture must fail closed on load-bearing host mismatches."""
