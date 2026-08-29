@@ -25,13 +25,17 @@ If two sources conflict, stop work affected by the conflict, quote the exact sec
 
 | Document | State | Requested decision |
 |---|---|---|
-| [`proposals/AR-0001-target-0-host-qualification.md`](proposals/AR-0001-target-0-host-qualification.md) | Proposed; user decision required | Keep `gpu-2` development-only, conditionally qualify it after controls, or approve a narrower VM measurement claim |
+| [`proposals/AR-0001-target-0-host-qualification.md`](proposals/AR-0001-target-0-host-qualification.md) | Primary development role approved; measurement decision required | Conditionally qualify `gpu-2`, keep it development-only, or approve a narrower VM measurement claim |
 
 Approved proposals override the affected sections of lower-authority documents only to the extent their requested decision says so. Rejected and superseded proposals remain evidence and must be labeled accordingly.
 
 ## Implementation decisions
 
-No IDR exists. Use `../adr/IDR-####-short-title.md` for durable, semantics-neutral implementation decisions if no narrower convention is approved first.
+| Document | State | Decision |
+|---|---|---|
+| [`../adr/IDR-0001-engineering-quality-system.md`](../adr/IDR-0001-engineering-quality-system.md) | Accepted design; enforcement pending | LLVM-derived source standard, pinned Clang-native gates, protected `main`, generated/vendor boundaries, and staged rollout |
+
+Use the next unused `../adr/IDR-####-short-title.md` number for a durable, semantics-neutral implementation decision.
 
 ## Milestone control and acceptance
 
@@ -46,6 +50,7 @@ No IDR exists. Use `../adr/IDR-####-short-title.md` for durable, semantics-neutr
 | Document                                                                                                                     | State                            | Purpose                                                                            |
 | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
 | [`../../AGENTS.md`](../../AGENTS.md)                                                                                         | Active operating manual          | Repository-wide engineering rules; never overrides architecture                    |
+| [`../engineering/coding-standards.md`](../engineering/coding-standards.md)                                                   | Approved normative design; automation pending | Source naming/comments, quality gates, suppression policy, review, and CI authority |
 | [`../repository_discovery_and_project_understanding_report.md`](../repository_discovery_and_project_understanding_report.md) | Point-in-time discovery snapshot | Verified repository, development-host, toolchain, and evidence state at 2026-08-28 |
 
 ## Research and benchmark evidence

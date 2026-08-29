@@ -35,11 +35,12 @@ Read these files before working:
 2. [`docs/architecture/README.md`](docs/architecture/README.md) — actual architecture/decision/evidence inventory and approval state.
 3. [`docs/architecture/000-charter.md`](docs/architecture/000-charter.md) — locked v0 claim, Target 0, numerical boundary, non-goals, and falsification.
 4. [`docs/milestones/status.md`](docs/milestones/status.md) and the active milestone acceptance/implementation plan — canonical frontier, gate state, exact evidence, and current task contract.
-5. For benchmark, corpus, or performance work: [`docs/architecture/050-benchmark-protocol.md`](docs/architecture/050-benchmark-protocol.md), [`docs/experiments/baseline-matrix.md`](docs/experiments/baseline-matrix.md), and [`docs/experiments/corpus-policy.md`](docs/experiments/corpus-policy.md).
-6. For research-claim work: [`docs/experiments/prior-art-matrix.md`](docs/experiments/prior-art-matrix.md).
-7. For target/toolchain work: [`docs/architecture/proposals/AR-0001-target-0-host-qualification.md`](docs/architecture/proposals/AR-0001-target-0-host-qualification.md) and the candidate/approved target manifest. AR-0001 is proposed, not approved.
-8. [`docs/repository_discovery_and_project_understanding_report.md`](docs/repository_discovery_and_project_understanding_report.md) — point-in-time repository, host, toolchain, and evidence gaps; refresh drift-prone facts.
-9. The nearest scoped `AGENTS.md` if nested instructions are added later.
+5. For any source, tooling, CI, or review work: [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md) and [`docs/adr/IDR-0001-engineering-quality-system.md`](docs/adr/IDR-0001-engineering-quality-system.md).
+6. For benchmark, corpus, or performance work: [`docs/architecture/050-benchmark-protocol.md`](docs/architecture/050-benchmark-protocol.md), [`docs/experiments/baseline-matrix.md`](docs/experiments/baseline-matrix.md), and [`docs/experiments/corpus-policy.md`](docs/experiments/corpus-policy.md).
+7. For research-claim work: [`docs/experiments/prior-art-matrix.md`](docs/experiments/prior-art-matrix.md).
+8. For target/toolchain work: [`docs/architecture/proposals/AR-0001-target-0-host-qualification.md`](docs/architecture/proposals/AR-0001-target-0-host-qualification.md) and the candidate/approved target manifest. The primary development role is approved; Target 0 measurement qualification remains open.
+9. [`docs/repository_discovery_and_project_understanding_report.md`](docs/repository_discovery_and_project_understanding_report.md) — point-in-time repository, host, toolchain, and evidence gaps; refresh drift-prone facts.
+10. The nearest scoped `AGENTS.md` if nested instructions are added later.
 
 Precedence:
 
@@ -97,7 +98,9 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/architecture/README.md` — architecture, decision, and evidence index.
 - `docs/architecture/000-charter.md` — locked Target 0 product/research charter.
 - `docs/architecture/050-benchmark-protocol.md` — locked v1 benchmark and evidence protocol.
-- `docs/architecture/proposals/AR-0001-target-0-host-qualification.md` — proposed load-bearing target-host decision.
+- `docs/architecture/proposals/AR-0001-target-0-host-qualification.md` — approved primary-development designation and open load-bearing measurement-host decision.
+- `docs/engineering/coding-standards.md` — approved LLVM-derived source, documentation, enforcement, and review contract.
+- `docs/adr/IDR-0001-engineering-quality-system.md` — accepted engineering-quality design and staged implementation decision.
 - `docs/experiments/prior-art-matrix.md` — required and direct-comparator capability review.
 - `docs/experiments/baseline-matrix.md` — baseline admission/configuration/cost policy.
 - `docs/experiments/corpus-policy.md` — deterministic corpus generation, normalization, partition, and holdout policy.
@@ -175,6 +178,15 @@ Python module `jsonschema` was unavailable at the M0 snapshot. Do not claim draf
 The build plan selects C++23, CMake, Ninja, and Clang as the initial core toolchain; Python is limited to corpus generation, orchestration, plotting, and report assembly. Semantic compiler logic must not exist only in Python.
 
 When M1 creates the build system, add the exact version floors, install provenance, configure presets, build commands, formatting, lint/static analysis, sanitizers, and safe cleanup commands here in the same change. Until then, do not invent or copy generic CMake commands.
+
+### Approved quality-system direction
+
+[`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md) is mandatory for new first-party code.
+It requires standards-safe LLVM-derived naming, `///` Doxygen blocks for files/non-trivial classes/public interfaces, rare rationale-focused `//` comments, distinct handwritten/generated/vendor policies, pinned Clang-native checks, sanitizers, protected-main CI, and narrow justified suppressions.
+
+The design is approved, but `.clang-format`, `.clang-tidy`, Doxygen/CMake quality targets, CI workflows, and protected-branch checks do not yet exist.
+Do not claim automated enforcement or invent their commands before a reviewed implementation plan provisions and verifies the pinned toolchain.
+The exceptions/RTTI policy is deliberately deferred to a separate M1 IDR.
 
 ## 7. Test commands and taxonomy
 
@@ -353,7 +365,7 @@ Approval is required before changing Target 0, numerical semantics, public ABI, 
 
 ### Implementation decisions
 
-Use `docs/adr/IDR-####-short-title.md` for durable semantics-neutral implementation decisions. The first IDR number is `IDR-0001`.
+Use `docs/adr/IDR-####-short-title.md` for durable semantics-neutral implementation decisions. `IDR-0001` exists; allocate the next unused number.
 
 An IDR records context, decision, alternatives, consequences, affected files/interfaces, verification, and reversal/migration path. It must not be used to smuggle in an architectural change.
 
@@ -363,6 +375,7 @@ An IDR records context, decision, alternatives, consequences, affected files/int
 - `main` is the published integration branch and tracks `origin/main`. The discovery report's unborn-repository statement is historical snapshot evidence, not current state.
 - Work directly in the primary checkout for the current stage. Use `milestone/mN-short-name` or `task/mN-short-name` when a bounded branch materially improves isolation or review; do not create a branch or linked worktree without a concrete need.
 - Normal scoped commits and pushes are part of the authorized engineering workflow. Review and verify the exact staged paths before committing, then push the tested integration state.
+- Before production C++ merges, protect `main` with the required quality checks defined by the approved engineering-quality design. Until live protection is verified, report it as planned rather than enforced.
 - Preserve all user and agent work. Never reset, clean, checkout over, or delete unrelated changes.
 - Do not broadly stage. Stage exact reviewed paths.
 - Keep commits single-purpose and bind acceptance claims to exact commits.
@@ -426,7 +439,7 @@ Compilation alone is never done.
 
 Read and update [`docs/milestones/status.md`](docs/milestones/status.md).
 
-Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, candidate-host capture, and proposed target-host decision exist. No product implementation begins before M0 closes.
+Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, candidate-host capture, approved engineering-quality design, and target-host proposal exist. The user has designated `gpu-2` as the primary development environment; whether it may also become the Target 0 measurement host remains open. No product implementation begins before M0 closes.
 
 The earliest executable slice remains M0 target qualification: obtain the `AR-0001` decision, provision and pin the selected C++ toolchain and admitted baselines on the approved host, establish the required measurement controls and PMU evidence, run non-claiming qualification/noise checks, execute full schema validation, obtain the required review, and update the acceptance record. Do not begin M1 product scaffolding to bypass these blockers.
 
@@ -443,6 +456,8 @@ Do not embed percentage estimates. Record states, exact commits, evidence, devia
 - Do not collapse IR layers to shortcut implementation.
 - Do not claim gate closure without exact commit and evidence.
 - Do not hide architecture changes in ordinary code review, comments, or commits.
+- Do not use C++ reserved implementation identifiers such as names containing `__`.
+- Do not merge narrative comments, commented-out code, bare debt markers, or broad unexplained lint/format suppressions.
 - Do not infer floating-point equivalence from real-number algebra.
 - Do not let a static cost model declare the winner.
 - Do not execute an incompatible or stale cached plan.

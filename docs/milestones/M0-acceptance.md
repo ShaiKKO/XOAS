@@ -115,7 +115,7 @@ Self-review is not represented as independent review.
 
 M0 remains **OPEN**. Closing it requires:
 
-1. user decision on AR-0001;
+1. user decision on AR-0001's remaining Target 0 measurement role;
 2. qualified, approved Target 0 manifest satisfying the selected option;
 3. exact installed compiler and serious baseline-library identities on that target;
 4. full schema/example validation with the approved M1-or-earlier validator tool;
@@ -125,7 +125,7 @@ M0 remains **OPEN**. Closing it requires:
 
 The earliest valid slice is still within M0:
 
-1. obtain the AR-0001 decision;
+1. obtain the remaining AR-0001 measurement-role decision;
 2. write and review a reversible host-provisioning/qualification plan for the selected host;
 3. install and pin the C++ toolchain and admitted baselines;
 4. enable/verify measurement controls and PMU evidence;

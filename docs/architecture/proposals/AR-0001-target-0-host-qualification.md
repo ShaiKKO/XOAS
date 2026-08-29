@@ -1,6 +1,6 @@
 # AR-0001: Target 0 Host Qualification
 
-**Status:** Proposed; user decision required
+**Status:** Primary development role approved; Target 0 measurement decision required
 
 **Decision owner:** User / architecture authority
 
@@ -8,7 +8,11 @@
 
 ## Requested decision
 
-Decide whether the `gpu-2` OpenStack/KVM server should:
+The user confirmed on 2026-08-28 that `gpu-2` is XOAS's primary development environment.
+No alternative server is currently designated; an AMD desktop may be evaluated later.
+That development role is approved and no longer part of the open decision.
+
+The remaining decision is whether the `gpu-2` OpenStack/KVM server should:
 
 1. be conditionally qualified as the sole Target 0 measurement host after all controls below close;
 2. remain the primary development host while XOAS acquires or designates a more controllable Target 0 measurement host; or
@@ -129,7 +133,7 @@ Under the recommendation:
 ## Work that can continue independently
 
 - Review and correct M0 charter, prior-art, baseline, corpus, schema, and protocol documents.
-- Obtain the user's decision on this proposal.
+- Obtain the user's remaining measurement-role decision on this proposal.
 - Collect provider facts about PMU access, VM exclusivity, migration, and reboot persistence.
 - Prepare a separately reviewed, reversible provisioning plan for the selected host.
 - Verify external source artifacts and JSON/document consistency.
@@ -152,4 +156,8 @@ Whichever host is selected must produce a versioned manifest and acceptance reco
 
 ## Decision record
 
-No option is approved yet. Record the user's explicit decision here with date and exact commit; do not infer approval from use of the server for development.
+On 2026-08-28, the user explicitly designated `gpu-2` as the primary development environment and stated that no alternative server is currently available, while noting that an AMD desktop could be considered later.
+
+This approves the development role only.
+It does not qualify `gpu-2` for Target 0 measurements, waive any blocker above, or select Options 1, 2, or 3 for performance-gate evidence.
+The measurement-role decision remains open and must be recorded explicitly with its exact commit.
