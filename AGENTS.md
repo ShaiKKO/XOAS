@@ -123,8 +123,8 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; schema and synthetic example fully validated on `gpu-2`.
 - `schemas/development-toolchain-v1.schema.json` — draft-2020-12 installed development-toolchain evidence schema.
 - `schemas/target0-host-qualification-v1.schema.json` — closed fixed-process qualification schema; real instances are build-tree test artifacts, not performance claims.
-- `tools/target0/` — non-product Target 0 qualification tooling; currently contains the deterministic native CPU probe.
-- `tests/target0/` — behavioral, negative, deterministic, and schema-closure tests for qualification tooling.
+- `tools/target0/` — non-product Target 0 qualification tooling: the deterministic native CPU probe, non-secret host capture/core selector, and reversible measurement-session controller.
+- `tests/target0/` — behavioral, negative, deterministic, schema-closure, fixture-capture, signal, apply-failure, and exact-restoration tests for qualification tooling.
 
 There is currently no product source/public include tree, product library or executable, independent oracle, executable benchmark harness, database, artifact store, repository README, or product dependency manifest.
 The existing build and test tree enforces engineering quality only.
@@ -355,6 +355,23 @@ compares two processes, mutates the schema boundary, and exercises invalid
 CLI, CPU, and output cases. It is host-qualification tooling, not a product
 kernel, benchmark result, or speed claim.
 
+The non-secret host capture and reversible session controller are verified
+without mutating a real host:
+
+```bash
+cmake --build --preset dev-debug --target target0-host-tools
+ctest --preset dev-debug \
+  -R '^target0-host-tools-' --output-on-failure
+```
+
+The target checks Python syntax and ShellCheck. The CTests use complete
+filesystem fixtures to reject invalid topology, virtualization, clocksource,
+PMU, and secret-field boundaries; prove core-selection ordering; observe
+applied controls inside the command; and prove exact restoration after
+success, command failure, `TERM`, and partial apply failure. They do not
+authorize real-host mutation; Tasks 3 and later in the active plan control
+that boundary.
+
 The only approved quality-build cleanup command is:
 
 ```bash
@@ -397,9 +414,12 @@ aggregate wiring, cleanup boundaries, hosted-workflow policy, and the live
 branch-protection evidence contract with positive and isolated negative probes.
 
 The `tests/target0/` harness adds the non-claiming qualification-process probe
-contract. Run its exact targeted command from section 6; it is required for
+contract and reversible host-control tests. Run the exact targeted commands
+from section 6; they are required for
 any change to the process schema, probe CLI, deterministic workload, affinity,
-timing, thread/context-switch observation, or output publication behavior.
+timing, thread/context-switch observation, capture allowlist, core selector,
+session preconditions, signal forwarding, state application, restoration, or
+evidence publication behavior.
 
 Product unit, property, differential, numerical-semantic, generated-kernel,
 artifact/serialization, regression, and benchmark-smoke suites remain
@@ -672,9 +692,10 @@ been executed; stable targets, pinned hosted jobs, and protected-main controls
 are repository capabilities with retained evidence.
 
 The M0 critical path is continued execution of the physical AMD Target 0
-qualification plan. Task 1 provides the closed process schema and deterministic
-probe; reversible host capture/session tooling and all host-side tasks remain
-open. Baseline installation, measurement controls, PMU
+qualification plan. Tasks 1–2 provide the closed process schema, deterministic
+probe, non-secret host capture/core selector, and fixture-verified reversible
+session controller. Real-host pre-state capture, provisioning, campaigns, and
+qualification remain open. Baseline installation, measurement controls, PMU
 evidence, noise checks, and target-bound benchmark evidence belong on that
 selected measurement host. Obtain the required independent review or explicit
 review-model acceptance and update the acceptance record before M0 closes. Do

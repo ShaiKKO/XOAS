@@ -47,7 +47,8 @@ any existing applicable comparator.
 | Holdout | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen, public identity, no measurements, design use prohibited |
 | Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Historical candidate capture committed at `6e6adf3`; its development toolchain is now verified, but Option 2 keeps it ineligible as the reference target |
 | Architecture index and operating manual | [`../architecture/README.md`](../architecture/README.md) and root [`../../AGENTS.md`](../../AGENTS.md) | Integrated and verified at `3d635d3` |
-| Target qualification process contract | [`../../schemas/target0-host-qualification-v1.schema.json`](../../schemas/target0-host-qualification-v1.schema.json), [`../../tools/target0/qualification_probe.cpp`](../../tools/target0/qualification_probe.cpp), and behavioral tests | Task 1 implemented; this is non-claiming host-qualification tooling and does not qualify the AMD target |
+| Target qualification process contract | [`../../schemas/target0-host-qualification-v1.schema.json`](../../schemas/target0-host-qualification-v1.schema.json), [`../../tools/target0/qualification_probe.cpp`](../../tools/target0/qualification_probe.cpp), and behavioral tests | Task 1 implemented at `8a247a2`; this is non-claiming host-qualification tooling and does not qualify the AMD target |
+| Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented and fixture-verified; no real host control was changed and Tasks 3–7 remain open |
 
 ## Exit-gate statement
 
@@ -90,6 +91,22 @@ The test runs two real fixed-count processes, checks the literal seed-42 round-0
 checksum `b6347d16b98f0445`, validates deterministic fields and ordered samples,
 exercises invalid CLI/CPU/output behavior, and accepts closed failure evidence.
 No retained output is a performance claim or target-qualification result.
+
+The Task 2 host tools passed:
+
+```bash
+cmake --build --preset dev-debug --target target0-host-tools
+ctest --preset dev-debug \
+  -R '^target0-host-tools-' --output-on-failure
+```
+
+Capture fixtures proved the closed non-secret record, exact SMT/cache/NUMA
+topology parsing, TSC and PMU requirements, credential-field rejection, and
+preferred-rank/interrupt/CPU selector order. Session fixtures observed active
+performance policy and sibling-offline state from inside the command, then
+proved exact restoration after success, exit 23, `TERM`, and an injected
+sysfs write failure. This evidence does not establish behavior on the physical
+AMD host; that boundary begins at Task 3.
 
 ### External corpus evidence
 
@@ -156,7 +173,7 @@ M0 remains **OPEN**. Closing it requires:
 
 The earliest valid slice is still within M0:
 
-1. review the written designated-AMD-host qualification/baseline plan;
+1. capture the physical host pre-state and freeze the exact provisioning lock;
 2. install and pin the admitted baselines on that selected measurement host;
 3. enable/verify measurement controls and PMU evidence;
 4. run non-claiming qualification smoke and noise characterization;

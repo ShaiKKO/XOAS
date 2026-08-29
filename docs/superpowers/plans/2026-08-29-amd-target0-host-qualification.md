@@ -195,6 +195,9 @@ git commit -m "test: add Target 0 qualification probe"
 - Create: `tools/target0/measurement_session.sh`
 - Create: `tests/target0/capture_host_test.py`
 - Create: `tests/target0/measurement_session_test.py`
+- Modify: `AGENTS.md`
+- Modify: `docs/milestones/M0-acceptance.md`
+- Modify: `docs/milestones/status.md`
 - Modify: `tools/target0/CMakeLists.txt`
 - Modify: `tests/target0/CMakeLists.txt`
 
@@ -204,12 +207,13 @@ git commit -m "test: add Target 0 qualification probe"
   closed non-secret host record.
 - `capture_host.py select-core --capture PATH --interrupt-window-seconds 60`
   emits the selected physical CPU and SMT sibling.
-- `measurement_session.sh --cpu UINT --sibling UINT --target-user NAME --
-  COMMAND...` applies reversible controls, executes one unprivileged command,
-  restores pre-state, and emits a restoration record beside the command's
-  result.
+- `measurement_session.sh --cpu UINT --sibling UINT --target-user NAME
+  --restoration-record PATH -- COMMAND...` applies reversible controls,
+  executes one unprivileged command, restores pre-state, and emits a closed
+  restoration record at the explicit non-replacing evidence path. Keeping the
+  path explicit prevents command output from mixing with restoration evidence.
 
-- [ ] **Step 1: Write fixture-driven capture tests**
+- [x] **Step 1: Write fixture-driven capture tests**
 
 Build a fake sysfs/proc fixture with two physical cores and siblings. Assert
 that capture rejects missing CPU topology, mismatched siblings, virtualization,
@@ -220,7 +224,7 @@ fields. Assert that the core selector sorts by:
 2. lowest interrupt-count delta during the exact 60-second window;
 3. lowest physical CPU number.
 
-- [ ] **Step 2: Implement closed non-secret capture**
+- [x] **Step 2: Implement closed non-secret capture**
 
 Capture CPU vendor/family/model/stepping/model name/microcode/ISA; CPU, socket,
 NUMA, SMT, L1/L2/L3, and sibling topology; memory/page state; OS/kernel/libc;
@@ -233,7 +237,7 @@ Never serialize hostname, network devices/addresses, login identity, home
 directory, access command, environment, or full kernel command line. Preserve
 only the approved non-secret kernel-control flags as named booleans.
 
-- [ ] **Step 3: Write session-controller negative tests**
+- [x] **Step 3: Write session-controller negative tests**
 
 Use a temporary fake sysfs tree and assert exact restoration after success,
 command failure, `TERM`, and an injected write failure. Require a hard failure
@@ -241,7 +245,7 @@ when CPU/sibling are not a pair, the sibling is already unexpectedly offline,
 the governor lacks `performance`, EPP lacks `performance`, the target user is
 root, or the command is empty.
 
-- [ ] **Step 4: Implement the reversible session controller**
+- [x] **Step 4: Implement the reversible session controller**
 
 The root portion must:
 
@@ -258,7 +262,7 @@ The root portion must:
 
 Do not modify persistent files or global IRQ affinity.
 
-- [ ] **Step 5: Run script, Python, and policy checks**
+- [x] **Step 5: Run script, Python, and policy checks**
 
 ```bash
 python3 tests/target0/capture_host_test.py
@@ -269,10 +273,10 @@ ctest --preset dev-debug -R target0-host-tools --output-on-failure
 git diff --check
 ```
 
-- [ ] **Step 6: Commit the host tools**
+- [x] **Step 6: Commit the host tools**
 
 ```bash
-git add tools/target0/capture_host.py tools/target0/measurement_session.sh tests/target0/capture_host_test.py tests/target0/measurement_session_test.py tools/target0/CMakeLists.txt tests/target0/CMakeLists.txt
+git add AGENTS.md docs/milestones/M0-acceptance.md docs/milestones/status.md docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md tools/target0/capture_host.py tools/target0/measurement_session.sh tests/target0/capture_host_test.py tests/target0/measurement_session_test.py tools/target0/CMakeLists.txt tests/target0/CMakeLists.txt
 git diff --cached --check
 git commit -m "tool: add reversible Target 0 host controls"
 ```
