@@ -33,7 +33,7 @@ Approved proposals override the affected sections of lower-authority documents o
 
 | Document | State | Decision |
 |---|---|---|
-| [`../adr/IDR-0001-engineering-quality-system.md`](../adr/IDR-0001-engineering-quality-system.md) | Accepted design; enforcement pending | LLVM-derived source standard, pinned Clang-native gates, protected `main`, generated/vendor boundaries, and staged rollout |
+| [`../adr/IDR-0001-engineering-quality-system.md`](../adr/IDR-0001-engineering-quality-system.md) | Accepted design; development toolchain verified; enforcement pending | LLVM-derived source standard, pinned Clang-native gates, protected `main`, generated/vendor boundaries, and staged rollout |
 
 Use the next unused `../adr/IDR-####-short-title.md` number for a durable, semantics-neutral implementation decision.
 
@@ -41,7 +41,7 @@ Use the next unused `../adr/IDR-####-short-title.md` number for a durable, seman
 
 | Document | State | Scope |
 |---|---|---|
-| [`../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) | Prepared; AR-0001 prerequisite closed; execution not started | Reversible exact-version provisioning and verification of the primary development toolchain; excludes baselines and measurement qualification |
+| [`../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) | Executed and verified on `gpu-2` | Reversible exact-version provisioning and verification of the primary development toolchain; excludes baselines and measurement qualification |
 | [`../superpowers/plans/2026-08-28-engineering-quality-gates.md`](../superpowers/plans/2026-08-28-engineering-quality-gates.md) | Prepared; depends on the verified toolchain plan; execution not started | Local quality fixtures/targets, pinned hosted CI, and protected `main`; excludes product/compiler implementation |
 
 An implementation plan does not change architecture authority. Its execution must preserve the controlling specification and record exact commits and evidence.
@@ -60,8 +60,8 @@ An implementation plan does not change architecture authority. Its execution mus
 | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
 | [`../../AGENTS.md`](../../AGENTS.md)                                                                                         | Active operating manual          | Repository-wide engineering rules; never overrides architecture                    |
 | [`../engineering/coding-standards.md`](../engineering/coding-standards.md)                                                   | Approved normative design; automation pending | Source naming/comments, quality gates, suppression policy, review, and CI authority |
-| [`../toolchain/gpu-2-development-toolchain-v1.md`](../toolchain/gpu-2-development-toolchain-v1.md)                           | Pre-install intent; package installation not started | Non-secret provisioning pre-state, source authentication, rollback, and probe evidence |
-| [`../../toolchains/gpu-2-development-toolchain-v1.lock.json`](../../toolchains/gpu-2-development-toolchain-v1.lock.json)     | Exact pre-install lock; `build_ready=false` | Versioned package intent, executable/probe contract, and stable configuration digest |
+| [`../toolchain/gpu-2-development-toolchain-v1.md`](../toolchain/gpu-2-development-toolchain-v1.md)                           | Installed and behaviorally verified on `gpu-2` | Non-secret provisioning pre-state, source authentication, rollback, and probe evidence |
+| [`../../toolchains/gpu-2-development-toolchain-v1.lock.json`](../../toolchains/gpu-2-development-toolchain-v1.lock.json)     | Exact installed lock; `build_ready=true`; Target 0 qualification false | Versioned package closure, executable identities, probe evidence, and stable configuration digest |
 | [`../../schemas/development-toolchain-v1.schema.json`](../../schemas/development-toolchain-v1.schema.json)                   | Draft 2020-12 lock schema | Closed machine-readable development-toolchain evidence contract |
 | [`../repository_discovery_and_project_understanding_report.md`](../repository_discovery_and_project_understanding_report.md) | Point-in-time discovery snapshot | Verified repository, development-host, toolchain, and evidence state at 2026-08-28 |
 
@@ -71,13 +71,13 @@ An implementation plan does not change architecture authority. Its execution mus
 |---|---|---|
 | [`../experiments/prior-art-matrix.md`](../experiments/prior-art-matrix.md) | M0 reviewed-source matrix; executable reproduction remains later work | Capability boundary, closest prior systems, constrained XOAS differentiator |
 | [`../experiments/baseline-matrix.md`](../experiments/baseline-matrix.md) | M0 admission policy; host availability remains open | Serious baseline candidates, configuration search, cost accounting, disqualification |
-| [`../../schemas/benchmark-result-v1.schema.json`](../../schemas/benchmark-result-v1.schema.json) | M0 JSON Schema draft 2020-12 contract; syntax checked, full validator unavailable | Immutable result, environment, raw-sample, lifecycle, artifact, and decision fields |
+| [`../../schemas/benchmark-result-v1.schema.json`](../../schemas/benchmark-result-v1.schema.json) | M0 JSON Schema draft 2020-12 contract; schema and synthetic example fully validated on `gpu-2` | Immutable result, environment, raw-sample, lifecycle, artifact, and decision fields |
 | [`../../benchmarks/manifests/benchmark-result-v1.example.json`](../../benchmarks/manifests/benchmark-result-v1.example.json) | Explicitly synthetic, non-claiming example | Demonstrates the result shape; never benchmark evidence |
 | [`../experiments/corpus-policy.md`](../experiments/corpus-policy.md) | Frozen M0 corpus/generation policy; materializer remains M1 work | Deterministic support/value generation, source normalization, partitions, holdout governance |
 | [`../../benchmarks/manifests/synthetic-target-v0.json`](../../benchmarks/manifests/synthetic-target-v0.json) | Frozen, not materialized | 25 visible smoke/design/proof/product synthetic cases |
 | [`../../benchmarks/manifests/application-target-v0.json`](../../benchmarks/manifests/application-target-v0.json) | Frozen sources, not materialized | Six visible NIST-derived product cases, including one proof target |
 | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen and not measured; measurements sealed until M7 | Six NIST-derived holdout cases and early-access invalidation rule |
-| [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Candidate development-host capture; not qualified for measurement | Non-secret CPU/OS/topology/timer/PMU/toolchain evidence and qualification blockers |
+| [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Development-host capture with verified toolchain; not qualified for measurement | Non-secret CPU/OS/topology/timer/PMU/toolchain evidence and qualification blockers |
 
 No qualified Target 0 manifest exists. The candidate manifest cannot satisfy plan or runtime compatibility.
 

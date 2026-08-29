@@ -10,6 +10,8 @@
 
 **AR-0001 decision integration:** `6904d49e4978f48d9ca3c5db29fac59bbc3233c6` (`docs: approve gpu-2 development-only role`)
 
+**Development-toolchain intent:** `11d1b19371489f0f75cb01eeb078bf64897cf88b` (`ops: lock gpu-2 development toolchain intent`)
+
 **Subject tree state:** Clean at verification; `main` was one commit ahead of `origin/main` before this documentation-only evidence update.
 
 ## Controlling requirements
@@ -31,10 +33,10 @@ The user approved AR-0001 Option 2: `gpu-2` is development-only and is not the T
 | Required prior-art comparison | [`../experiments/prior-art-matrix.md`](../experiments/prior-art-matrix.md) | Implemented and committed at `30616bc` |
 | Baseline selection | [`../experiments/baseline-matrix.md`](../experiments/baseline-matrix.md) | Admission policy committed at `30616bc`; selected measurement host and its binaries unavailable |
 | Benchmark protocol | [`../architecture/050-benchmark-protocol.md`](../architecture/050-benchmark-protocol.md) | Implemented and committed at `00afbf7`; no harness exists |
-| Result schema | [`../../schemas/benchmark-result-v1.schema.json`](../../schemas/benchmark-result-v1.schema.json) and non-claiming example | JSON syntax and custom invariants checked; full JSON Schema validator unavailable |
+| Result schema | [`../../schemas/benchmark-result-v1.schema.json`](../../schemas/benchmark-result-v1.schema.json) and non-claiming example | Draft-2020-12 meta-schema and example validation passed on `gpu-2`; the example remains synthetic and non-claiming |
 | Synthetic and application sources | [`../experiments/corpus-policy.md`](../experiments/corpus-policy.md) and three corpus manifests | Frozen and committed at `8a7032b`; M1 materialization not implemented |
 | Holdout | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen, public identity, no measurements, design use prohibited |
-| Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Historical candidate capture committed at `6e6adf3`; Option 2 makes it ineligible as the current reference target |
+| Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Historical candidate capture committed at `6e6adf3`; its development toolchain is now verified, but Option 2 keeps it ineligible as the reference target |
 | Architecture index and operating manual | [`../architecture/README.md`](../architecture/README.md) and root [`../../AGENTS.md`](../../AGENTS.md) | Integrated and verified at `3d635d3` |
 
 ## Exit-gate statement
@@ -58,7 +60,8 @@ The team can state the required paragraph, but the gate remains open because the
 
 - `python3 -m json.tool` passed for the benchmark-result schema, synthetic example, and all corpus manifests.
 - Standard-library assertions passed at `3d635d3` for 37 unique/disjoint cases, four pinned source identities, partition membership, shapes, seed lengths, source references, coordinate counts, holdout state, ten raw-sample ordering records, statistical interval ordering, target qualification state, and absence of secret provenance fields.
-- Python module `jsonschema` is not installed locally. Full draft-2020-12 meta-schema and instance validation has not run.
+- On `gpu-2`, `jsonschema` 4.10.3 passed draft-2020-12 meta-schema validation and validated the synthetic benchmark-result example.
+- The development-toolchain schema and installed lock passed draft-2020-12 validation with format checks, stable configuration-digest verification, live package-closure checks, and live executable-hash checks.
 
 ### External corpus evidence
 
@@ -86,7 +89,8 @@ A fresh read-only capture at `2026-08-28T23:01:51Z` verified:
 - `perf_event_paranoid=4` and unavailable unprivileged task-clock/cycles events;
 - no cpufreq/intel_pstate control surfaces;
 - Git 2.43.0 and Python 3.12.3 present;
-- required C++ build tools and baseline libraries absent.
+- the exact versioned Clang/LLVM 21, CMake, Ninja, Doxygen, SQLite, and support-tool development stack installed and behaviorally verified;
+- admitted measurement baseline libraries absent.
 
 Credentials, access coordinates, and key material are excluded from repository evidence.
 
@@ -109,9 +113,8 @@ Self-review is not represented as independent review.
 1. The build-plan front matter still says `Proposed architectural program`; the user handoff approved it as execution authority. The charter and index record the authority distinction without rewriting technical semantics.
 2. The build plan requires cycles and instructions at minimum, but the candidate VM currently denies those events. No exception has been made.
 3. The M0 instruction to lock libraries available on the reference machine cannot close because the replacement measurement host is not designated and has no admitted libraries installed.
-4. The result schema lacks full validator execution.
-5. Corpus supports are specified but not materialized by code; no canonical support digests exist.
-6. Independent review remains absent. Task 6 self-review is recorded but is not substituted for it.
+4. Corpus supports are specified but not materialized by code; no canonical support digests exist.
+5. Independent review remains absent. Task 6 self-review is recorded but is not substituted for it.
 
 ## Gate decision and blockers
 
@@ -119,19 +122,19 @@ M0 remains **OPEN**. Closing it requires:
 
 1. qualified, approved Target 0 manifest for the controlled replacement host required by Option 2;
 2. exact installed compiler and serious baseline-library identities on that target;
-3. full schema/example validation with the approved M1-or-earlier validator tool;
-4. independent review or explicit user acceptance of the documented review model.
+3. independent review or explicit user acceptance of the documented review model.
 
 ## Earliest executable next slice
 
 The earliest valid slice is still within M0:
 
-1. execute the reviewed reversible `gpu-2` development-toolchain plan without treating it as measurement qualification;
-2. designate a controlled x86-64 Linux measurement host;
-3. write and review its qualification/baseline plan;
-4. install and pin the admitted baselines on that selected measurement host;
-5. enable/verify measurement controls and PMU evidence;
-6. run non-claiming qualification smoke and noise characterization;
-7. add the qualified target manifest and update this acceptance record.
+1. designate a controlled x86-64 Linux measurement host;
+2. write and review its qualification/baseline plan;
+3. install and pin the admitted baselines on that selected measurement host;
+4. enable/verify measurement controls and PMU evidence;
+5. run non-claiming qualification smoke and noise characterization;
+6. add the qualified target manifest and update this acceptance record.
+
+The reviewed engineering-quality-gates plan is now unblocked as independent development-environment work, but it cannot substitute for the measurement-host critical path or authorize M1 product code.
 
 M1 product implementation does not begin while M0 remains open.

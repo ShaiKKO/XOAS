@@ -1,6 +1,6 @@
 # IDR-0001: LLVM-Derived Engineering Quality System
 
-**Status:** Accepted design; enforcement implementation pending
+**Status:** Accepted design; development toolchain verified; enforcement implementation pending
 
 **Written-spec approval:** Approved by the user on 2026-08-28.
 
@@ -37,6 +37,22 @@ The design includes:
 
 `gpu-2` is the primary development environment.
 The quality-system designation does not qualify it as the Target 0 measurement host.
+
+### Verified development-toolchain realization
+
+The first implementation prerequisite is closed by [`../toolchain/gpu-2-development-toolchain-v1.md`](../toolchain/gpu-2-development-toolchain-v1.md) and its machine-readable [`../../toolchains/gpu-2-development-toolchain-v1.lock.json`](../../toolchains/gpu-2-development-toolchain-v1.lock.json).
+Its stable configuration SHA-256 is `bf49239db2f78403ee592c1d1ddfaebdd7d9597433b6d39bbcfc7d0c4427347a`.
+
+The verified realization selects:
+
+- versioned LLVM/Clang 21.1.8 commands from the authenticated LLVM Noble 21 archive, without a project-managed global Clang alternative;
+- Ubuntu Noble CMake 3.28.3, Ninja 1.11.1, and Doxygen 1.9.8;
+- the host Ubuntu `libstdc++` headers/runtime for provisioning and quality probes only;
+- exact entry-package versions, a complete 102-package installation closure, executable hashes, and ten behavioral probes;
+- APT holds for the eight versioned LLVM entry packages, with explicit version-drift review for Ubuntu packages.
+
+This realization does not decide XOAS's public ABI, exception model, or RTTI policy.
+It does not install benchmark baselines, qualify `gpu-2` for Target 0 measurement, authorize GPU work, or create a self-hosted runner.
 
 ## Alternatives considered
 
@@ -131,7 +147,7 @@ The implementation is accepted only when:
 
 1. Accept this design and normative standard.
 2. Record AR-0001 Option 2 and approve the reversible `gpu-2` development-toolchain plan. This prerequisite is closed.
-3. Pin and provision the initial Clang/LLVM, CMake, Ninja, Doxygen, and analysis tool versions on `gpu-2`.
+3. Pin, provision, and behaviorally verify the initial Clang/LLVM, CMake, Ninja, Doxygen, and analysis tool versions on `gpu-2`. Closed by the development-toolchain v1 record and lock.
 4. Write a test-driven implementation plan for formatter, diagnostics, tidy, documentation, sanitizer, and CI fixtures.
 5. Implement the smallest quality harness before or with the first authorized M1 source slice.
 6. Verify protected-main checks before merging production C++.
@@ -148,9 +164,8 @@ Separate mechanical transformations from semantic changes.
 
 ## Open implementation inputs
 
-The following remain deliberately unresolved until the primary environment is provisioned and inspected:
+The following remain deliberately unresolved for the enforcement implementation:
 
-- exact Clang/LLVM, CMake, Ninja, Doxygen, and Python formatter versions;
 - exact additional warning and clang-tidy check manifests;
 - GitHub workflow runner image and action digests;
 - license/SPDX header text;

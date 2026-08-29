@@ -101,6 +101,8 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/architecture/proposals/AR-0001-target-0-host-qualification.md` — approved primary-development designation and open load-bearing measurement-host decision.
 - `docs/engineering/coding-standards.md` — approved LLVM-derived source, documentation, enforcement, and review contract.
 - `docs/adr/IDR-0001-engineering-quality-system.md` — accepted engineering-quality design and staged implementation decision.
+- `docs/toolchain/gpu-2-development-toolchain-v1.md` — verified non-secret development-toolchain provenance, rollback, executable identities, and behavioral evidence.
+- `toolchains/gpu-2-development-toolchain-v1.lock.json` — exact installed package closure and executable/probe identity; `build_ready=true` applies only to development.
 - `docs/experiments/prior-art-matrix.md` — required and direct-comparator capability review.
 - `docs/experiments/baseline-matrix.md` — baseline admission/configuration/cost policy.
 - `docs/experiments/corpus-policy.md` — deterministic corpus generation, normalization, partition, and holdout policy.
@@ -108,7 +110,8 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, and the historical unqualified `gpu-2` candidate-target capture. AR-0001 Option 2 excludes that host from current Target 0 measurement authority. The directory contains no executable harness or measured performance result.
-- `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; syntax checked, full validator execution still open.
+- `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; schema and synthetic example fully validated on `gpu-2`.
+- `schemas/development-toolchain-v1.schema.json` — draft-2020-12 installed development-toolchain evidence schema.
 
 There is currently no product source/public include tree, build system, test tree, executable benchmark harness, database, artifact store, script directory, repository README, or dependency manifest.
 
@@ -152,7 +155,9 @@ The repository has no build system or product code. Therefore no configure, prod
 
 The primary Linux development server is `gpu-2`, Ubuntu 24.04.4 LTS on x86-64 KVM/OpenStack. AR-0001 Option 2 makes it development-only; it is not the Target 0 measurement host. Access credentials and network coordinates are external secrets and must never be committed.
 
-The fresh M0 capture at `2026-08-28T23:01:51Z` records `gpu-2` in `benchmarks/manifests/target-gpu-2-candidate.json`: Git 2.43.0 and Python 3.12.3 are present; CMake, Ninja, GCC/G++, Clang/Clang++, SQLite CLI/development tooling, `pkg-config`, OpenBLAS, oneMKL, and LIBXSMM are absent. PMU cycles/instructions are unavailable to the unprivileged guest. Do not claim the host is build-ready or measurement-qualified until AR-0001, provisioning, and qualification close.
+The fresh M0 capture at `2026-08-28T23:01:51Z` records `gpu-2` in `benchmarks/manifests/target-gpu-2-candidate.json`. Its development toolchain was verified at `2026-08-29T02:40:39Z`: versioned Clang/LLVM 21.1.8, GCC/G++ 13.3.0, CMake 3.28.3, Ninja 1.11.1, Doxygen 1.9.8, Graphviz, SQLite, `pkg-config`, ShellCheck, the pinned JSON Schema validator, PyYAML, Git 2.43.0, and Python 3.12.3 are installed. The exact 102-package closure, eight LLVM entry-package holds, 18 executable hashes, and ten behavior probes are bound by `toolchains/gpu-2-development-toolchain-v1.lock.json` under configuration SHA-256 `bf49239db2f78403ee592c1d1ddfaebdd7d9597433b6d39bbcfc7d0c4427347a`.
+
+`build_ready=true` means the primary development toolchain passed its provisioning probes; it is not a product-build, quality-enforcement, baseline, or measurement claim. OpenBLAS, oneMKL, and LIBXSMM remain absent. PMU cycles/instructions remain unavailable to the unprivileged guest. Do not treat `gpu-2` as measurement-qualified.
 
 The local Apple M4/macOS machine is not valid for Target 0 performance evidence.
 
@@ -166,12 +171,117 @@ git worktree list --porcelain
 rg --files -uu -g '!.git/**'
 git diff --check
 python3 -m json.tool schemas/benchmark-result-v1.schema.json >/dev/null
+python3 -m json.tool schemas/development-toolchain-v1.schema.json >/dev/null
+python3 -m json.tool toolchains/gpu-2-development-toolchain-v1.lock.json >/dev/null
 find benchmarks/manifests -name '*.json' -print0 | xargs -0 -n1 python3 -m json.tool >/dev/null
 ```
 
-These are inspection/document-syntax commands, not a product verification suite. The M0 plan and acceptance record contain the exact cross-manifest assertions and source-hash checks used for their checkpoint.
+On `gpu-2`, the following version checks are verified:
 
-Python module `jsonschema` was unavailable at the M0 snapshot. Do not claim draft-2020-12 schema or example validation until a pinned validator is installed and the exact command is added here.
+```bash
+clang-21 --version
+clang++-21 --version
+clang-format-21 --version
+clang-tidy-21 --version
+clangd-21 --version
+ld.lld-21 --version
+cmake --version
+ninja --version
+doxygen --version
+pkg-config --version
+sqlite3 --version
+shellcheck --version
+python3 --version
+git --version
+```
+
+Run full schema and toolchain-lock validation from the repository root on `gpu-2`:
+
+```bash
+python3 - <<'PY'
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+from jsonschema import Draft202012Validator, FormatChecker
+
+checks = (
+    (
+        Path("schemas/benchmark-result-v1.schema.json"),
+        Path("benchmarks/manifests/benchmark-result-v1.example.json"),
+    ),
+    (
+        Path("schemas/development-toolchain-v1.schema.json"),
+        Path("toolchains/gpu-2-development-toolchain-v1.lock.json"),
+    ),
+)
+for schema_path, instance_path in checks:
+    schema = json.loads(schema_path.read_text())
+    instance = json.loads(instance_path.read_text())
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(
+        schema, format_checker=FormatChecker()
+    ).validate(instance)
+lock = json.loads(checks[1][1].read_text())
+assert lock["state"] == "installed_verified"
+assert lock["build_ready"] is True
+assert lock["target0_measurement_qualified"] is False
+assert len(lock["installed_package_closure"]) == 102
+assert len(lock["expected_binaries"]) == 18
+assert all(item["result"] == "passed" for item in lock["validations"])
+configuration = {
+    "manifest_version": lock["manifest_version"],
+    "host": lock["host"],
+    "archive": {
+        key: value
+        for key, value in lock["archive"].items()
+        if key != "apt_refreshed_at_utc"
+    },
+    "requested_packages": lock["requested_packages"],
+    "expected_binaries": [item["name"] for item in lock["expected_binaries"]],
+    "validations": [item["name"] for item in lock["validations"]],
+}
+configuration_bytes = json.dumps(
+    configuration, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+).encode("ascii")
+assert hashlib.sha256(configuration_bytes).hexdigest() == lock["configuration_sha256"]
+closure_bytes = (
+    json.dumps(lock["installed_package_closure"], indent=2, ensure_ascii=True)
+    + "\n"
+).encode()
+assert hashlib.sha256(closure_bytes).hexdigest() == lock["installation"][
+    "installed_package_closure_sha256"
+]
+for package in lock["installed_package_closure"]:
+    actual = subprocess.run(
+        [
+            "dpkg-query",
+            "-W",
+            "-f=${Version}\t${Architecture}\n",
+            package["name"],
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.rstrip("\n")
+    assert actual == f'{package["version"]}\t{package["architecture"]}'
+for binary in lock["expected_binaries"]:
+    assert hashlib.sha256(Path(binary["path"]).read_bytes()).hexdigest() == binary[
+        "sha256"
+    ]
+holds = subprocess.run(
+    ["apt-mark", "showhold"], check=True, capture_output=True, text=True
+).stdout.splitlines()
+assert holds == lock["installation"]["holds"]
+PY
+```
+
+The one-time provisioning probe also configured a temporary CMake 3.28 project with `/usr/bin/clang++-21` and Ninja, built it, and passed CTest. No repository CMake project or reusable build command exists yet; the quality-gates implementation must add that command when it creates the persistent fixture.
+
+These are inspection, document/schema, and development-toolchain commands, not a product verification suite. The M0 plan and acceptance record contain the exact cross-manifest assertions and source-hash checks used for their checkpoint.
+
+The guest's `kernel.yama.ptrace_scope=2` prevents LeakSanitizer shutdown inspection. The provisioning probe set `detect_leaks=0` while proving ASan heap-use-after-free detection and clean ASan/UBSan execution. Do not generalize that isolation into a project sanitizer policy; the persistent quality-gates plan must record the host-specific behavior explicitly.
 
 ### Required future toolchain direction
 
@@ -441,9 +551,9 @@ Read and update [`docs/milestones/status.md`](docs/milestones/status.md).
 
 Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, historical candidate-host capture, approved engineering-quality design, and target-host decision exist. AR-0001 Option 2 designates `gpu-2` as development-only; no controlled Target 0 measurement host is designated. No product implementation begins before M0 closes.
 
-The written engineering-quality specification is approved. Its dependency-ordered execution plans are [`docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) and [`docs/superpowers/plans/2026-08-28-engineering-quality-gates.md`](docs/superpowers/plans/2026-08-28-engineering-quality-gates.md). Neither plan has been executed; the planned commands and target names are not yet repository capabilities.
+The written engineering-quality specification is approved. The first dependency-ordered plan, [`docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md), has been executed and behaviorally verified. The dependent [`docs/superpowers/plans/2026-08-28-engineering-quality-gates.md`](docs/superpowers/plans/2026-08-28-engineering-quality-gates.md) remains unexecuted; its planned target names are not yet repository capabilities.
 
-The earliest executable slice is the reviewed `gpu-2` development-toolchain plan, followed in parallel by designation and qualification of a controlled Target 0 measurement host. Baseline installation, measurement controls, PMU evidence, noise checks, and target-bound benchmark evidence belong on that selected measurement host. Execute full schema validation, obtain the required review, and update the acceptance record before M0 closes. Do not begin M1 product scaffolding to bypass these blockers.
+The M0 critical path is designation and qualification of a controlled Target 0 measurement host. Baseline installation, measurement controls, PMU evidence, noise checks, and target-bound benchmark evidence belong on that selected measurement host. The engineering-quality-gates plan may proceed independently now that its toolchain prerequisite is closed. Obtain the required independent review or explicit review-model acceptance and update the acceptance record before M0 closes. Do not begin M1 product scaffolding to bypass these blockers.
 
 Do not embed percentage estimates. Record states, exact commits, evidence, deviations, and gates.
 

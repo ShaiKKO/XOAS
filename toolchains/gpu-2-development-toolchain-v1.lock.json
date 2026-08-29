@@ -3,7 +3,7 @@
   "lock_id": "gpu-2-development-toolchain-v1-20260829t013505z",
   "captured_at_utc": "2026-08-29T01:35:05Z",
   "execution_subject": "ef69e48d4d47cc26fb59999ccc283a835f122c4a",
-  "state": "resolved_not_installed",
+  "state": "installed_verified",
   "host": {
     "hostname": "gpu-2",
     "operating_system": "Ubuntu 24.04.4 LTS",
@@ -192,38 +192,1044 @@
       "hold_policy": "entry_package_hold"
     }
   ],
-  "installed_package_closure": [],
+  "installed_package_closure": [
+    {
+      "name": "binutils",
+      "version": "2.42-4ubuntu2.10",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "binutils-common:amd64",
+      "version": "2.42-4ubuntu2.10",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "binutils-x86-64-linux-gnu",
+      "version": "2.42-4ubuntu2.10",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "build-essential",
+      "version": "12.10ubuntu1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "clang-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "clang-format-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "clang-tidy-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "clang-tools-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "clangd-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "cmake",
+      "version": "3.28.3-1build7",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "cmake-data",
+      "version": "3.28.3-1build7",
+      "architecture": "all",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "cpp",
+      "version": "4:13.2.0-7ubuntu1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "cpp-13",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "cpp-13-x86-64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "cpp-x86-64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "doxygen",
+      "version": "1.9.8+ds-2ubuntu0.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/universe amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "dpkg-dev",
+      "version": "1.22.6ubuntu6.6",
+      "architecture": "all",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "fontconfig",
+      "version": "2.15.0-1.1ubuntu2",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "g++",
+      "version": "4:13.2.0-7ubuntu1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "g++-13",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "g++-13-x86-64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "g++-x86-64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "gcc",
+      "version": "4:13.2.0-7ubuntu1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "gcc-13",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "gcc-13-base:amd64",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "gcc-13-x86-64-linux-gnu",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "gcc-x86-64-linux-gnu",
+      "version": "4:13.2.0-7ubuntu1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "graphviz",
+      "version": "2.42.2-9ubuntu0.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "lib32gcc-s1",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "lib32stdc++6",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libann0",
+      "version": "1.1.2+doc-9build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/universe amd64"
+      ]
+    },
+    {
+      "name": "libasan8:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libatomic1:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libbinutils:amd64",
+      "version": "2.42-4ubuntu2.10",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libc6-i386",
+      "version": "2.39-0ubuntu8.8",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libcairo2:amd64",
+      "version": "1.18.0-3build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libcc1-0:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libcdt5:amd64",
+      "version": "2.42.2-9ubuntu0.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "libcgraph6:amd64",
+      "version": "2.42.2-9ubuntu0.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "libclang-common-21-dev:amd64",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "libclang-cpp21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "libclang-rt-21-dev",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "libclang1-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "libctf-nobfd0:amd64",
+      "version": "2.42-4ubuntu2.10",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libctf0:amd64",
+      "version": "2.42-4ubuntu2.10",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libdatrie1:amd64",
+      "version": "0.2.13-3build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libdpkg-perl",
+      "version": "1.22.6ubuntu6.6",
+      "architecture": "all",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libfmt9:amd64",
+      "version": "9.1.0+ds1-2",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/universe amd64"
+      ]
+    },
+    {
+      "name": "libgcc-13-dev:amd64",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libgprofng0:amd64",
+      "version": "2.42-4ubuntu2.10",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libgts-0.7-5t64:amd64",
+      "version": "0.7.6+darcs121130-5.2build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/universe amd64"
+      ]
+    },
+    {
+      "name": "libgvc6",
+      "version": "2.42.2-9ubuntu0.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "libgvpr2:amd64",
+      "version": "2.42.2-9ubuntu0.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "libhwasan0:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libice6:amd64",
+      "version": "2:1.0.10-1build3",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libisl23:amd64",
+      "version": "0.26-3build1.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libitm1:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libjsoncpp25:amd64",
+      "version": "1.9.5-6build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "liblab-gamut1:amd64",
+      "version": "2.42.2-9ubuntu0.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "libllvm21:amd64",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "liblsan0:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libltdl7:amd64",
+      "version": "2.4.7-7build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libmpc3:amd64",
+      "version": "1.3.1-1build1.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libobjc-13-dev:amd64",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/universe amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "libobjc4:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/universe amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "libpango-1.0-0:amd64",
+      "version": "1.52.1+ds-1build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libpangocairo-1.0-0:amd64",
+      "version": "1.52.1+ds-1build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libpangoft2-1.0-0:amd64",
+      "version": "1.52.1+ds-1build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libpathplan4:amd64",
+      "version": "2.42.2-9ubuntu0.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/universe amd64"
+      ]
+    },
+    {
+      "name": "libpfm4:amd64",
+      "version": "4.13.0+git32-g0d4ed0e-1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/universe amd64"
+      ]
+    },
+    {
+      "name": "libpixman-1-0:amd64",
+      "version": "0.42.2-1build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libpkgconf3:amd64",
+      "version": "1.8.1-2build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libquadmath0:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "librhash0:amd64",
+      "version": "1.4.3-3build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libsframe1:amd64",
+      "version": "2.42-4ubuntu2.10",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libsm6:amd64",
+      "version": "2:1.2.3-1build3",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libsqlite3-dev:amd64",
+      "version": "3.45.1-1ubuntu2.7",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libstdc++-13-dev:amd64",
+      "version": "13.3.0-6ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libthai-data",
+      "version": "0.1.29-2build1",
+      "architecture": "all",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libthai0:amd64",
+      "version": "0.1.29-2build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libtsan2:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libubsan1:amd64",
+      "version": "14.2.0-4ubuntu2~24.04.1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "libxapian30:amd64",
+      "version": "1.4.22-1build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/universe amd64"
+      ]
+    },
+    {
+      "name": "libxaw7:amd64",
+      "version": "2:1.0.14-1build2",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libxcb-render0:amd64",
+      "version": "1.15-1ubuntu2",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libxcb-shm0:amd64",
+      "version": "1.15-1ubuntu2",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libxmu6:amd64",
+      "version": "2:1.1.3-3build2",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libxrender1:amd64",
+      "version": "1:0.9.10-1.1build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "libxt6t64:amd64",
+      "version": "1:1.2.1-1.2build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "lld-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "llvm-21",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "llvm-21-linker-tools",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "llvm-21-runtime",
+      "version": "1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70",
+      "architecture": "amd64",
+      "origins": [
+        "500 https://apt.llvm.org/noble llvm-toolchain-noble-21/main amd64"
+      ]
+    },
+    {
+      "name": "lto-disabled-list",
+      "version": "47",
+      "architecture": "all",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "make",
+      "version": "4.3-4.1build2",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "ninja-build",
+      "version": "1.11.1-2",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/universe amd64"
+      ]
+    },
+    {
+      "name": "pkg-config:amd64",
+      "version": "1.8.1-2build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "pkgconf-bin",
+      "version": "1.8.1-2build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "pkgconf:amd64",
+      "version": "1.8.1-2build1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    },
+    {
+      "name": "shellcheck",
+      "version": "0.9.0-1",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/universe amd64"
+      ]
+    },
+    {
+      "name": "sqlite3",
+      "version": "3.45.1-1ubuntu2.7",
+      "architecture": "amd64",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-security/main amd64",
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble-updates/main amd64"
+      ]
+    },
+    {
+      "name": "x11-common",
+      "version": "1:7.7+23ubuntu3",
+      "architecture": "all",
+      "origins": [
+        "500 http://debmirror.eu-de.otc-service.com/ubuntu noble/main amd64"
+      ]
+    }
+  ],
+  "installation": {
+    "package_specifications_sha256": "130f7ee9a73aa65503e3992b6533815445a78f2f4c683da6b7cc2100933f3c4b",
+    "install_simulation_sha256": "3457b3192145ba1c9f0605af12fbb2430af6f0b1f87a7b5f820812ee7e5ad0d6",
+    "install_simulation_summary": "0 upgraded, 102 newly installed, 0 to remove and 54 not upgraded.",
+    "attempts": [
+      {
+        "result": "aborted_before_download",
+        "log_sha256": "46fffde93922ce250d91e495654410299223b7973a80470f7777426e9c680e9b",
+        "reason": "The first noninteractive attempt omitted explicit APT confirmation and aborted before download."
+      },
+      {
+        "result": "installed",
+        "log_sha256": "042c0c00e12dfb5a53e2b63196cb3e4cf8852de626e572db03be088f3012db78",
+        "completed_at_utc": "2026-08-29T01:49:59Z"
+      }
+    ],
+    "new_package_count": 102,
+    "installed_package_closure_sha256": "1b93ed28af45e6cbcea073bb4d015bcaca08e569bc4acb1aee4ad2687d358c20",
+    "holds": [
+      "clang-21",
+      "clang-format-21",
+      "clang-tidy-21",
+      "clang-tools-21",
+      "clangd-21",
+      "libclang-rt-21-dev",
+      "lld-21",
+      "llvm-21"
+    ],
+    "default_cxx_path": "/usr/bin/x86_64-linux-gnu-g++-13",
+    "clang_alternative_registered": false
+  },
   "expected_binaries": [
-    {"name": "clang-21"},
-    {"name": "clang++-21"},
-    {"name": "clang-format-21"},
-    {"name": "clang-tidy-21"},
-    {"name": "clangd-21"},
-    {"name": "ld.lld-21"},
-    {"name": "llvm-ar-21"},
-    {"name": "llvm-cov-21"},
-    {"name": "llvm-profdata-21"},
-    {"name": "cmake"},
-    {"name": "ninja"},
-    {"name": "doxygen"},
-    {"name": "dot"},
-    {"name": "pkg-config"},
-    {"name": "sqlite3"},
-    {"name": "shellcheck"},
-    {"name": "python3"},
-    {"name": "git"}
+    {
+      "name": "clang-21",
+      "path": "/usr/bin/clang-21",
+      "version_line": "Ubuntu clang version 21.1.8 (++20251221032922+2078da43e25a-1~exp1~20251221153059.70)",
+      "sha256": "2451bd5e44d0fe575e3088eb29725b4b0820e5c335a3fdb889ae036f55b57f56"
+    },
+    {
+      "name": "clang++-21",
+      "path": "/usr/bin/clang++-21",
+      "version_line": "Ubuntu clang version 21.1.8 (++20251221032922+2078da43e25a-1~exp1~20251221153059.70)",
+      "sha256": "2451bd5e44d0fe575e3088eb29725b4b0820e5c335a3fdb889ae036f55b57f56"
+    },
+    {
+      "name": "clang-format-21",
+      "path": "/usr/bin/clang-format-21",
+      "version_line": "Ubuntu clang-format version 21.1.8 (++20251221032922+2078da43e25a-1~exp1~20251221153059.70)",
+      "sha256": "b65a7dfb7c726af122c94460dc82bd95186721254dfde0b36974a8b5eaab0985"
+    },
+    {
+      "name": "clang-tidy-21",
+      "path": "/usr/bin/clang-tidy-21",
+      "version_line": "Ubuntu LLVM version 21.1.8",
+      "sha256": "1bc7e7d6a046528a574a82f7d5e7ec9c4d5ff11f1611a07df99040aa6d012f73"
+    },
+    {
+      "name": "clangd-21",
+      "path": "/usr/bin/clangd-21",
+      "version_line": "Ubuntu clangd version 21.1.8 (++20251221032922+2078da43e25a-1~exp1~20251221153059.70)",
+      "sha256": "aa7c1c7d3f493559b69bb34d16ea52d560c778c8a6a061c06f70bb059bc99ac9"
+    },
+    {
+      "name": "ld.lld-21",
+      "path": "/usr/bin/ld.lld-21",
+      "version_line": "Ubuntu LLD 21.1.8 (compatible with GNU linkers)",
+      "sha256": "dbf1a9db834a83954221bff446c35f5b39dd04f09aede3f963a095dd2b718f73"
+    },
+    {
+      "name": "llvm-ar-21",
+      "path": "/usr/bin/llvm-ar-21",
+      "version_line": "Ubuntu LLVM version 21.1.8",
+      "sha256": "3faff5ba36e20722832b00170e77bb384a46b4ca7a76ca8be5b81a9cc77ba900"
+    },
+    {
+      "name": "llvm-cov-21",
+      "path": "/usr/bin/llvm-cov-21",
+      "version_line": "Ubuntu LLVM version 21.1.8",
+      "sha256": "80e959e3669024d2b21296e28faa9221eaac652acf454495d9cb8d49f811d2e4"
+    },
+    {
+      "name": "llvm-profdata-21",
+      "path": "/usr/bin/llvm-profdata-21",
+      "version_line": "Ubuntu LLVM version 21.1.8",
+      "sha256": "f3c1ff3886be42e65c9e81ca9d8701971c027b5d664bbe85c6ae4ee1c2aac683"
+    },
+    {
+      "name": "cmake",
+      "path": "/usr/bin/cmake",
+      "version_line": "cmake version 3.28.3",
+      "sha256": "1c5227af4edd22d8d689def545e18ee458260c0fd579eba2187967f38817e638"
+    },
+    {
+      "name": "ninja",
+      "path": "/usr/bin/ninja",
+      "version_line": "1.11.1",
+      "sha256": "5965527e09fe2b3787772aa4f711d6a36b393e7f2fcaa744a7a96c5a4ddf59cb"
+    },
+    {
+      "name": "doxygen",
+      "path": "/usr/bin/doxygen",
+      "version_line": "1.9.8",
+      "sha256": "4ceed2d0bf847a5852838e0c2562f36dc364d482a1847e8780a8c1c9967739f7"
+    },
+    {
+      "name": "dot",
+      "path": "/usr/bin/dot",
+      "version_line": "dot - graphviz version 2.43.0 (0)",
+      "sha256": "da690d0c28520a98e311cdb3577c22953b5ccfbd9f9e4219a0d031a1f15961d6"
+    },
+    {
+      "name": "pkg-config",
+      "path": "/usr/bin/pkg-config",
+      "version_line": "1.8.1",
+      "sha256": "7e8152db1b0c7e49d47b4b82a70dc9997b557951c5d4d938b0e7f208ce9eb10b"
+    },
+    {
+      "name": "sqlite3",
+      "path": "/usr/bin/sqlite3",
+      "version_line": "3.45.1 2024-01-30 16:01:20 e876e51a0ed5c5b3126f52e532044363a014bc594cfefa87ffb5b82257ccalt1 (64-bit)",
+      "sha256": "a17a749643e8f5abe5f8a694fe52625c6c53c68ea8546378c4a78467c14dad1c"
+    },
+    {
+      "name": "shellcheck",
+      "path": "/usr/bin/shellcheck",
+      "version_line": "ShellCheck - shell script analysis tool",
+      "sha256": "54dc63164186ad21fb909f5194fb5291f4035c2d2cae04b5680385b8d8fbb73c"
+    },
+    {
+      "name": "python3",
+      "path": "/usr/bin/python3",
+      "version_line": "Python 3.12.3",
+      "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118"
+    },
+    {
+      "name": "git",
+      "path": "/usr/bin/git",
+      "version_line": "git version 2.43.0",
+      "sha256": "2a8c18fbf43da9f692d75474c72bea9dfd796c260b0f3dfe456376abc3bbd668"
+    }
   ],
   "validations": [
-    {"name": "cxx23_warning_clean", "result": "pending"},
-    {"name": "clang_format_negative_positive", "result": "pending"},
-    {"name": "clang_tidy_reserved_identifier", "result": "pending"},
-    {"name": "address_sanitizer_negative", "result": "pending"},
-    {"name": "undefined_behavior_sanitizer_negative", "result": "pending"},
-    {"name": "sanitizer_positive", "result": "pending"},
-    {"name": "cmake_ninja_ctest", "result": "pending"},
-    {"name": "doxygen_warnings_as_errors", "result": "pending"},
-    {"name": "sqlite_pkg_config", "result": "pending"},
-    {"name": "jsonschema_and_yaml", "result": "pending"}
+    {
+      "name": "cxx23_warning_clean",
+      "result": "passed",
+      "evidence": "Clang C++23 compile and execution passed; compile log SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855."
+    },
+    {
+      "name": "clang_format_negative_positive",
+      "result": "passed",
+      "evidence": "Misformatted input failed with exit 1 and formatted input passed; negative log SHA-256 8b9fcde98e2fa09ee5f8610c8a9ae0baa39e200130cabde42e342a2a4f3d6a2b."
+    },
+    {
+      "name": "clang_tidy_reserved_identifier",
+      "result": "passed",
+      "evidence": "Reserved identifier failed with exit 1 and standards-safe input passed; negative log SHA-256 17c70bc833743ae74eb8eac8079385ae2b40f1eb51cb5f4381751098ee8eeb87."
+    },
+    {
+      "name": "address_sanitizer_negative",
+      "result": "passed",
+      "evidence": "Heap-use-after-free failed with exit 134 and AddressSanitizer identity; leak detection was isolated because ptrace_scope=2; log SHA-256 75086323d6c1c99584de717cae7f6e3313136820a24e093efcc975c3d68cf1e2."
+    },
+    {
+      "name": "undefined_behavior_sanitizer_negative",
+      "result": "passed",
+      "evidence": "Signed overflow failed with exit 1 and UBSan runtime-error identity; log SHA-256 5208a2bc8680748b2c21c12617b8f4eeaa1ae5d69e9eef07d9c50c9860b578cd."
+    },
+    {
+      "name": "sanitizer_positive",
+      "result": "passed",
+      "evidence": "Combined AddressSanitizer and UBSan positive compile/run passed with leak detection isolated from ptrace_scope=2; compile log SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855."
+    },
+    {
+      "name": "cmake_ninja_ctest",
+      "result": "passed",
+      "evidence": "CMake configured with clang++-21 and Ninja, built, and CTest passed; CTest log SHA-256 3a06c9a1bd20c5ddddb852ef98841cf5b5dec41124c471233b19d5a204bd0cfc."
+    },
+    {
+      "name": "doxygen_warnings_as_errors",
+      "result": "passed",
+      "evidence": "Doxygen warnings-as-errors run produced XML and passed; log SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855."
+    },
+    {
+      "name": "sqlite_pkg_config",
+      "result": "passed",
+      "evidence": "SQLite C API compiled through pkg-config and executed; compile log SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855."
+    },
+    {
+      "name": "jsonschema_and_yaml",
+      "result": "passed",
+      "evidence": "Draft 2020-12 schema, installed-unverified lock, jsonschema, and PyYAML validation passed; log SHA-256 2e022d1c704d78638d376bbf707114f82a83bb2165bb56f12c0e20a034c4d677."
+    }
   ],
   "rollback": {
     "system_paths": [
@@ -232,10 +1238,11 @@
     ],
     "prestate_package_count": 768,
     "prestate_package_list_sha256": "865058047b8e7d9430cd10fc591f601c9ac6a950f89055543129fd75283a3d0d",
-    "removal_simulation_state": "not_run"
+    "removal_simulation_state": "passed",
+    "removal_simulation_summary": "17 newly installed entry packages; 0 upgraded, 0 newly installed, 17 to remove and 54 not upgraded; autoremovable dependencies reported; simulation SHA-256 1545d9911e91b854f1c32e6702077af3832ca8644abd5e01ebd2b4f0ffbc17ef."
   },
   "pre_existing_holds": [],
   "configuration_sha256": "bf49239db2f78403ee592c1d1ddfaebdd7d9597433b6d39bbcfc7d0c4427347a",
-  "build_ready": false,
+  "build_ready": true,
   "target0_measurement_qualified": false
 }

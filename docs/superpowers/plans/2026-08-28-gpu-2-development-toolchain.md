@@ -33,7 +33,7 @@
 
 - Create: `docs/toolchain/gpu-2-development-toolchain-v1.md`
 
-- [ ] **Step 1: Verify the repository boundary**
+- [x] **Step 1: Verify the repository boundary**
 
 Run locally:
 
@@ -45,7 +45,7 @@ git diff --check
 
 Expected: `main` tracks `origin/main`, the tree has only the approved planning changes when execution begins, and no unrelated diff is present.
 
-- [ ] **Step 2: Verify the server identity and privilege boundary**
+- [x] **Step 2: Verify the server identity and privilege boundary**
 
 Run inside the authenticated `gpu-2` shell:
 
@@ -61,7 +61,7 @@ sudo -n true
 
 Expected: every check exits zero. If non-interactive privilege is unavailable, stop and request an administrator-approved privilege path without storing a password.
 
-- [ ] **Step 3: Prove the planned system paths are collision-free**
+- [x] **Step 3: Prove the planned system paths are collision-free**
 
 Inspect, without modifying:
 
@@ -80,13 +80,13 @@ dpkg-query -W > /tmp/xoas-toolchain-dpkg-prestate.txt
 
 Expected: XOAS-owned paths are absent. If either exists, compare it with the planned content and stop on any mismatch.
 
-- [ ] **Step 4: Create or verify the clean server checkout**
+- [x] **Step 4: Create or verify the clean server checkout**
 
 Use the non-secret path `$HOME/XOAS` without recording the expanded home path or login identity. First require `$HOME` to resolve below `/home` and not to `/`, `/home`, or an empty value. If `$HOME/XOAS` is absent, clone the public `origin` repository there. If it exists, require it to be a Git checkout with the expected public remote, a clean working tree, and no untracked files; stop rather than overwrite unexpected content.
 
 Fetch `origin/main`, fast-forward the checkout, and require its `HEAD` to equal the exact approved planning commit before subsequent tasks consume repository lock files. Do not create a linked worktree or store credentials in the remote URL.
 
-- [ ] **Step 5: Write the pre-state section**
+- [x] **Step 5: Write the pre-state section**
 
 Create `docs/toolchain/gpu-2-development-toolchain-v1.md` with:
 
@@ -100,7 +100,7 @@ Create `docs/toolchain/gpu-2-development-toolchain-v1.md` with:
 - rollback policy and stop conditions;
 - Target 0 measurement non-qualification warning.
 
-- [ ] **Step 6: Verify the record**
+- [x] **Step 6: Verify the record**
 
 ```bash
 rg -n "Scope|Pre-state|Rollback|Target 0|No package" docs/toolchain/gpu-2-development-toolchain-v1.md
@@ -119,7 +119,7 @@ Expected: all required sections are found and no whitespace error is reported.
 
 - Modify: `docs/toolchain/gpu-2-development-toolchain-v1.md`
 
-- [ ] **Step 1: Create a guarded temporary workspace**
+- [x] **Step 1: Create a guarded temporary workspace**
 
 Run inside `gpu-2`:
 
@@ -131,7 +131,7 @@ trap 'find "$xoasTmpDir" -xdev -type f -delete; rmdir "$xoasTmpDir"' EXIT
 
 Expected: a unique directory exists directly below `/tmp` and cleanup is armed.
 
-- [ ] **Step 2: Download and verify the official archive key**
+- [x] **Step 2: Download and verify the official archive key**
 
 ```bash
 curl --fail --show-error --silent --location \
@@ -149,7 +149,7 @@ gpg --batch --yes --dearmor \
 
 Expected: the fingerprint comparison succeeds exactly. A mismatch is a hard stop.
 
-- [ ] **Step 3: Prepare exact source content and recheck collisions**
+- [x] **Step 3: Prepare exact source content and recheck collisions**
 
 ```bash
 printf '%s\n' \
@@ -161,7 +161,7 @@ test ! -e /etc/apt/sources.list.d/xoas-llvm-21.list
 
 Expected: content is exact and both destination paths remain absent.
 
-- [ ] **Step 4: Install only the authenticated source metadata**
+- [x] **Step 4: Install only the authenticated source metadata**
 
 ```bash
 sudo install -o root -g root -m 0644 \
@@ -175,7 +175,7 @@ sudo apt-get update
 
 Expected: APT authenticates the new source and completes without repository, signature, or release-file warnings.
 
-- [ ] **Step 5: Record source provenance and rollback**
+- [x] **Step 5: Record source provenance and rollback**
 
 Append the key fingerprint, source line, file hashes, APT refresh time, and these rollback operations to the toolchain record:
 
@@ -202,7 +202,7 @@ Do not execute the rollback during normal provisioning.
 - Modify: `docs/toolchain/gpu-2-development-toolchain-v1.md`
 - Modify: `docs/architecture/README.md`
 
-- [ ] **Step 1: Define the closed lock schema**
+- [x] **Step 1: Define the closed lock schema**
 
 Use JSON Schema draft 2020-12 with `additionalProperties: false` at every closed record. Require:
 
@@ -218,7 +218,7 @@ Use JSON Schema draft 2020-12 with `additionalProperties: false` at every closed
 
 Durable hashes are lowercase 64-character SHA-256 strings. The schema must prohibit credential and network-coordinate fields.
 
-- [ ] **Step 2: Resolve every exact candidate from the refreshed cache**
+- [x] **Step 2: Resolve every exact candidate from the refreshed cache**
 
 The requested package set is:
 
@@ -246,7 +246,7 @@ libclang-rt-21-dev
 
 For each literal package name in the requested set, run `apt-cache policy "$packageName"` from a shell loop and require one non-`(none)` candidate. Record the exact candidate string and the repository origin shown by `apt-cache policy`.
 
-- [ ] **Step 3: Prove every requested version is installable before mutation**
+- [x] **Step 3: Prove every requested version is installable before mutation**
 
 Run one simulation whose arguments are generated as `name=exact-version` pairs from the proposed lock:
 
@@ -270,7 +270,7 @@ sudo apt-get --simulate --no-install-recommends install \
 
 Expected: exit zero, no removals, and no architecture change. Preserve the generated arguments in the evidence record so the simulation is tied to the reviewed lock.
 
-- [ ] **Step 4: Write and validate the pre-install lock**
+- [x] **Step 4: Write and validate the pre-install lock**
 
 Set `installed_package_closure` to `[]`, `state` to `resolved_not_installed`, `build_ready` to `false`, and `target0_measurement_qualified` to `false`.
 
@@ -295,7 +295,7 @@ PY
 git diff --check
 ```
 
-- [ ] **Step 5: Commit and push the immutable install intent**
+- [x] **Step 5: Commit and push the immutable install intent**
 
 ```bash
 git add docs/toolchain/gpu-2-development-toolchain-v1.md \
@@ -319,11 +319,11 @@ Expected: the exact planned package versions are reviewable in Git before instal
 - Modify: `toolchains/gpu-2-development-toolchain-v1.lock.json`
 - Modify: `docs/toolchain/gpu-2-development-toolchain-v1.md`
 
-- [ ] **Step 1: Revalidate the reviewed lock against live candidates**
+- [x] **Step 1: Revalidate the reviewed lock against live candidates**
 
 Pull the just-pushed commit on the server's clean checkout or transfer only the reviewed lock through the established secure development channel. Re-run `apt-cache policy` for every requested package and require exact equality with the lock. Stop if any candidate drifted; update and review the lock in a separate commit before continuing.
 
-- [ ] **Step 2: Perform the exact install**
+- [x] **Step 2: Perform the exact install**
 
 Run the same literal `name=exact-version` list proven by Task 3:
 
@@ -346,7 +346,7 @@ sudo apt-get --no-install-recommends install "${xoasPackageSpecs[@]}"
 
 Expected: exit zero, no removals, no unreviewed top-level package, and no unversioned LLVM meta-package.
 
-- [ ] **Step 3: Hold the versioned LLVM entry packages**
+- [x] **Step 3: Hold the versioned LLVM entry packages**
 
 ```bash
 sudo apt-mark hold clang-21 clang-tools-21 clang-format-21 \
@@ -356,7 +356,7 @@ apt-mark showhold
 
 Expected: all eight LLVM entry packages appear in the hold list. Ubuntu support packages remain eligible for security updates; any later version drift must fail the repository lock verification until reviewed.
 
-- [ ] **Step 4: Capture the installed dependency closure**
+- [x] **Step 4: Capture the installed dependency closure**
 
 Record, without truncation:
 
@@ -368,7 +368,7 @@ Record, without truncation:
 
 Update the lock state to `installed_unverified`. Do not mark the host build-ready yet.
 
-- [ ] **Step 5: Capture rollback commands without executing them**
+- [x] **Step 5: Capture rollback commands without executing them**
 
 Generate an explicit `apt-get remove` simulation for only the newly installed entry packages, record whether dependencies would be autoremovable, and retain the pre-state package list. The human record must state that removal is an operator decision because a later workload may have begun depending on the tools.
 
@@ -381,7 +381,7 @@ Generate an explicit `apt-get remove` simulation for only the newly installed en
 - Modify: `toolchains/gpu-2-development-toolchain-v1.lock.json`
 - Modify: `docs/toolchain/gpu-2-development-toolchain-v1.md`
 
-- [ ] **Step 1: Capture exact binary identities**
+- [x] **Step 1: Capture exact binary identities**
 
 For every required executable, record resolved path, first version line, and SHA-256:
 
@@ -408,7 +408,7 @@ git
 
 Require all paths to be system paths and all hashes to use lowercase SHA-256.
 
-- [ ] **Step 2: Prove warning-clean C++23 compilation**
+- [x] **Step 2: Prove warning-clean C++23 compilation**
 
 Create a temporary documented C++ source and compile/run it with:
 
@@ -421,7 +421,7 @@ clang++-21 -std=c++23 -Wall -Wextra -Wpedantic -Werror \
 
 Expected: compilation and execution both exit zero.
 
-- [ ] **Step 3: Prove formatter and tidy failure modes**
+- [x] **Step 3: Prove formatter and tidy failure modes**
 
 Use one intentionally misformatted temporary source. Require:
 
@@ -439,11 +439,11 @@ clang-tidy-21 /tmp/xoas-tidy-negative.cpp \
 
 to fail. Require a standards-safe equivalent to pass.
 
-- [ ] **Step 4: Prove sanitizer failure modes**
+- [x] **Step 4: Prove sanitizer failure modes**
 
 Compile one temporary heap-use-after-free probe with AddressSanitizer and one signed-overflow probe with UndefinedBehaviorSanitizer. Each negative executable must exit nonzero under fail-fast options and emit its expected sanitizer family. Compile and run the positive C++23 probe under both sanitizers and require exit zero.
 
-- [ ] **Step 5: Prove CMake, Ninja, Doxygen, SQLite, and schema tooling**
+- [x] **Step 5: Prove CMake, Ninja, Doxygen, SQLite, and schema tooling**
 
 Use a temporary CMake project configured with `clang++-21` and Ninja; build and test it. Run a minimal Doxygen input with warnings-as-errors. Compile and link a tiny SQLite C API probe using `pkg-config --cflags --libs sqlite3`. Import both `jsonschema` and `yaml`, then run:
 
@@ -468,7 +468,7 @@ PY
 
 Expected: every positive probe passes and every named negative probe fails for the intended reason.
 
-- [ ] **Step 6: Remove temporary probes and record evidence**
+- [x] **Step 6: Remove temporary probes and record evidence**
 
 Delete only the individually named `/tmp/xoas-*` probe files created by this task after validating their paths. Record command, exit status, concise diagnostic identity, and timestamp in the human record; do not store temporary negative binaries in Git.
 
@@ -486,15 +486,15 @@ Delete only the individually named `/tmp/xoas-*` probe files created by this tas
 - Modify: `docs/milestones/status.md`
 - Modify: `AGENTS.md`
 
-- [ ] **Step 1: Finalize the lock**
+- [x] **Step 1: Finalize the lock**
 
 Set the lock state to `installed_verified`, populate the complete installed package closure and binary identities, record every probe as passed, and set `build_ready` to `true`. Keep `target0_measurement_qualified` false.
 
-- [ ] **Step 2: Update the candidate host manifest without rewriting history**
+- [x] **Step 2: Update the candidate host manifest without rewriting history**
 
 Replace its stale toolchain `installed` and `missing` facts with the verified capture, set `build_ready` true, and split the combined open requirement so C++ provisioning is closed while admitted measurement baselines remain open. Preserve its original capture time and add a new toolchain verification timestamp rather than pretending the full host was recaptured.
 
-- [ ] **Step 3: Record the durable implementation decision**
+- [x] **Step 3: Record the durable implementation decision**
 
 Update IDR-0001 with:
 
@@ -505,11 +505,11 @@ Update IDR-0001 with:
 - held-versus-drift-detected package policy;
 - explicit exclusion of public ABI, exceptions, RTTI, baselines, and measurement qualification.
 
-- [ ] **Step 4: Publish exact commands in the operating manual**
+- [x] **Step 4: Publish exact commands in the operating manual**
 
 Update root `AGENTS.md` only with commands that just passed on `gpu-2`: version checks, CMake/Ninja smoke configuration, full JSON Schema validation, and toolchain-lock verification. Remove statements that the core C++ toolchain is absent. Retain every Target 0 warning.
 
-- [ ] **Step 5: Validate all changed records**
+- [x] **Step 5: Validate all changed records**
 
 ```bash
 python3 -m json.tool schemas/development-toolchain-v1.schema.json >/dev/null

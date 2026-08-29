@@ -2,11 +2,13 @@
   "manifest_version": "xoas.target-candidate.v0",
   "manifest_id": "gpu-2-candidate-20260828T230151Z",
   "captured_at_utc": "2026-08-28T23:01:51Z",
+  "toolchain_verified_at_utc": "2026-08-29T02:40:39Z",
   "status": "historical_target0_candidate_primary_development_host_only",
   "roles": [
     "primary_development_host"
   ],
   "capture_scope": "non_secret_read_only_host_facts",
+  "toolchain_verification_scope": "non_secret_reversible_provisioning_and_behavioral_probes",
   "compatibility_identity_status": "facts_captured_canonical_binary_identity_deferred_to_M1",
   "host": {
     "hostname": "gpu-2",
@@ -216,24 +218,32 @@
     "administrator_or_provider_action_required": true
   },
   "toolchain": {
+    "verification_state": "installed_verified",
+    "lock_path": "toolchains/gpu-2-development-toolchain-v1.lock.json",
+    "configuration_sha256": "bf49239db2f78403ee592c1d1ddfaebdd7d9597433b6d39bbcfc7d0c4427347a",
     "installed": [
       {"name": "git", "version": "2.43.0"},
-      {"name": "python3", "version": "3.12.3"}
+      {"name": "python3", "version": "3.12.3"},
+      {"name": "gcc", "version": "13.3.0"},
+      {"name": "g++", "version": "13.3.0"},
+      {"name": "clang", "version": "21.1.8", "command": "clang-21"},
+      {"name": "clang++", "version": "21.1.8", "command": "clang++-21"},
+      {"name": "LLD", "version": "21.1.8", "command": "ld.lld-21"},
+      {"name": "CMake", "version": "3.28.3"},
+      {"name": "Ninja", "version": "1.11.1"},
+      {"name": "Doxygen", "version": "1.9.8"},
+      {"name": "Graphviz dot", "version": "2.43.0"},
+      {"name": "pkg-config", "version": "1.8.1"},
+      {"name": "SQLite", "version": "3.45.1"},
+      {"name": "ShellCheck", "version": "0.9.0"}
     ],
     "missing": [
-      "cmake",
-      "ninja",
-      "gcc",
-      "g++",
-      "clang",
-      "clang++",
-      "pkg-config",
-      "sqlite3",
       "OpenBLAS",
       "Intel oneMKL",
       "LIBXSMM"
     ],
-    "build_ready": false
+    "build_ready": true,
+    "target0_measurement_ready": false
   },
   "accelerators": [
     {
@@ -250,6 +260,9 @@
     "decision": "option_2_development_host_only",
     "decision_approved_on": "2026-08-28",
     "reconsideration_requires_explicit_approval": true,
+    "closed_requirements": [
+      "provision and behaviorally verify the primary development toolchain on gpu-2"
+    ],
     "open_requirements": [
       "designate a controlled x86-64 Linux Target 0 measurement host",
       "capture and approve a new reference-target manifest",
