@@ -139,6 +139,16 @@ def parse_arguments(arguments: Sequence[str] | None = None) -> argparse.Namespac
     return parser.parse_args(arguments)
 
 
+def _base_environment() -> dict[str, str]:
+    """Return the complete default environment allowed for child processes."""
+    return {
+        "HOME": "/nonexistent",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "PATH": "/usr/bin:/usr/sbin",
+    }
+
+
 def run_command(
     command: tuple[str, ...],
     working_directory: Path | None = None,
@@ -147,12 +157,15 @@ def run_command(
     timeout: int = 30,
 ) -> SimpleNamespace:
     """Run one bounded command without shell evaluation."""
+    command_environment = (
+        _base_environment() if environment is None else dict(environment)
+    )
     completed = subprocess.run(
         command,
         check=False,
         capture_output=True,
         cwd=working_directory,
-        env=environment,
+        env=command_environment,
         shell=False,
         text=True,
         timeout=timeout,
@@ -683,10 +696,7 @@ def build_probe_twice(
                 "private build directory cannot be created"
             ) from error
         environment = {
-            "HOME": "/nonexistent",
-            "LANG": "C.UTF-8",
-            "LC_ALL": "C.UTF-8",
-            "PATH": "/usr/bin:/usr/sbin",
+            **_base_environment(),
             "SOURCE_DATE_EPOCH": source_date_epoch,
             "TMPDIR": str(temporary_directory),
         }
@@ -886,12 +896,7 @@ def parse_ldd_dependencies(
 
 def _inspection_environment() -> dict[str, str]:
     """Return the complete environment allowed for read-only inspection."""
-    return {
-        "HOME": "/nonexistent",
-        "LANG": "C.UTF-8",
-        "LC_ALL": "C.UTF-8",
-        "PATH": "/usr/bin:/usr/sbin",
-    }
+    return _base_environment()
 
 
 def _run_retained_command(
@@ -1224,10 +1229,7 @@ def run_compatibility_tests(
             "compatibility log directory cannot be created"
         ) from error
     environment = {
-        "HOME": "/nonexistent",
-        "LANG": "C.UTF-8",
-        "LC_ALL": "C.UTF-8",
-        "PATH": "/usr/bin:/usr/sbin",
+        **_base_environment(),
         "PYTHONPYCACHEPREFIX": str(python_cache),
         "TMPDIR": str(temporary_directory),
     }

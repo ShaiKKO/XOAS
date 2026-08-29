@@ -393,6 +393,32 @@ class PrepareQualificationBundlePreflightTest(unittest.TestCase):
             b'{"a":[true,null],"z":1}\n',
         )
 
+    def test_default_command_environment_is_closed(self) -> None:
+        """Identity subprocesses must not inherit operator credentials or flags."""
+        with mock.patch.dict(
+            os.environ,
+            {
+                "CXXFLAGS": "-fplugin=unreviewed",
+                "SSH_AUTH_SOCK": "/private/credential-agent",
+            },
+        ):
+            result = self.module.run_command(("/usr/bin/env",))
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        observed_environment = dict(
+            line.split("=", maxsplit=1)
+            for line in result.stdout.splitlines()
+        )
+        self.assertEqual(
+            observed_environment,
+            {
+                "HOME": "/nonexistent",
+                "LANG": "C.UTF-8",
+                "LC_ALL": "C.UTF-8",
+                "PATH": "/usr/bin:/usr/sbin",
+            },
+        )
+
     def test_cli_requires_all_explicit_inputs_and_full_commit(self) -> None:
         """Deployment cannot infer a checkout, lock, output, or commit."""
         self.assertTrue(
