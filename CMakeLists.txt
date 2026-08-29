@@ -11,6 +11,7 @@ include(CTest)
 find_package(Git REQUIRED)
 find_program(XOAS_CLANG_FORMAT_EXECUTABLE NAMES clang-format-21 REQUIRED)
 find_program(XOAS_CLANG_TIDY_EXECUTABLE NAMES clang-tidy-21 REQUIRED)
+find_package(Doxygen 1.9.8 EXACT REQUIRED)
 
 include(cmake/quality/XoasWarnings.cmake)
 
@@ -35,6 +36,19 @@ add_custom_target(
     "-DXOAS_REPOSITORY_ROOT=${PROJECT_SOURCE_DIR}"
     -P "${PROJECT_SOURCE_DIR}/cmake/quality/FormatCheck.cmake"
   COMMENT "Formatting tracked handwritten C and C++ files"
+  VERBATIM)
+
+add_custom_target(
+  docs-check
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_DOXYGEN=${DOXYGEN_EXECUTABLE}"
+    "-DXOAS_DOXYFILE_TEMPLATE=${PROJECT_SOURCE_DIR}/Doxyfile.in"
+    "-DXOAS_DOCUMENTATION_WORKING_DIRECTORY=${PROJECT_BINARY_DIR}/documentation"
+    "-DXOAS_GIT=${GIT_EXECUTABLE}"
+    "-DXOAS_REPOSITORY_ROOT=${PROJECT_SOURCE_DIR}"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/DocumentationCheck.cmake"
+  COMMENT "Checking first-party public documentation"
   VERBATIM)
 
 add_subdirectory(tests/quality)

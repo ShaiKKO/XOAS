@@ -1,0 +1,13 @@
+#ifndef XOAS_TESTS_QUALITY_FIXTURES_DOCS_UNDOCUMENTED_PUBLIC_H
+#define XOAS_TESTS_QUALITY_FIXTURES_DOCS_UNDOCUMENTED_PUBLIC_H
+
+namespace xoas::quality {
+
+class UndocumentedValue {
+public:
+  [[nodiscard]] int value() const { return 0; }
+};
+
+} // namespace xoas::quality
+
+#endif // XOAS_TESTS_QUALITY_FIXTURES_DOCS_UNDOCUMENTED_PUBLIC_H

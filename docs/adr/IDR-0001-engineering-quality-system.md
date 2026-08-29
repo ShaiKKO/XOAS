@@ -209,6 +209,22 @@ replaces it with the tested `xoas-portable-header-guard` check, which derives
 `XOAS_...` from the tracked repository path.
 No other configured diagnostic is suppressed by the aggregate.
 
+### Doxygen 1.9.8 policy
+
+The locked Doxygen executable has SHA-256
+`4ceed2d0bf847a5852838e0c2562f36dc364d482a1847e8780a8c1c9967739f7`.
+The initial `Doxyfile.in` has SHA-256
+`50e7443a77cad7d538719bbcb2fea9baf47ce5e451ccc46c225bce64e75199a8`
+and treats undocumented public interfaces, incomplete parameter documentation,
+and malformed commands as errors.
+
+The tracked-input collector excludes only
+`tests/quality/fixtures/generated/output/` and
+`tests/quality/fixtures/vendor/` from first-party documentation enforcement.
+Isolated negative `.in` fixtures are not active C or C++ inputs.
+Every selected handwritten file is also preflighted for a `/// \file` block,
+and all HTML output and warning logs remain below the configured build tree.
+
 The exact manifest and identifier options are reviewable in the repository's
 `.clang-tidy` file.
 The accepted manifest enumerates 85 checks and has SHA-256

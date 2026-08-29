@@ -193,3 +193,55 @@ add_custom_target(
     xoas_quality_tidy_compliant
   COMMENT "Running the explicit Clang-Tidy policy"
   VERBATIM)
+
+add_test(
+  NAME quality-docs-undocumented-negative
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_DOXYGEN=${DOXYGEN_EXECUTABLE}"
+    "-DXOAS_DOXYFILE_TEMPLATE=${PROJECT_SOURCE_DIR}/Doxyfile.in"
+    "-DXOAS_DOCUMENTATION_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/docs/undocumented-public.h.in"
+    "-DXOAS_DOCUMENTATION_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/docs-undocumented"
+    -DXOAS_DOCUMENTATION_EXPECT_FAILURE=ON
+    -DXOAS_DOCUMENTATION_EXPECTED_DIAGNOSTIC=xoas-undocumented-file
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/DocumentationCheck.cmake")
+
+add_test(
+  NAME quality-docs-malformed-negative
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_DOXYGEN=${DOXYGEN_EXECUTABLE}"
+    "-DXOAS_DOXYFILE_TEMPLATE=${PROJECT_SOURCE_DIR}/Doxyfile.in"
+    "-DXOAS_DOCUMENTATION_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/docs/malformed.h.in"
+    "-DXOAS_DOCUMENTATION_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/docs-malformed"
+    -DXOAS_DOCUMENTATION_EXPECT_FAILURE=ON
+    "-DXOAS_DOCUMENTATION_EXPECTED_DIAGNOSTIC=Found unknown command"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/DocumentationCheck.cmake")
+
+add_test(
+  NAME quality-docs-compliant
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_DOXYGEN=${DOXYGEN_EXECUTABLE}"
+    "-DXOAS_DOXYFILE_TEMPLATE=${PROJECT_SOURCE_DIR}/Doxyfile.in"
+    "-DXOAS_DOCUMENTATION_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/docs/compliant.h"
+    "-DXOAS_DOCUMENTATION_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/docs-compliant"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/DocumentationCheck.cmake")
+
+set(xoasDocsHeaderSelfSufficientSource
+    "${CMAKE_CURRENT_BINARY_DIR}/docs-header-self-sufficient.cpp")
+file(
+  GENERATE
+  OUTPUT "${xoasDocsHeaderSelfSufficientSource}"
+  CONTENT
+    "/// \\file\n/// Verifies that the documentation fixture header is self-sufficient.\n\n#include \"compliant.h\"\n")
+add_library(
+  xoas_quality_docs_header_self_sufficient OBJECT
+  "${xoasDocsHeaderSelfSufficientSource}")
+target_include_directories(
+  xoas_quality_docs_header_self_sufficient
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/docs")
+target_link_libraries(
+  xoas_quality_docs_header_self_sufficient PRIVATE xoas_warnings)
+add_dependencies(warnings xoas_quality_docs_header_self_sufficient)
+add_dependencies(tidy xoas_quality_docs_header_self_sufficient)

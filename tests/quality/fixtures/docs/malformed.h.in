@@ -1,0 +1,15 @@
+#ifndef XOAS_TESTS_QUALITY_FIXTURES_DOCS_MALFORMED_H
+#define XOAS_TESTS_QUALITY_FIXTURES_DOCS_MALFORMED_H
+
+/// \file
+/// Provides malformed-documentation rejection input for the quality harness.
+
+namespace xoas::quality {
+
+/// Returns a fixture value.
+/// \notacommand This command must be rejected.
+[[nodiscard]] constexpr int malformedDocumentationValue() { return 1; }
+
+} // namespace xoas::quality
+
+#endif // XOAS_TESTS_QUALITY_FIXTURES_DOCS_MALFORMED_H

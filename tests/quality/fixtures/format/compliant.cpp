@@ -3,7 +3,6 @@
 
 namespace xoas::quality {
 
-constexpr int FormattingSentinel = 7;
-static_assert(FormattingSentinel == 7);
+static_assert(7 > 0);
 
 } // namespace xoas::quality

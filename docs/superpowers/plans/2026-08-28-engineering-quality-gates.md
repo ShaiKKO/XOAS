@@ -327,19 +327,19 @@ Record the exact check list, locked clang-tidy identity, exclusions, and unsuppo
 - Modify: `tests/quality/CMakeLists.txt`
 - Modify: `tests/quality/contracts/expected-gates.json`
 
-- [ ] **Step 1: Write undocumented and malformed failure tests**
+- [x] **Step 1: Write undocumented and malformed failure tests**
 
 Each test copies one negative header into a build-tree Doxygen input root and requires nonzero exit with the corresponding warning class. Confirm both tests fail before the policy is wired.
 
-- [ ] **Step 2: Configure Doxygen warnings as errors**
+- [x] **Step 2: Configure Doxygen warnings as errors**
 
 Require documented files, non-trivial classes, and public interfaces; reject malformed commands and undocumented public members. Set extraction so absent documentation remains visible. Exclude only the exact generated/vendor fixture roots. Keep HTML output in the build tree.
 
-- [ ] **Step 3: Add the compliant documentation fixture**
+- [x] **Step 3: Add the compliant documentation fixture**
 
 Use `///` blocks with `@file`, purpose, preconditions, parameter semantics, return semantics, and one non-obvious invariant. Avoid comments that merely repeat declarations.
 
-- [ ] **Step 4: Expose and prove `docs-check`**
+- [x] **Step 4: Expose and prove `docs-check`**
 
 ```bash
 cmake --preset dev-debug
@@ -349,7 +349,7 @@ ctest --preset dev-debug -R quality-docs --output-on-failure
 
 Expected: compliant docs pass; undocumented and malformed copies fail; generated/vendor exclusions do not hide the handwritten fixture.
 
-- [ ] **Step 5: Mark documentation enforcement green**
+- [x] **Step 5: Mark documentation enforcement green**
 
 Record Doxygen identity, configuration hash, exclusion roots, and passing evidence.
 

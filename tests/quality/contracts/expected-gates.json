@@ -65,7 +65,7 @@
     },
     {
       "name": "docs-check",
-      "state": "red",
+      "state": "green",
       "change_classes": ["documentation", "handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache"],
       "positive_fixtures": ["tests/quality/fixtures/docs/compliant.h"],
       "negative_fixtures": [
@@ -73,7 +73,11 @@
         "tests/quality/fixtures/docs/malformed.h.in"
       ],
       "ci_required": true,
-      "evidence_commands": []
+      "evidence_commands": [
+        "cmake --preset dev-debug",
+        "cmake --build --preset dev-debug --target docs-check",
+        "ctest --preset dev-debug -R quality-docs --output-on-failure"
+      ]
     },
     {
       "name": "test",
