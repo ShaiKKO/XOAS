@@ -280,6 +280,14 @@ The five contexts are `quality / repository-policy`,
 Hosted success and branch-protection enforcement remain separate gates until
 the pushed revision completes and the live repository setting is verified.
 
+Hosted run
+[`33238861222`](https://github.com/ShaiKKO/XOAS/actions/runs/33238861222)
+verified exact commit `99f3088fec5667aeda52756b39ff255ab4df4b96`.
+All five required contexts concluded `success` on 2026-08-29.
+The Debug runner recorded every step successful by `06:36:39Z`, while its
+check context did not become terminal until `06:50:10Z`; Task 9 remained open
+until that objective terminal result was available.
+
 The exact manifest and identifier options are reviewable in the repository's
 `.clang-tidy` file.
 The accepted manifest enumerates 85 checks and has SHA-256

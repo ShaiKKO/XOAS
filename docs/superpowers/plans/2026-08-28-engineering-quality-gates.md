@@ -573,7 +573,7 @@ git commit -m "ci: reproduce locked engineering quality gates"
 git push origin main
 ```
 
-- [ ] **Step 6: Require a green exact commit**
+- [x] **Step 6: Require a green exact commit**
 
 Use `gh run list` and `gh run view` to require all five named contexts to succeed for `git rev-parse HEAD`. If any job fails, diagnose and correct it through the same local gate; do not proceed to branch protection.
 
