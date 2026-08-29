@@ -70,11 +70,11 @@
       "uniqueItems": true,
       "items": {
         "enum": [
-          "quality / repository-policy",
-          "quality / static-quality",
-          "quality / debug-build-and-test",
-          "quality / release-build-and-test",
-          "quality / sanitizers"
+          "repository-policy",
+          "static-quality",
+          "debug-build-and-test",
+          "release-build-and-test",
+          "sanitizers"
         ]
       }
     }

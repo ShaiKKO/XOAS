@@ -545,7 +545,7 @@ Use:
 
 - [x] **Step 3: Define stable required job names**
 
-Create exactly these required contexts:
+Create exactly these workflow presentation labels:
 
 ```text
 quality / repository-policy
@@ -555,6 +555,10 @@ quality / release-build-and-test
 quality / sanitizers
 ```
 
+The authoritative Check Runs API names are the corresponding job names without
+the `quality / ` presentation prefix.
+Branch protection must require those API names and bind them to the observed
+GitHub Actions application ID.
 Each job must run its local equivalent rather than duplicate policy in YAML. CI formatter checks remain non-mutating.
 
 - [x] **Step 4: Validate workflow syntax and local parity**

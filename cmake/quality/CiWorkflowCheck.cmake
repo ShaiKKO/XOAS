@@ -66,9 +66,7 @@ if lock["toolchain_lock_id"] != contract["toolchain_lock_id"]:
 jobs = workflow.get("jobs")
 if not isinstance(jobs, dict) or len(jobs) != 5:
     raise RuntimeError("workflow must define exactly five jobs")
-observed_contexts = sorted(
-    f'{workflow["name"]} / {job.get("name", "")}' for job in jobs.values()
-)
+observed_contexts = sorted(job.get("name", "") for job in jobs.values())
 if observed_contexts != sorted(required_contexts):
     raise RuntimeError(
         f"workflow contexts differ: expected {required_contexts}, observed {observed_contexts}"

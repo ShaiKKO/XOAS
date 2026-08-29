@@ -274,9 +274,13 @@ The conforming
 binds that action identity, five required contexts, the exact development
 toolchain lock ID, the LLVM archive fingerprint and file digests, and the exact
 APT package versions installed on each ephemeral hosted runner.
-The five contexts are `quality / repository-policy`,
-`quality / static-quality`, `quality / debug-build-and-test`,
-`quality / release-build-and-test`, and `quality / sanitizers`.
+The five required check names are `repository-policy`, `static-quality`,
+`debug-build-and-test`, `release-build-and-test`, and `sanitizers`.
+GitHub's interface may present these as `quality / <job>`, but the Check Runs
+API reports the job name alone as the protection context.
+All five successful checks for the accepted hosted run were emitted by the
+GitHub Actions application with App ID `15368`; branch protection binds the
+required names to that application rather than accepting an arbitrary source.
 Hosted success and branch-protection enforcement remain separate gates until
 the pushed revision completes and the live repository setting is verified.
 

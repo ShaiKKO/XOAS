@@ -2,11 +2,11 @@
   "contract_version": "xoas.quality-gates.v1",
   "toolchain_lock_id": "gpu-2-development-toolchain-v1-20260829t013505z",
   "required_ci_contexts": [
-    "quality / repository-policy",
-    "quality / static-quality",
-    "quality / debug-build-and-test",
-    "quality / release-build-and-test",
-    "quality / sanitizers"
+    "repository-policy",
+    "static-quality",
+    "debug-build-and-test",
+    "release-build-and-test",
+    "sanitizers"
   ],
   "source_classifications": {
     "handwritten_roots": [
