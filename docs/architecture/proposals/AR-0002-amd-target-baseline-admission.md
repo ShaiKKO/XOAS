@@ -1,6 +1,6 @@
 # AR-0002: AMD Target Baseline Admission
 
-**Status:** Option 1 selected in principle; written decision awaiting review
+**Status:** Approved — Option 1
 
 **Decision owner:** User / architecture authority
 
@@ -153,7 +153,7 @@ not weaken the numerical contract.
 
 ## Work blocked by the decision
 
-Until the written decision is approved and integrated:
+Until the approved decision is integrated into the baseline policy:
 
 - the Target 0 baseline set cannot be frozen for the AMD host;
 - the host qualification/provisioning plan cannot name its final baseline
@@ -175,6 +175,8 @@ On 2026-08-29, after the physical AMD host was designated as the Target 0
 measurement candidate, the user selected the head engineering recommendation:
 Option 1, add AOCL-BLAS while retaining every existing applicable comparator.
 
-The exact written terms remain subject to user review. No host mutation,
-license acceptance, package installation, or baseline-policy edit is approved
-until that review closes.
+After reviewing this written record, the user approved its exact terms on
+2026-08-29. This approves baseline-policy integration and preparation of the
+separate qualification/provisioning plan. It does not itself accept a
+third-party license, install software, modify the host, qualify the target, or
+authorize a performance claim.

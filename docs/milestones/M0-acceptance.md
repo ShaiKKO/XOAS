@@ -30,6 +30,8 @@ The user approved AR-0001 Option 2: `gpu-2` is development-only and is not the T
 On 2026-08-29, the user designated a physical AMD Ryzen 9 7900X Linux
 desktop as the replacement Target 0 measurement-host candidate. The host is
 not yet qualified.
+The user also approved AR-0002 Option 1, admitting AOCL-BLAS without removing
+any existing applicable comparator.
 
 ## Deliverable traceability
 
@@ -119,7 +121,7 @@ Self-review is not represented as independent review.
 
 1. The build-plan front matter still says `Proposed architectural program`; the user handoff approved it as execution authority. The charter and index record the authority distinction without rewriting technical semantics.
 2. The historical `gpu-2` VM still denies unprivileged cycles and instructions and remains ineligible. The designated AMD candidate exposes working privileged events, but its PMU policy and reboot stability are not yet qualified.
-3. The M0 instruction to lock libraries available on the reference machine cannot close because the designated AMD candidate has no admitted libraries installed and its AOCL-BLAS admission decision is awaiting written review.
+3. The M0 instruction to lock libraries available on the reference machine cannot close because the designated AMD candidate has no admitted baseline libraries installed.
 4. Corpus supports are specified but not materialized by code; no canonical support digests exist.
 5. Independent review remains absent. Task 6 self-review is recorded but is not substituted for it.
 
@@ -135,12 +137,11 @@ M0 remains **OPEN**. Closing it requires:
 
 The earliest valid slice is still within M0:
 
-1. approve the written AOCL-BLAS admission decision;
-2. write and review the designated AMD host's qualification/baseline plan;
-3. install and pin the admitted baselines on that selected measurement host;
-4. enable/verify measurement controls and PMU evidence;
-5. run non-claiming qualification smoke and noise characterization;
-6. add the qualified target manifest and update this acceptance record.
+1. review the written designated-AMD-host qualification/baseline plan;
+2. install and pin the admitted baselines on that selected measurement host;
+3. enable/verify measurement controls and PMU evidence;
+4. run non-claiming qualification smoke and noise characterization;
+5. add the qualified target manifest and update this acceptance record.
 
 The reviewed engineering-quality-gates plan is now unblocked as independent development-environment work, but it cannot substitute for the measurement-host critical path or authorize M1 product code.
 
