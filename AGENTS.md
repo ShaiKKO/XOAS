@@ -801,7 +801,7 @@ probe, non-secret host capture/core selector, fixture-verified reversible
 session controller, closed physical-host pre-state, exact installed support
 closure, and verified versioned baseline artifacts. The repository now
 implements the native qualification-tool preparation, closed evidence bundle,
-and fresh replica verifier through `5c0dcde`; full exact-subject quality proof,
+and fresh replica verifier through `af34d0d`; full exact-subject quality proof,
 physical execution, and matching `gpu-2` replica evidence remain open. Baseline
 numerical admission, real measurement controls, campaigns, and qualification
 also remain open. The pinned JITSpMM revision has no license statement;

@@ -10,7 +10,7 @@
 
 **Task 4 evidence implementation:** `9d44f6431ebdaea60c796292e9da071f0f49522b`
 
-**Qualification-tool repository implementation:** `5c0dcde`
+**Qualification-tool repository implementation:** `af34d0d`
 
 **Controlling plan:**
 [`2026-08-29-amd-target0-host-qualification.md`](../superpowers/plans/2026-08-29-amd-target0-host-qualification.md)
