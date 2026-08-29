@@ -118,10 +118,13 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-implementation-plan.md` — executable M0 plan and commit boundaries.
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
-- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — written, unexecuted physical-host qualification and baseline-provisioning plan.
+- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification and baseline-provisioning plan; Task 1 is implemented and later tasks remain open.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, and the historical unqualified `gpu-2` candidate-target capture. AR-0001 Option 2 excludes that host from current Target 0 measurement authority. The directory contains no executable harness or measured performance result.
 - `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; schema and synthetic example fully validated on `gpu-2`.
 - `schemas/development-toolchain-v1.schema.json` — draft-2020-12 installed development-toolchain evidence schema.
+- `schemas/target0-host-qualification-v1.schema.json` — closed fixed-process qualification schema; real instances are build-tree test artifacts, not performance claims.
+- `tools/target0/` — non-product Target 0 qualification tooling; currently contains the deterministic native CPU probe.
+- `tests/target0/` — behavioral, negative, deterministic, and schema-closure tests for qualification tooling.
 
 There is currently no product source/public include tree, product library or executable, independent oracle, executable benchmark harness, database, artifact store, repository README, or product dependency manifest.
 The existing build and test tree enforces engineering quality only.
@@ -335,6 +338,23 @@ Debug CTest suite, repository policy, and the isolated ASan/UBSan preset.
 The rewriting `format` target is developer-only and must be invoked deliberately;
 hosted CI uses `format-check` and never rewrites source.
 
+The non-claiming Target 0 process probe and its complete behavioral contract
+are verified on `gpu-2` with:
+
+```bash
+cmake --preset dev-debug
+cmake --build --preset dev-debug \
+  --target xoas-target0-qualification-probe
+ctest --preset dev-debug \
+  -R '^target0-qualification-probe$' --output-on-failure
+```
+
+The test executes real fixed-count CPU work, validates the emitted record
+against the draft-2020-12 schema, checks a literal deterministic checksum,
+compares two processes, mutates the schema boundary, and exercises invalid
+CLI, CPU, and output cases. It is host-qualification tooling, not a product
+kernel, benchmark result, or speed claim.
+
 The only approved quality-build cleanup command is:
 
 ```bash
@@ -375,6 +395,11 @@ the Debug, Release, and sanitizer commands in section 6.
 It covers formatting, warnings, Clang-Tidy, documentation, repository policy,
 aggregate wiring, cleanup boundaries, hosted-workflow policy, and the live
 branch-protection evidence contract with positive and isolated negative probes.
+
+The `tests/target0/` harness adds the non-claiming qualification-process probe
+contract. Run its exact targeted command from section 6; it is required for
+any change to the process schema, probe CLI, deterministic workload, affinity,
+timing, thread/context-switch observation, or output publication behavior.
 
 Product unit, property, differential, numerical-semantic, generated-kernel,
 artifact/serialization, regression, and benchmark-smoke suites remain
@@ -646,8 +671,10 @@ The development-toolchain plan and the local/hosted quality-gates plan have
 been executed; stable targets, pinned hosted jobs, and protected-main controls
 are repository capabilities with retained evidence.
 
-The M0 critical path is review and execution of the written physical AMD
-Target 0 qualification plan. Baseline installation, measurement controls, PMU
+The M0 critical path is continued execution of the physical AMD Target 0
+qualification plan. Task 1 provides the closed process schema and deterministic
+probe; reversible host capture/session tooling and all host-side tasks remain
+open. Baseline installation, measurement controls, PMU
 evidence, noise checks, and target-bound benchmark evidence belong on that
 selected measurement host. Obtain the required independent review or explicit
 review-model acceptance and update the acceptance record before M0 closes. Do

@@ -74,7 +74,10 @@ and [`docs/experiments/baseline-matrix.md`](../../experiments/baseline-matrix.md
 - Create: `tools/target0/qualification_probe.cpp`
 - Create: `tests/target0/CMakeLists.txt`
 - Create: `tests/target0/qualification_probe_test.py`
+- Modify: `AGENTS.md`
 - Modify: `CMakeLists.txt`
+- Modify: `cmake/quality/RepositoryPolicy.cmake`
+- Modify: `docs/milestones/M0-acceptance.md`
 
 **Interfaces:**
 
@@ -91,7 +94,7 @@ and [`docs/experiments/baseline-matrix.md`](../../experiments/baseline-matrix.md
   in the retained campaign evidence. This keeps provenance independent of the
   executable it authenticates and avoids an undeclared C++ hashing dependency.
 
-- [ ] **Step 1: Add failing CLI and schema tests**
+- [x] **Step 1: Add failing CLI and schema tests**
 
 `qualification_probe_test.py` must assert:
 
@@ -121,7 +124,7 @@ ctest --preset dev-debug -R target0-qualification-probe --output-on-failure
 Expected before implementation: the target or test is absent and the command
 fails.
 
-- [ ] **Step 2: Define the closed process-result schema**
+- [x] **Step 2: Define the closed process-result schema**
 
 Use draft 2020-12 and `additionalProperties: false` for every closed object.
 Require exact manifest version, non-claiming boolean, CPU request, affinity
@@ -133,7 +136,12 @@ Each raw sample requires `round`, `elapsed_ns`, start/end CPU, checksum, and
 voluntary/involuntary context-switch deltas. Reject nonpositive durations,
 duplicate rounds, missing samples, and a claiming record.
 
-- [ ] **Step 3: Implement the deterministic CPU probe**
+Classify this schema as runtime-validated in repository policy. Its real
+10,000-timer-sample instance remains a build-tree test artifact and is
+validated by `target0-qualification-probe`; do not commit a synthetic timing
+record merely to satisfy the repository schema inventory.
+
+- [x] **Step 3: Implement the deterministic CPU probe**
 
 Use `clock_gettime(CLOCK_MONOTONIC_RAW)` and validate that
 `std::chrono::steady_clock::is_steady` is true. Pin with
@@ -154,7 +162,7 @@ Consume and serialize the checksum after timing. Measure 10,000 back-to-back
 `CLOCK_MONOTONIC_RAW` deltas before warm-up. Use professional `///` Doxygen
 blocks and rationale-only implementation comments.
 
-- [ ] **Step 4: Prove deterministic and negative behavior**
+- [x] **Step 4: Prove deterministic and negative behavior**
 
 Run twice with the same seed and compare every field except timestamps,
 elapsed samples, process ID, and context-switch counts. Require equal checksums
@@ -169,10 +177,10 @@ python3 -m jsonschema \
   schemas/target0-host-qualification-v1.schema.json
 ```
 
-- [ ] **Step 5: Commit the probe contract**
+- [x] **Step 5: Commit the probe contract**
 
 ```bash
-git add CMakeLists.txt tests/target0/CMakeLists.txt schemas/target0-host-qualification-v1.schema.json tools/target0/CMakeLists.txt tools/target0/qualification_probe.cpp tests/target0/qualification_probe_test.py
+git add AGENTS.md CMakeLists.txt cmake/quality/RepositoryPolicy.cmake docs/milestones/M0-acceptance.md tests/target0/CMakeLists.txt schemas/target0-host-qualification-v1.schema.json tools/target0/CMakeLists.txt tools/target0/qualification_probe.cpp tests/target0/qualification_probe_test.py docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md
 git diff --cached --check
 git commit -m "test: add Target 0 qualification probe"
 ```

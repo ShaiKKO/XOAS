@@ -47,6 +47,7 @@ any existing applicable comparator.
 | Holdout | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen, public identity, no measurements, design use prohibited |
 | Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Historical candidate capture committed at `6e6adf3`; its development toolchain is now verified, but Option 2 keeps it ineligible as the reference target |
 | Architecture index and operating manual | [`../architecture/README.md`](../architecture/README.md) and root [`../../AGENTS.md`](../../AGENTS.md) | Integrated and verified at `3d635d3` |
+| Target qualification process contract | [`../../schemas/target0-host-qualification-v1.schema.json`](../../schemas/target0-host-qualification-v1.schema.json), [`../../tools/target0/qualification_probe.cpp`](../../tools/target0/qualification_probe.cpp), and behavioral tests | Task 1 implemented; this is non-claiming host-qualification tooling and does not qualify the AMD target |
 
 ## Exit-gate statement
 
@@ -71,6 +72,24 @@ The team can state the required paragraph, but the gate remains open because the
 - Standard-library assertions passed at `3d635d3` for 37 unique/disjoint cases, four pinned source identities, partition membership, shapes, seed lengths, source references, coordinate counts, holdout state, ten raw-sample ordering records, statistical interval ordering, target qualification state, and absence of secret provenance fields.
 - On `gpu-2`, `jsonschema` 4.10.3 passed draft-2020-12 meta-schema validation and validated the synthetic benchmark-result example.
 - The development-toolchain schema and installed lock passed draft-2020-12 validation with format checks, stable configuration-digest verification, live package-closure checks, and live executable-hash checks.
+- The Target 0 process schema passed draft-2020-12 meta-validation and validated real build-tree probe records on `gpu-2`; closed-schema mutations rejected claim inflation, unknown fields, duplicate rounds, and missing samples.
+
+### Target qualification process checks
+
+On `gpu-2`, the Task 1 implementation passed the complete Debug, Release, and
+ASan/UBSan CTest surfaces. The targeted command is:
+
+```bash
+cmake --build --preset dev-debug \
+  --target xoas-target0-qualification-probe
+ctest --preset dev-debug \
+  -R '^target0-qualification-probe$' --output-on-failure
+```
+
+The test runs two real fixed-count processes, checks the literal seed-42 round-0
+checksum `b6347d16b98f0445`, validates deterministic fields and ordered samples,
+exercises invalid CLI/CPU/output behavior, and accepts closed failure evidence.
+No retained output is a performance claim or target-qualification result.
 
 ### External corpus evidence
 

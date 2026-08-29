@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xoas.dev/schemas/target0-host-qualification-v1.schema.json",
+  "title": "XOAS Target 0 qualification process record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "performance_claim",
+    "requested_cpu",
+    "affinity_cpus",
+    "warmup_rounds",
+    "retained_rounds",
+    "iterations",
+    "seed",
+    "timer_clock",
+    "timer_overhead_ns",
+    "process_id",
+    "process_context_switches",
+    "max_observed_threads",
+    "warmup_checksum",
+    "samples",
+    "checksum",
+    "status",
+    "failure_reasons"
+  ],
+  "properties": {
+    "manifest_version": {
+      "const": "xoas.target0-qualification-process.v1"
+    },
+    "performance_claim": {
+      "const": false
+    },
+    "requested_cpu": {
+      "$ref": "#/$defs/cpu"
+    },
+    "affinity_cpus": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/cpu"
+      },
+      "minItems": 1,
+      "maxItems": 1,
+      "uniqueItems": true
+    },
+    "warmup_rounds": {
+      "const": 5
+    },
+    "retained_rounds": {
+      "const": 30
+    },
+    "iterations": {
+      "const": 16777216
+    },
+    "seed": {
+      "$ref": "#/$defs/unsigned64"
+    },
+    "timer_clock": {
+      "const": "CLOCK_MONOTONIC_RAW"
+    },
+    "timer_overhead_ns": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "minItems": 10000,
+      "maxItems": 10000
+    },
+    "process_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "process_context_switches": {
+      "$ref": "#/$defs/context_switches"
+    },
+    "max_observed_threads": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "warmup_checksum": {
+      "$ref": "#/$defs/checksum"
+    },
+    "samples": {
+      "type": "array",
+      "prefixItems": [
+        { "$ref": "#/$defs/sample_00" },
+        { "$ref": "#/$defs/sample_01" },
+        { "$ref": "#/$defs/sample_02" },
+        { "$ref": "#/$defs/sample_03" },
+        { "$ref": "#/$defs/sample_04" },
+        { "$ref": "#/$defs/sample_05" },
+        { "$ref": "#/$defs/sample_06" },
+        { "$ref": "#/$defs/sample_07" },
+        { "$ref": "#/$defs/sample_08" },
+        { "$ref": "#/$defs/sample_09" },
+        { "$ref": "#/$defs/sample_10" },
+        { "$ref": "#/$defs/sample_11" },
+        { "$ref": "#/$defs/sample_12" },
+        { "$ref": "#/$defs/sample_13" },
+        { "$ref": "#/$defs/sample_14" },
+        { "$ref": "#/$defs/sample_15" },
+        { "$ref": "#/$defs/sample_16" },
+        { "$ref": "#/$defs/sample_17" },
+        { "$ref": "#/$defs/sample_18" },
+        { "$ref": "#/$defs/sample_19" },
+        { "$ref": "#/$defs/sample_20" },
+        { "$ref": "#/$defs/sample_21" },
+        { "$ref": "#/$defs/sample_22" },
+        { "$ref": "#/$defs/sample_23" },
+        { "$ref": "#/$defs/sample_24" },
+        { "$ref": "#/$defs/sample_25" },
+        { "$ref": "#/$defs/sample_26" },
+        { "$ref": "#/$defs/sample_27" },
+        { "$ref": "#/$defs/sample_28" },
+        { "$ref": "#/$defs/sample_29" }
+      ],
+      "items": false,
+      "minItems": 30,
+      "maxItems": 30,
+      "uniqueItems": true
+    },
+    "checksum": {
+      "$ref": "#/$defs/checksum"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "failure_reasons": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "cpu_migration",
+          "thread_count_changed"
+        ]
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "passed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "failure_reasons": {
+            "maxItems": 0
+          },
+          "max_observed_threads": {
+            "const": 1
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "failure_reasons": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "unsigned64": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 18446744073709551615
+    },
+    "cpu": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1048575
+    },
+    "checksum": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "context_switches": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "voluntary_delta",
+        "involuntary_delta"
+      ],
+      "properties": {
+        "voluntary_delta": {
+          "$ref": "#/$defs/unsigned64"
+        },
+        "involuntary_delta": {
+          "$ref": "#/$defs/unsigned64"
+        }
+      }
+    },
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "round",
+        "elapsed_ns",
+        "observed_cpu_start",
+        "observed_cpu_end",
+        "checksum",
+        "voluntary_context_switches",
+        "involuntary_context_switches"
+      ],
+      "properties": {
+        "round": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 29
+        },
+        "elapsed_ns": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "observed_cpu_start": {
+          "$ref": "#/$defs/cpu"
+        },
+        "observed_cpu_end": {
+          "$ref": "#/$defs/cpu"
+        },
+        "checksum": {
+          "$ref": "#/$defs/checksum"
+        },
+        "voluntary_context_switches": {
+          "$ref": "#/$defs/unsigned64"
+        },
+        "involuntary_context_switches": {
+          "$ref": "#/$defs/unsigned64"
+        }
+      }
+    },
+    "sample_00": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 0 } } }] },
+    "sample_01": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 1 } } }] },
+    "sample_02": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 2 } } }] },
+    "sample_03": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 3 } } }] },
+    "sample_04": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 4 } } }] },
+    "sample_05": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 5 } } }] },
+    "sample_06": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 6 } } }] },
+    "sample_07": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 7 } } }] },
+    "sample_08": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 8 } } }] },
+    "sample_09": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 9 } } }] },
+    "sample_10": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 10 } } }] },
+    "sample_11": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 11 } } }] },
+    "sample_12": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 12 } } }] },
+    "sample_13": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 13 } } }] },
+    "sample_14": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 14 } } }] },
+    "sample_15": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 15 } } }] },
+    "sample_16": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 16 } } }] },
+    "sample_17": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 17 } } }] },
+    "sample_18": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 18 } } }] },
+    "sample_19": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 19 } } }] },
+    "sample_20": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 20 } } }] },
+    "sample_21": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 21 } } }] },
+    "sample_22": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 22 } } }] },
+    "sample_23": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 23 } } }] },
+    "sample_24": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 24 } } }] },
+    "sample_25": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 25 } } }] },
+    "sample_26": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 26 } } }] },
+    "sample_27": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 27 } } }] },
+    "sample_28": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 28 } } }] },
+    "sample_29": { "allOf": [{ "$ref": "#/$defs/sample" }, { "properties": { "round": { "const": 29 } } }] }
+  }
+}

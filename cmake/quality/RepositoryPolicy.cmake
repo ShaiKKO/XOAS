@@ -288,6 +288,11 @@ schema_instances = {
     "schemas/quality-gates-v1.schema.json": [
         "tests/quality/contracts/expected-gates.json"
     ],
+    "schemas/target0-host-qualification-v1.schema.json": [],
+}
+runtime_validated_schemas = {
+    "schemas/target0-host-qualification-v1.schema.json":
+        "target0-qualification-probe",
 }
 tracked_schemas = {
     path for path in tracked_json if path.startswith("schemas/") and path.endswith(".schema.json")
@@ -298,6 +303,8 @@ if tracked_schemas != set(schema_instances):
 for schema_path, instance_paths in schema_instances.items():
     schema = documents[schema_path]
     Draft202012Validator.check_schema(schema)
+    if not instance_paths and schema_path not in runtime_validated_schemas:
+        raise RuntimeError(f"schema has no validation instance: {schema_path}")
     validator = Draft202012Validator(schema)
     for instance_path in instance_paths:
         validator.validate(documents[instance_path])
