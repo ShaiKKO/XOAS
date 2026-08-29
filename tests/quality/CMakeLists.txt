@@ -245,3 +245,54 @@ target_link_libraries(
   xoas_quality_docs_header_self_sufficient PRIVATE xoas_warnings)
 add_dependencies(warnings xoas_quality_docs_header_self_sufficient)
 add_dependencies(tidy xoas_quality_docs_header_self_sufficient)
+
+add_executable(
+  xoas_quality_runtime_positive
+  fixtures/runtime/positive.cpp)
+target_link_libraries(
+  xoas_quality_runtime_positive
+  PRIVATE xoas_sanitizers xoas_warnings)
+add_dependencies(warnings xoas_quality_runtime_positive)
+add_dependencies(tidy xoas_quality_runtime_positive)
+
+add_test(
+  NAME quality-runtime-positive
+  COMMAND xoas_quality_runtime_positive)
+
+if(XOAS_ENABLE_SANITIZERS)
+  add_test(
+    NAME quality-sanitizer-address-negative
+    COMMAND
+      "${CMAKE_COMMAND}"
+      "-DXOAS_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+      "-DXOAS_RUNTIME_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/runtime/address-negative.cpp.in"
+      "-DXOAS_RUNTIME_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/sanitizer-address-negative"
+      "-DXOAS_RUNTIME_EXPECTED_DIAGNOSTIC=AddressSanitizer: heap-use-after-free"
+      -P "${PROJECT_SOURCE_DIR}/cmake/quality/ExpectRuntimeFailure.cmake")
+
+  add_test(
+    NAME quality-sanitizer-undefined-negative
+    COMMAND
+      "${CMAKE_COMMAND}"
+      "-DXOAS_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+      "-DXOAS_RUNTIME_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/runtime/undefined-negative.cpp.in"
+      "-DXOAS_RUNTIME_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/sanitizer-undefined-negative"
+      "-DXOAS_RUNTIME_EXPECTED_DIAGNOSTIC=runtime error: signed integer overflow"
+      -P "${PROJECT_SOURCE_DIR}/cmake/quality/ExpectRuntimeFailure.cmake")
+
+  add_test(
+    NAME quality-sanitizer-positive
+    COMMAND xoas_quality_runtime_positive)
+
+  add_custom_target(
+    asan-ubsan
+    COMMAND
+      "${CMAKE_COMMAND}" -E env
+      ASAN_OPTIONS=abort_on_error=1:halt_on_error=1:detect_leaks=1
+      UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+      "${CMAKE_CTEST_COMMAND}" --test-dir "${PROJECT_BINARY_DIR}"
+      -R quality-sanitizer --output-on-failure
+    DEPENDS xoas_quality_runtime_positive
+    COMMENT "Running fail-fast AddressSanitizer and UndefinedBehaviorSanitizer"
+    VERBATIM)
+endif()

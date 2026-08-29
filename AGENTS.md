@@ -285,7 +285,7 @@ The one-time provisioning probe also configured a temporary CMake 3.28 project w
 
 These are inspection, document/schema, and development-toolchain commands, not a product verification suite. The M0 plan and acceptance record contain the exact cross-manifest assertions and source-hash checks used for their checkpoint.
 
-The guest's `kernel.yama.ptrace_scope=2` prevents LeakSanitizer shutdown inspection. The provisioning probe set `detect_leaks=0` while proving ASan heap-use-after-free detection and clean ASan/UBSan execution. Do not generalize that isolation into a project sanitizer policy; the persistent quality-gates plan must record the host-specific behavior explicitly.
+The immutable provisioning capture recorded `kernel.yama.ptrace_scope=2` and therefore isolated LeakSanitizer with `detect_leaks=0`. The user later approved `/etc/sysctl.d/90-xoas-lsan.conf` (SHA-256 `d36ae5ec5e8d2cbdf78a80b7b076629b7d71164e8bab7993be7aac4006b97188`) setting `kernel.yama.ptrace_scope = 1` on `gpu-2`. The persistent sanitizer gate must keep `detect_leaks=1`, verify that exact live host setting, and report this weaker development-host ptrace posture. This does not qualify `gpu-2` for Target 0 measurement.
 
 ### Required future toolchain direction
 

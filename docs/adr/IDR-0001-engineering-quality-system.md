@@ -213,8 +213,8 @@ No other configured diagnostic is suppressed by the aggregate.
 
 The locked Doxygen executable has SHA-256
 `4ceed2d0bf847a5852838e0c2562f36dc364d482a1847e8780a8c1c9967739f7`.
-The initial `Doxyfile.in` has SHA-256
-`50e7443a77cad7d538719bbcb2fea9baf47ce5e451ccc46c225bce64e75199a8`
+The tracked `Doxyfile.in` has SHA-256
+`3e2c67bbd7801e331b933faa6658e75dfc6ba62614b5faf805b1f4b9c54740b8`
 and treats undocumented public interfaces, incomplete parameter documentation,
 and malformed commands as errors.
 
@@ -224,6 +224,39 @@ The tracked-input collector excludes only
 Isolated negative `.in` fixtures are not active C or C++ inputs.
 Every selected handwritten file is also preflighted for a `/// \file` block,
 and all HTML output and warning logs remain below the configured build tree.
+
+### AddressSanitizer and UndefinedBehaviorSanitizer policy
+
+The sanitizer build uses the locked Clang 21 compiler and compiler-rt package
+`libclang-rt-21-dev` version
+`1:21.1.8~++20251221032922+2078da43e25a-1~exp1~20251221153059.70`.
+An interface target applies AddressSanitizer, UndefinedBehaviorSanitizer,
+frame pointers, and no sanitizer recovery only to participating first-party
+targets. It does not apply those flags globally or to vendored inputs.
+
+The `asan-ubsan` preset fixes the fail-fast runtime contract to
+`ASAN_OPTIONS=abort_on_error=1:halt_on_error=1:detect_leaks=1` and
+`UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1`. The negative harness
+requires both a nonzero exit and the intended AddressSanitizer or
+UndefinedBehaviorSanitizer diagnostic. A clean positive executable must pass
+with leak detection enabled.
+
+The original `gpu-2` provisioning capture recorded
+`kernel.yama.ptrace_scope=2`, under which LeakSanitizer terminated with its
+documented ptrace incompatibility. The user explicitly approved a persistent
+development-host override on 2026-08-28. The root-owned mode `0644` file
+`/etc/sysctl.d/90-xoas-lsan.conf` has SHA-256
+`d36ae5ec5e8d2cbdf78a80b7b076629b7d71164e8bab7993be7aac4006b97188`
+and sets `kernel.yama.ptrace_scope = 1`. This permits same-user process
+inspection while retaining the ordinary ptrace relationship restriction; it
+weakens the prior scope-2 administrative-only policy on this development host.
+Remove that exact file and run `sudo sysctl --system` to restore the earlier
+winning scope-2 policy from `/etc/sysctl.d/40-security_dev-sec.conf`.
+
+This host policy is development infrastructure, not a Target 0 numerical or
+measurement decision. The complete positive and two named negative sanitizer
+tests must pass under the persistent setting before the sanitizer gate is
+accepted.
 
 The exact manifest and identifier options are reviewable in the repository's
 `.clang-tidy` file.

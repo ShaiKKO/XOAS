@@ -81,16 +81,18 @@
     },
     {
       "name": "test",
-      "state": "red",
+      "state": "green",
       "change_classes": ["handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache"],
       "positive_fixtures": ["tests/quality/fixtures/runtime/positive.cpp"],
       "negative_fixtures": [],
       "ci_required": true,
-      "evidence_commands": []
+      "evidence_commands": [
+        "ctest --preset dev-debug --output-on-failure"
+      ]
     },
     {
       "name": "asan-ubsan",
-      "state": "red",
+      "state": "green",
       "change_classes": ["handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache"],
       "positive_fixtures": ["tests/quality/fixtures/runtime/positive.cpp"],
       "negative_fixtures": [
@@ -98,7 +100,11 @@
         "tests/quality/fixtures/runtime/undefined-negative.cpp.in"
       ],
       "ci_required": true,
-      "evidence_commands": []
+      "evidence_commands": [
+        "cmake --preset asan-ubsan",
+        "cmake --build --preset asan-ubsan --target asan-ubsan",
+        "ctest --preset asan-ubsan -R quality-sanitizer --output-on-failure"
+      ]
     },
     {
       "name": "repository-policy",

@@ -1,0 +1,8 @@
+/// \file
+/// Provides AddressSanitizer rejection input for the quality harness.
+
+int main() {
+  int *releasedValue = new int(7);
+  delete releasedValue;
+  return *releasedValue;
+}

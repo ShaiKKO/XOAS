@@ -14,6 +14,7 @@ find_program(XOAS_CLANG_TIDY_EXECUTABLE NAMES clang-tidy-21 REQUIRED)
 find_package(Doxygen 1.9.8 EXACT REQUIRED)
 
 include(cmake/quality/XoasWarnings.cmake)
+include(cmake/quality/XoasSanitizers.cmake)
 
 add_custom_target(
   format-check

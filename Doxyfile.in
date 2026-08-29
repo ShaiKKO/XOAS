@@ -85,7 +85,6 @@ GENERATE_LATEX          = NO
 GENERATE_XML            = NO
 HAVE_DOT                = YES
 DOT_NUM_THREADS         = 1
-CLASS_DIAGRAMS          = YES
 CLASS_GRAPH             = YES
 COLLABORATION_GRAPH     = YES
 GROUP_GRAPHS            = YES

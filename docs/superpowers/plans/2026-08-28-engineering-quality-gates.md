@@ -371,15 +371,15 @@ Record Doxygen identity, configuration hash, exclusion roots, and passing eviden
 - Modify: `tests/quality/CMakeLists.txt`
 - Modify: `tests/quality/contracts/expected-gates.json`
 
-- [ ] **Step 1: Write the sanitizer negative tests first**
+- [x] **Step 1: Write the sanitizer negative tests first**
 
 Create copied build-tree inputs for one deterministic heap-use-after-free and one deterministic signed-overflow case. The harness must assert nonzero exit and match `AddressSanitizer` or UndefinedBehaviorSanitizer's runtime diagnostic, not merely mark any failure as success.
 
-- [ ] **Step 2: Add target-scoped sanitizer policy**
+- [x] **Step 2: Add target-scoped sanitizer policy**
 
 Create one interface target applying AddressSanitizer plus UndefinedBehaviorSanitizer with frame pointers and no recovery. Do not apply sanitizers globally or to vendored fixtures.
 
-- [ ] **Step 3: Add the sanitizer preset and aggregate**
+- [x] **Step 3: Add the sanitizer preset and aggregate**
 
 Configure a separate build tree with Clang/LLD and fail-fast environment:
 
@@ -390,7 +390,7 @@ UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
 
 Expose `asan-ubsan`; keep intentional negative binaries outside the passing CTest default set and invoke them through named harness tests.
 
-- [ ] **Step 4: Prove positive and negative behavior**
+- [x] **Step 4: Prove positive and negative behavior**
 
 ```bash
 cmake --preset asan-ubsan
@@ -400,7 +400,7 @@ ctest --preset asan-ubsan -R quality-sanitizer --output-on-failure
 
 Expected: positive fixture passes, both negative fixtures are detected for the intended reasons, and no skipped required test appears.
 
-- [ ] **Step 5: Mark test and sanitizer contracts green**
+- [x] **Step 5: Mark test and sanitizer contracts green**
 
 Record exact compiler-rt package identity, runtime options, and results.
 

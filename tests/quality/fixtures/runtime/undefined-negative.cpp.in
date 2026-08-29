@@ -1,0 +1,10 @@
+/// \file
+/// Provides UndefinedBehaviorSanitizer rejection input for the quality harness.
+
+#include <limits>
+
+int main() {
+  volatile int maximumValue = std::numeric_limits<int>::max();
+  const int overflowedValue = maximumValue + 1;
+  return overflowedValue;
+}

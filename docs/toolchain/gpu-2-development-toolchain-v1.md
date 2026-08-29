@@ -162,10 +162,11 @@ Every required behavior closed:
 - the SQLite C API compiled from `pkg-config` flags and executed;
 - the draft-2020-12 toolchain schema and installed-unverified lock validated, and PyYAML imported.
 
-The guest reports `kernel.yama.ptrace_scope=2`.
-LeakSanitizer therefore cannot perform its shutdown-time process inspection in this environment; the positive run demonstrated this with the exact fatal diagnostic before the final probe isolated leak detection by setting `detect_leaks=0`.
+The original provisioning capture reported `kernel.yama.ptrace_scope=2`.
+LeakSanitizer therefore could not perform its shutdown-time process inspection in that capture; the positive run demonstrated this with the exact fatal diagnostic before the final probe isolated leak detection by setting `detect_leaks=0`.
 AddressSanitizer memory-error instrumentation remained active and detected the required heap use-after-free.
-This is a development-host constraint, not a relaxation of future sanitizer policy or Target 0 qualification.
+After that immutable capture, the user explicitly approved the root-owned `/etc/sysctl.d/90-xoas-lsan.conf` development override setting `kernel.yama.ptrace_scope = 1`; its SHA-256 is `d36ae5ec5e8d2cbdf78a80b7b076629b7d71164e8bab7993be7aac4006b97188`.
+The override permits the persistent quality gate to run with `detect_leaks=1`; it does not rewrite the historical probe or qualify this host for Target 0 measurement.
 
 Three guarded preliminary runs stopped without recording success:
 
