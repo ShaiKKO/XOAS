@@ -394,3 +394,80 @@ add_test(
     "-DXOAS_VENDOR_ADJACENT_FIXTURE=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/vendor-adjacent.cpp"
     "-DXOAS_VENDOR_FIXTURE=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/vendor/nonconforming.cpp"
     -P "${PROJECT_SOURCE_DIR}/cmake/quality/RepositoryPolicy.cmake")
+
+add_test(
+  NAME quality-aggregate-contract
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_BUILD_DIRECTORY=${PROJECT_BINARY_DIR}"
+    "-DXOAS_CMAKE=${CMAKE_COMMAND}"
+    "-DXOAS_QUALITY_CONTRACT=${XOAS_QUALITY_CONTRACT}"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/QualityContractCheck.cmake")
+
+add_test(
+  NAME quality-cleanup-boundary
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CLEANUP_SCRIPT=${PROJECT_SOURCE_DIR}/cmake/quality/CleanBuildTrees.cmake"
+    "-DXOAS_CLEANUP_TEST_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/cleanup-boundary"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/CleanBuildTreesCheck.cmake")
+
+execute_process(
+  COMMAND "${GIT_EXECUTABLE}" ls-files
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+  RESULT_VARIABLE qualityDependencyStatus
+  OUTPUT_VARIABLE qualityDependencyOutput
+  ERROR_VARIABLE qualityDependencyError
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(NOT qualityDependencyStatus EQUAL 0)
+  message(FATAL_ERROR
+          "Unable to enumerate aggregate quality dependencies: "
+          "${qualityDependencyError}")
+endif()
+string(REPLACE "\n" ";" qualityDependencyPaths
+               "${qualityDependencyOutput}")
+set(qualityTrackedDependencies)
+foreach(qualityDependencyPath IN LISTS qualityDependencyPaths)
+  list(APPEND qualityTrackedDependencies
+       "${PROJECT_SOURCE_DIR}/${qualityDependencyPath}")
+endforeach()
+
+add_custom_target(
+  quality-tests
+  COMMAND
+    "${CMAKE_CTEST_COMMAND}" --test-dir "${PROJECT_BINARY_DIR}"
+    --output-on-failure
+  DEPENDS warnings
+  COMMENT "Running the complete local CTest surface"
+  VERBATIM)
+
+if(NOT TARGET asan-ubsan)
+  set(sanitizerStampDirectory
+      "${PROJECT_BINARY_DIR}/quality-stamps")
+  set(sanitizerStamp
+      "${sanitizerStampDirectory}/asan-ubsan.stamp")
+  add_custom_command(
+    OUTPUT "${sanitizerStamp}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${sanitizerStampDirectory}"
+    COMMAND "${CMAKE_COMMAND}" --preset asan-ubsan
+    COMMAND
+      "${CMAKE_COMMAND}" --build --preset asan-ubsan
+      --target asan-ubsan
+    COMMAND "${CMAKE_COMMAND}" -E touch "${sanitizerStamp}"
+    DEPENDS ${qualityTrackedDependencies}
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    COMMENT "Verifying the isolated sanitizer preset"
+    VERBATIM)
+  add_custom_target(asan-ubsan DEPENDS "${sanitizerStamp}")
+endif()
+
+add_custom_target(
+  quality
+  DEPENDS
+    asan-ubsan
+    docs-check
+    format-check
+    quality-tests
+    repository-policy
+    tidy
+    warnings)

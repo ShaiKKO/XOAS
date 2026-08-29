@@ -146,6 +146,9 @@
           "items": {
             "$ref": "#/$defs/exclusion"
           }
+        },
+        "aggregate_evidence": {
+          "$ref": "#/$defs/aggregateEvidence"
         }
       },
       "allOf": [
@@ -161,8 +164,51 @@
           "then": {
             "required": ["rule_identities", "exclusions"]
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "const": "quality"
+              },
+              "state": {
+                "const": "green"
+              }
+            },
+            "required": ["name", "state"]
+          },
+          "then": {
+            "required": ["aggregate_evidence"]
+          }
         }
       ]
+    },
+    "aggregateEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clean_candidate_wall_clock_seconds",
+        "toolchain_lock_id",
+        "cleanup_paths"
+      ],
+      "properties": {
+        "clean_candidate_wall_clock_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "toolchain_lock_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cleanup_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/relativePath"
+          }
+        }
+      }
     },
     "exclusion": {
       "type": "object",

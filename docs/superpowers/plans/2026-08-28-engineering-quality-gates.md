@@ -479,15 +479,15 @@ Record exact exclusions and rule identities in the gate contract.
 - Modify: `tests/quality/contracts/expected-gates.json`
 - Modify: `tests/quality/README.md`
 
-- [ ] **Step 1: Add the failing aggregate dependency test**
+- [x] **Step 1: Add the failing aggregate dependency test**
 
 Require `quality` to fail if any gate contract remains red or any target is absent. Confirm the test is red before connecting all dependencies.
 
-- [ ] **Step 2: Wire stable aggregate targets**
+- [x] **Step 2: Wire stable aggregate targets**
 
 Make `quality` depend on non-mutating format, warnings, tidy, docs, passing CTest, sanitizer verification, and repository policy. Prevent cyclic builds by using explicit stamp outputs where a gate configures another preset.
 
-- [ ] **Step 3: Run the entire surface from a clean build root**
+- [x] **Step 3: Run the entire surface from a clean build root**
 
 Delete only the validated XOAS `build/` subdirectories via the repository cleanup command, then run:
 
@@ -501,7 +501,7 @@ ctest --preset dev-release --output-on-failure
 
 Expected: all gates pass, all intended negative probes were observed by their harnesses, and no tracked file changes.
 
-- [ ] **Step 4: Mark the aggregate contract green**
+- [x] **Step 4: Mark the aggregate contract green**
 
 Record commands, wall-clock cost, exact lock ID, and build-tree cleanup boundary. Do not make a performance claim from gate duration.
 

@@ -163,12 +163,28 @@
     },
     {
       "name": "quality",
-      "state": "red",
+      "state": "green",
       "change_classes": ["documentation", "configuration", "handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache", "performance_claim"],
       "positive_fixtures": ["tests/quality/contracts/expected-gates.json"],
       "negative_fixtures": [],
       "ci_required": false,
-      "evidence_commands": []
+      "evidence_commands": [
+        "cmake -DXOAS_REPOSITORY_ROOT=$PWD -P cmake/quality/CleanBuildTrees.cmake",
+        "cmake --preset dev-debug",
+        "cmake --build --preset dev-debug --target quality",
+        "cmake --preset dev-release",
+        "cmake --build --preset dev-release --target warnings",
+        "ctest --preset dev-release --output-on-failure"
+      ],
+      "aggregate_evidence": {
+        "clean_candidate_wall_clock_seconds": 10.13,
+        "toolchain_lock_id": "gpu-2-development-toolchain-v1-20260829t013505z",
+        "cleanup_paths": [
+          "build/dev-debug",
+          "build/dev-release",
+          "build/asan-ubsan"
+        ]
+      }
     }
   ]
 }
