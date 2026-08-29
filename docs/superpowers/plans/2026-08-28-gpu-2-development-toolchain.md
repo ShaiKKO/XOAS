@@ -521,7 +521,7 @@ git status --short
 
 Run the repository's current link, secret, and unfinished-marker audits exactly as recorded in `AGENTS.md`. Expected: all pass.
 
-- [ ] **Step 6: Commit, push, and verify the exact remote subject**
+- [x] **Step 6: Commit, push, and verify the exact remote subject**
 
 ```bash
 git add AGENTS.md benchmarks/manifests/target-gpu-2-candidate.json \

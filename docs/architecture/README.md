@@ -41,7 +41,7 @@ Use the next unused `../adr/IDR-####-short-title.md` number for a durable, seman
 
 | Document | State | Scope |
 |---|---|---|
-| [`../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) | Executed and verified on `gpu-2` | Reversible exact-version provisioning and verification of the primary development toolchain; excludes baselines and measurement qualification |
+| [`../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) | Executed and verified at `ce1d27d` | Reversible exact-version provisioning and verification of the primary development toolchain; excludes baselines and measurement qualification |
 | [`../superpowers/plans/2026-08-28-engineering-quality-gates.md`](../superpowers/plans/2026-08-28-engineering-quality-gates.md) | Prepared; depends on the verified toolchain plan; execution not started | Local quality fixtures/targets, pinned hosted CI, and protected `main`; excludes product/compiler implementation |
 
 An implementation plan does not change architecture authority. Its execution must preserve the controlling specification and record exact commits and evidence.

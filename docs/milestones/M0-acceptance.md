@@ -12,6 +12,10 @@
 
 **Development-toolchain intent:** `11d1b19371489f0f75cb01eeb078bf64897cf88b` (`ops: lock gpu-2 development toolchain intent`)
 
+**Development-toolchain verification:** `ce1d27df6fda8b3d91dacadb6afbc6a2c83509c5` (`ops: verify gpu-2 development toolchain`)
+
+**Development-toolchain subject tree state:** Clean; local `main` and `origin/main` matched the verification commit immediately after push.
+
 **Subject tree state:** Clean at verification; `main` was one commit ahead of `origin/main` before this documentation-only evidence update.
 
 ## Controlling requirements

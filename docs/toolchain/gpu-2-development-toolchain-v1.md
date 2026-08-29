@@ -202,4 +202,4 @@ No result in this record qualifies it as the Target 0 measurement host or suppor
 | Task 3 — exact install intent | Passed; published as `11d1b19371489f0f75cb01eeb078bf64897cf88b` | 19 exact candidates, closed lock/schema, server validation, zero-removal simulation |
 | Task 4 — exact installation | Passed | 19 exact versions, 102-package closure, eight holds, clean dpkg audit, removal simulation |
 | Task 5 — behavioral probes | Passed | 18 binary identities and all ten positive/negative behavior gates |
-| Task 6 — integration | Passed | Lock/schema, candidate-host record, IDR, operating manual, milestone ledger, and acceptance record reconciled |
+| Task 6 — integration | Passed; published as `ce1d27df6fda8b3d91dacadb6afbc6a2c83509c5` | Lock/schema, candidate-host record, IDR, operating manual, milestone ledger, and acceptance record reconciled |
