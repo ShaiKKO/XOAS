@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xoas.dev/schemas/quality-gates-v1.schema.json",
+  "title": "XOAS quality gate contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "toolchain_lock_id",
+    "source_classifications",
+    "gates"
+  ],
+  "properties": {
+    "contract_version": {
+      "const": "xoas.quality-gates.v1"
+    },
+    "toolchain_lock_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_classifications": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["handwritten_roots", "generated_roots", "vendored_roots"],
+      "properties": {
+        "handwritten_roots": {
+          "$ref": "#/$defs/nonemptyUniquePaths"
+        },
+        "generated_roots": {
+          "$ref": "#/$defs/nonemptyUniquePaths"
+        },
+        "vendored_roots": {
+          "$ref": "#/$defs/nonemptyUniquePaths"
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/gate"
+      }
+    }
+  },
+  "$defs": {
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+    },
+    "nonemptyUniquePaths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/relativePath"
+      }
+    },
+    "changeClass": {
+      "enum": [
+        "documentation",
+        "configuration",
+        "handwritten_cpp",
+        "semantic_ir",
+        "code_generation",
+        "runtime_cache",
+        "performance_claim"
+      ]
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "state",
+        "change_classes",
+        "positive_fixtures",
+        "negative_fixtures",
+        "ci_required",
+        "evidence_commands"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "format-check",
+            "warnings",
+            "tidy",
+            "docs-check",
+            "test",
+            "asan-ubsan",
+            "repository-policy",
+            "quality"
+          ]
+        },
+        "state": {
+          "enum": ["red", "green"]
+        },
+        "change_classes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/changeClass"
+          }
+        },
+        "positive_fixtures": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/relativePath"
+          }
+        },
+        "negative_fixtures": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/relativePath"
+          }
+        },
+        "ci_required": {
+          "type": "boolean"
+        },
+        "evidence_commands": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

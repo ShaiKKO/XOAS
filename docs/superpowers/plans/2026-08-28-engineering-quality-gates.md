@@ -39,7 +39,7 @@
 - Create: `schemas/quality-gates-v1.schema.json`
 - Create: `cmake/quality/README.md`
 
-- [ ] **Step 1: Verify the prerequisite lock**
+- [x] **Step 1: Verify the prerequisite lock**
 
 Run the schema validator and binary/version checks published by the completed provisioning plan. Require:
 
@@ -51,7 +51,7 @@ target0_measurement_qualified = false
 
 Expected: exact package, binary, hash, and schema checks pass on `gpu-2`.
 
-- [ ] **Step 2: Write the gate contract before implementations**
+- [x] **Step 2: Write the gate contract before implementations**
 
 Create `schemas/quality-gates-v1.schema.json` and a conforming `tests/quality/contracts/expected-gates.json` as closed records listing these stable local gates:
 
@@ -68,7 +68,7 @@ quality
 
 For each, record the change classes it covers, expected positive fixtures, expected negative fixtures, and whether CI requires it. Mark implementation state `red` initially.
 
-- [ ] **Step 3: Add a failing CMake contract check**
+- [x] **Step 3: Add a failing CMake contract check**
 
 Create a minimal top-level project that enables C++23 and CTest but does not yet define the quality targets. Add a configure-time test which compares declared target names with `expected-gates.json`.
 
@@ -81,7 +81,7 @@ cmake --build --preset dev-debug --target quality
 
 Expected: configuration succeeds, then the build fails because `quality` does not exist. Retain that expected failure in `tests/quality/README.md`.
 
-- [ ] **Step 4: Lock source classifications**
+- [x] **Step 4: Lock source classifications**
 
 Document exact roots:
 
@@ -93,7 +93,7 @@ vendored: tests/quality/fixtures/vendor only
 
 State that future real generated or vendored roots require an IDR or reviewed standard update. A filename or comment alone cannot reclassify first-party source.
 
-- [ ] **Step 5: Verify documentation and JSON syntax**
+- [x] **Step 5: Verify documentation and JSON syntax**
 
 ```bash
 python3 - <<'PY'

@@ -1,0 +1,106 @@
+{
+  "contract_version": "xoas.quality-gates.v1",
+  "toolchain_lock_id": "gpu-2-development-toolchain-v1-20260829t013505z",
+  "source_classifications": {
+    "handwritten_roots": [
+      "include",
+      "src",
+      "tests",
+      "cmake",
+      "tools"
+    ],
+    "generated_roots": [
+      "tests/quality/fixtures/generated/output"
+    ],
+    "vendored_roots": [
+      "tests/quality/fixtures/vendor"
+    ]
+  },
+  "gates": [
+    {
+      "name": "format-check",
+      "state": "red",
+      "change_classes": ["documentation", "configuration", "handwritten_cpp"],
+      "positive_fixtures": ["tests/quality/fixtures/format/compliant.cpp"],
+      "negative_fixtures": ["tests/quality/fixtures/format/noncompliant.cpp.in"],
+      "ci_required": true,
+      "evidence_commands": []
+    },
+    {
+      "name": "warnings",
+      "state": "red",
+      "change_classes": ["handwritten_cpp"],
+      "positive_fixtures": ["tests/quality/fixtures/compiler/compliant.cpp"],
+      "negative_fixtures": ["tests/quality/fixtures/compiler/warning-negative.cpp.in"],
+      "ci_required": true,
+      "evidence_commands": []
+    },
+    {
+      "name": "tidy",
+      "state": "red",
+      "change_classes": ["handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache"],
+      "positive_fixtures": ["tests/quality/fixtures/tidy/compliant.cpp"],
+      "negative_fixtures": [
+        "tests/quality/fixtures/tidy/reserved-identifier.cpp.in",
+        "tests/quality/fixtures/tidy/identifier-naming.cpp.in",
+        "tests/quality/fixtures/tidy/performance.cpp.in"
+      ],
+      "ci_required": true,
+      "evidence_commands": []
+    },
+    {
+      "name": "docs-check",
+      "state": "red",
+      "change_classes": ["documentation", "handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache"],
+      "positive_fixtures": ["tests/quality/fixtures/docs/compliant.h"],
+      "negative_fixtures": [
+        "tests/quality/fixtures/docs/undocumented-public.h.in",
+        "tests/quality/fixtures/docs/malformed.h.in"
+      ],
+      "ci_required": true,
+      "evidence_commands": []
+    },
+    {
+      "name": "test",
+      "state": "red",
+      "change_classes": ["handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache"],
+      "positive_fixtures": ["tests/quality/fixtures/runtime/positive.cpp"],
+      "negative_fixtures": [],
+      "ci_required": true,
+      "evidence_commands": []
+    },
+    {
+      "name": "asan-ubsan",
+      "state": "red",
+      "change_classes": ["handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache"],
+      "positive_fixtures": ["tests/quality/fixtures/runtime/positive.cpp"],
+      "negative_fixtures": [
+        "tests/quality/fixtures/runtime/address-negative.cpp.in",
+        "tests/quality/fixtures/runtime/undefined-negative.cpp.in"
+      ],
+      "ci_required": true,
+      "evidence_commands": []
+    },
+    {
+      "name": "repository-policy",
+      "state": "red",
+      "change_classes": ["documentation", "configuration", "handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache", "performance_claim"],
+      "positive_fixtures": ["tests/quality/fixtures/generated/input.json"],
+      "negative_fixtures": [
+        "tests/quality/fixtures/policy/secret-negative.txt.in",
+        "tests/quality/fixtures/policy/unfinished-marker-negative.txt.in"
+      ],
+      "ci_required": true,
+      "evidence_commands": []
+    },
+    {
+      "name": "quality",
+      "state": "red",
+      "change_classes": ["documentation", "configuration", "handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache", "performance_claim"],
+      "positive_fixtures": ["tests/quality/contracts/expected-gates.json"],
+      "negative_fixtures": [],
+      "ci_required": false,
+      "evidence_commands": []
+    }
+  ]
+}
