@@ -129,7 +129,7 @@ git diff --check
 - Modify: `tests/quality/CMakeLists.txt`
 - Modify: `tests/quality/contracts/expected-gates.json`
 
-- [ ] **Step 1: Write the negative formatter test**
+- [x] **Step 1: Write the negative formatter test**
 
 Add a CTest case that copies `noncompliant.cpp.in` into the build tree, runs the configured `clang-format-21 --dry-run --Werror`, and requires failure with a replacement diagnostic. The source-tree fixture remains unchanged.
 
@@ -141,19 +141,19 @@ ctest --preset dev-debug -R quality-format-negative --output-on-failure
 
 Expected before the checker exists: test fails because no formatter command is wired.
 
-- [ ] **Step 2: Encode the approved style explicitly**
+- [x] **Step 2: Encode the approved style explicitly**
 
 Base `.clang-format` on LLVM and explicitly set XOAS overrides including two-space indentation, 80-column limit, spaces-only indentation, include sorting, and no short-form compaction that harms public API documentation. Do not depend on defaults for a durable XOAS deviation.
 
 Use `.editorconfig` to enforce UTF-8, LF, final newline, trailing-whitespace removal, two-space C/C++/CMake indentation, and four-space Python indentation. Exclude only exact generated/vendor fixture roots from mutation advice.
 
-- [ ] **Step 3: Implement the non-mutating tracked-file checker**
+- [x] **Step 3: Implement the non-mutating tracked-file checker**
 
 `FormatCheck.cmake` must obtain tracked handwritten C/C++ paths from `git ls-files`, reject an unexpected path classification, and invoke the locked formatter only with `--dry-run --Werror`. It must never call in-place formatting.
 
 Expose `format-check` and an optional developer-only `format` target. CI may call only `format-check`.
 
-- [ ] **Step 4: Prove negative, positive, and non-mutation behavior**
+- [x] **Step 4: Prove negative, positive, and non-mutation behavior**
 
 ```bash
 cmake --preset dev-debug
@@ -165,7 +165,7 @@ git diff --exit-code
 
 Expected: compliant tracked source passes, copied noncompliant input fails for formatting, and no tracked file changes.
 
-- [ ] **Step 5: Mark only the format gate green**
+- [x] **Step 5: Mark only the format gate green**
 
 Update its contract state and evidence commands; leave every other unimplemented gate red.
 

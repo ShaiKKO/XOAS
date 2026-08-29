@@ -8,4 +8,30 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(CTest)
 
+find_package(Git REQUIRED)
+find_program(XOAS_CLANG_FORMAT_EXECUTABLE NAMES clang-format-21 REQUIRED)
+
+add_custom_target(
+  format-check
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CLANG_FORMAT=${XOAS_CLANG_FORMAT_EXECUTABLE}"
+    "-DXOAS_GIT=${GIT_EXECUTABLE}"
+    "-DXOAS_REPOSITORY_ROOT=${PROJECT_SOURCE_DIR}"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/FormatCheck.cmake"
+  COMMENT "Checking tracked handwritten C and C++ formatting"
+  VERBATIM)
+
+add_custom_target(
+  format
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CLANG_FORMAT=${XOAS_CLANG_FORMAT_EXECUTABLE}"
+    "-DXOAS_FORMAT_APPLY=ON"
+    "-DXOAS_GIT=${GIT_EXECUTABLE}"
+    "-DXOAS_REPOSITORY_ROOT=${PROJECT_SOURCE_DIR}"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/FormatCheck.cmake"
+  COMMENT "Formatting tracked handwritten C and C++ files"
+  VERBATIM)
+
 add_subdirectory(tests/quality)

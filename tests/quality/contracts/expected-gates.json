@@ -19,12 +19,16 @@
   "gates": [
     {
       "name": "format-check",
-      "state": "red",
+      "state": "green",
       "change_classes": ["documentation", "configuration", "handwritten_cpp"],
       "positive_fixtures": ["tests/quality/fixtures/format/compliant.cpp"],
       "negative_fixtures": ["tests/quality/fixtures/format/noncompliant.cpp.in"],
       "ci_required": true,
-      "evidence_commands": []
+      "evidence_commands": [
+        "cmake --build --preset dev-debug --target format-check",
+        "ctest --preset dev-debug -R 'quality-format-(negative|positive|nonmutation)' --output-on-failure",
+        "git diff --exit-code"
+      ]
     },
     {
       "name": "warnings",

@@ -1,0 +1,6 @@
+/// \file
+/// Provides formatting-policy rejection input for the quality harness.
+
+namespace xoas::quality {
+int incrementFormattingSentinel( int value ){return value+1;}
+} // namespace xoas::quality

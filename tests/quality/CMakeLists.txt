@@ -32,3 +32,33 @@ foreach(xoasGateIndex RANGE "${xoasLastGateIndex}")
             "expected '${xoasExpectedGateName}'.")
   endif()
 endforeach()
+
+add_test(
+  NAME quality-format-negative
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CLANG_FORMAT=${XOAS_CLANG_FORMAT_EXECUTABLE}"
+    "-DXOAS_FORMAT_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/format/noncompliant.cpp.in"
+    "-DXOAS_FORMAT_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/format-negative"
+    -DXOAS_FORMAT_EXPECT_FAILURE=ON
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/FormatCheck.cmake")
+
+add_test(
+  NAME quality-format-positive
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CLANG_FORMAT=${XOAS_CLANG_FORMAT_EXECUTABLE}"
+    "-DXOAS_FORMAT_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/format/compliant.cpp"
+    "-DXOAS_FORMAT_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/format-positive"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/FormatCheck.cmake")
+
+add_test(
+  NAME quality-format-nonmutation
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CLANG_FORMAT=${XOAS_CLANG_FORMAT_EXECUTABLE}"
+    "-DXOAS_FORMAT_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/format/noncompliant.cpp.in"
+    "-DXOAS_FORMAT_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/format-nonmutation"
+    -DXOAS_FORMAT_EXPECT_FAILURE=ON
+    -DXOAS_FORMAT_VERIFY_NONMUTATION=ON
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/FormatCheck.cmake")
