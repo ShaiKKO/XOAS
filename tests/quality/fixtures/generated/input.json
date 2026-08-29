@@ -1,0 +1,6 @@
+{
+  "canonical_problem_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "generator": "xoas-quality-fixture-generator-v1",
+  "numerical_contract": "strict",
+  "required_target_features": "sse2"
+}

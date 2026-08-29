@@ -296,3 +296,101 @@ if(XOAS_ENABLE_SANITIZERS)
     COMMENT "Running fail-fast AddressSanitizer and UndefinedBehaviorSanitizer"
     VERBATIM)
 endif()
+
+function(xoasAddPolicyFixtureTest testName inputName expectedRule)
+  add_test(
+    NAME "quality-policy-${testName}"
+    COMMAND
+      "${CMAKE_COMMAND}"
+      "-DXOAS_POLICY_FIXTURE_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/policy/${inputName}"
+      "-DXOAS_POLICY_FIXTURE_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/policy-${testName}"
+      "-DXOAS_POLICY_EXPECTED_RULE=${expectedRule}"
+      -P "${PROJECT_SOURCE_DIR}/cmake/quality/RepositoryPolicy.cmake")
+endfunction()
+
+xoasAddPolicyFixtureTest(
+  secret-negative secret-negative.txt.in xoas-secret-pattern)
+xoasAddPolicyFixtureTest(
+  unfinished-marker-negative
+  unfinished-marker-negative.txt.in
+  xoas-unfinished-marker)
+
+add_test(
+  NAME quality-policy-artifact-negative
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_POLICY_FIXTURE_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/policy/artifact-negative.bin.in"
+    "-DXOAS_POLICY_FIXTURE_RELATIVE_PATH=evidence/synthetic-binary"
+    "-DXOAS_POLICY_FIXTURE_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/policy-artifact-negative"
+    -DXOAS_POLICY_EXPECTED_RULE=xoas-tracked-artifact
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/RepositoryPolicy.cmake")
+
+function(xoasAddMarkdownFixtureTest testName inputName expectedDiagnostic)
+  add_test(
+    NAME "quality-policy-markdown-${testName}"
+    COMMAND
+      "${CMAKE_COMMAND}"
+      "-DXOAS_GIT=${GIT_EXECUTABLE}"
+      "-DXOAS_MARKDOWN_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/policy/${inputName}"
+      -DXOAS_MARKDOWN_LOGICAL_PATH=tests/quality/fixtures/policy/markdown-positive.md
+      -DXOAS_MARKDOWN_EXPECT_FAILURE=ON
+      "-DXOAS_MARKDOWN_EXPECTED_DIAGNOSTIC=${expectedDiagnostic}"
+      "-DXOAS_PYTHON=${Python3_EXECUTABLE}"
+      "-DXOAS_REPOSITORY_ROOT=${PROJECT_SOURCE_DIR}"
+      -P "${PROJECT_SOURCE_DIR}/cmake/quality/MarkdownLinks.cmake")
+endfunction()
+
+xoasAddMarkdownFixtureTest(
+  missing markdown-missing.md.in "target is not tracked")
+xoasAddMarkdownFixtureTest(
+  traversal markdown-traversal.md.in "target escapes the repository")
+xoasAddMarkdownFixtureTest(
+  malformed markdown-malformed.md.in
+  "unterminated angle-bracket destination")
+xoasAddMarkdownFixtureTest(
+  anchor markdown-anchor.md.in "missing anchor")
+
+add_test(
+  NAME quality-policy-markdown-positive
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_GIT=${GIT_EXECUTABLE}"
+    "-DXOAS_PYTHON=${Python3_EXECUTABLE}"
+    "-DXOAS_REPOSITORY_ROOT=${PROJECT_SOURCE_DIR}"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/MarkdownLinks.cmake")
+
+add_library(
+  xoas_quality_generated_fixture OBJECT
+  fixtures/generated/output/generated-fixture.cpp)
+target_link_libraries(xoas_quality_generated_fixture PRIVATE xoas_warnings)
+
+add_library(
+  xoas_quality_vendor_adjacent OBJECT
+  fixtures/vendor-adjacent.cpp)
+target_link_libraries(xoas_quality_vendor_adjacent PRIVATE xoas_warnings)
+add_dependencies(warnings
+                 xoas_quality_generated_fixture
+                 xoas_quality_vendor_adjacent)
+add_dependencies(tidy xoas_quality_vendor_adjacent)
+add_dependencies(repository-policy
+                 xoas_quality_generated_fixture
+                 xoas_quality_vendor_adjacent)
+
+add_test(
+  NAME quality-policy-repository-positive
+  COMMAND
+    "${CMAKE_COMMAND}"
+    "-DXOAS_CLANG_FORMAT=${XOAS_CLANG_FORMAT_EXECUTABLE}"
+    "-DXOAS_GENERATED_FIXTURE=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/generated/output/generated-fixture.cpp"
+    "-DXOAS_GENERATED_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/generated/input.json"
+    "-DXOAS_GENERATOR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/generated/generate.cmake"
+    "-DXOAS_GIT=${GIT_EXECUTABLE}"
+    "-DXOAS_MARKDOWN_CHECKER=${PROJECT_SOURCE_DIR}/cmake/quality/MarkdownLinks.cmake"
+    "-DXOAS_POLICY_WORKING_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/policy-repository-positive"
+    "-DXOAS_PYTHON=${Python3_EXECUTABLE}"
+    "-DXOAS_QUALITY_CONTRACT=${XOAS_QUALITY_CONTRACT}"
+    "-DXOAS_REPOSITORY_ROOT=${PROJECT_SOURCE_DIR}"
+    "-DXOAS_SHELLCHECK=${XOAS_SHELLCHECK_EXECUTABLE}"
+    "-DXOAS_VENDOR_ADJACENT_FIXTURE=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/vendor-adjacent.cpp"
+    "-DXOAS_VENDOR_FIXTURE=${CMAKE_CURRENT_SOURCE_DIR}/fixtures/vendor/nonconforming.cpp"
+    -P "${PROJECT_SOURCE_DIR}/cmake/quality/RepositoryPolicy.cmake")

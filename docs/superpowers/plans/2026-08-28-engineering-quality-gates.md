@@ -424,15 +424,15 @@ Record exact compiler-rt package identity, runtime options, and results.
 - Modify: `tests/quality/CMakeLists.txt`
 - Modify: `tests/quality/contracts/expected-gates.json`
 
-- [ ] **Step 1: Write policy negative tests**
+- [x] **Step 1: Write policy negative tests**
 
 Pass copied build-tree content containing a synthetic credential pattern and a prohibited unfinished-work marker into the checker. Require each to fail for the named rule. Ensure the synthetic value cannot authenticate anywhere and is excluded from source-tree secret scans by using an encoded fixture input decoded only below `build/`.
 
-- [ ] **Step 2: Implement deterministic local Markdown-link validation**
+- [x] **Step 2: Implement deterministic local Markdown-link validation**
 
 Validate relative links and anchors for tracked Markdown without network access. Reject missing files, path traversal outside the repository, malformed local targets, and orphaned plan/spec links. Treat external links as syntactically checked references; external reachability remains a separate research audit.
 
-- [ ] **Step 3: Implement repository policy checks**
+- [x] **Step 3: Implement repository policy checks**
 
 Expose `repository-policy` covering:
 
@@ -447,11 +447,11 @@ Expose `repository-policy` covering:
 
 Use exact allowlists only for synthetic encoded fixtures and normative prose that names a prohibited concept. An allowlist entry requires path, rule, and rationale.
 
-- [ ] **Step 4: Prove deterministic generation and vendor isolation**
+- [x] **Step 4: Prove deterministic generation and vendor isolation**
 
 Generate the classified output twice from the same input and compare bytes and SHA-256. Prove the output carries generator identity and a do-not-edit notice. Prove the vendor fixture is excluded from first-party formatting/tidy/docs while the adjacent handwritten fixture is not.
 
-- [ ] **Step 5: Run all policy tests**
+- [x] **Step 5: Run all policy tests**
 
 ```bash
 cmake --preset dev-debug
@@ -461,7 +461,7 @@ ctest --preset dev-debug -R quality-policy --output-on-failure
 
 Expected: all positive repository checks pass, each negative copy fails for its intended rule, and the source tree remains unchanged.
 
-- [ ] **Step 6: Mark repository policy green**
+- [x] **Step 6: Mark repository policy green**
 
 Record exact exclusions and rule identities in the gate contract.
 

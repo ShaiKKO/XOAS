@@ -108,15 +108,58 @@
     },
     {
       "name": "repository-policy",
-      "state": "red",
+      "state": "green",
       "change_classes": ["documentation", "configuration", "handwritten_cpp", "semantic_ir", "code_generation", "runtime_cache", "performance_claim"],
-      "positive_fixtures": ["tests/quality/fixtures/generated/input.json"],
+      "positive_fixtures": [
+        "tests/quality/fixtures/generated/input.json",
+        "tests/quality/fixtures/generated/output/generated-fixture.cpp",
+        "tests/quality/fixtures/policy/markdown-positive.md",
+        "tests/quality/fixtures/policy/shellcheck-positive.sh",
+        "tests/quality/fixtures/vendor-adjacent.cpp"
+      ],
       "negative_fixtures": [
+        "tests/quality/fixtures/policy/artifact-negative.bin.in",
+        "tests/quality/fixtures/policy/markdown-anchor.md.in",
+        "tests/quality/fixtures/policy/markdown-malformed.md.in",
+        "tests/quality/fixtures/policy/markdown-missing.md.in",
+        "tests/quality/fixtures/policy/markdown-traversal.md.in",
         "tests/quality/fixtures/policy/secret-negative.txt.in",
-        "tests/quality/fixtures/policy/unfinished-marker-negative.txt.in"
+        "tests/quality/fixtures/policy/unfinished-marker-negative.txt.in",
+        "tests/quality/fixtures/vendor/nonconforming.cpp"
       ],
       "ci_required": true,
-      "evidence_commands": []
+      "evidence_commands": [
+        "cmake --preset dev-debug",
+        "cmake --build --preset dev-debug --target repository-policy",
+        "ctest --preset dev-debug -R quality-policy --output-on-failure"
+      ],
+      "rule_identities": [
+        "xoas-diff-check",
+        "xoas-generated-determinism",
+        "xoas-generated-format",
+        "xoas-generated-provenance",
+        "xoas-handwritten-format-tidy-docs",
+        "xoas-json-schema",
+        "xoas-markdown-link",
+        "xoas-secret-pattern",
+        "xoas-shellcheck",
+        "xoas-source-classification",
+        "xoas-tracked-artifact",
+        "xoas-unfinished-marker",
+        "xoas-vendor-isolation"
+      ],
+      "exclusions": [
+        {
+          "path": "tests/quality/fixtures/generated/output",
+          "rule": "xoas-handwritten-format-tidy-docs",
+          "rationale": "Generator-owned output is checked separately for deterministic bytes, provenance, format, and compilation."
+        },
+        {
+          "path": "tests/quality/fixtures/vendor",
+          "rule": "xoas-handwritten-format-tidy-docs",
+          "rationale": "Synthetic vendored input intentionally violates first-party style to prove exact isolation."
+        }
+      ]
     },
     {
       "name": "quality",
