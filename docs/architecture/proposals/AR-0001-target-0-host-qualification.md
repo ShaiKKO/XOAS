@@ -1,12 +1,23 @@
 # AR-0001: Target 0 Host Qualification
 
-**Status:** Primary development role approved; Target 0 measurement decision required
+**Status:** Approved — Option 2, development host only
 
 **Decision owner:** User / architecture authority
 
 **Prepared:** 2026-08-28
 
-## Requested decision
+## Decision
+
+On 2026-08-28, the user explicitly approved **Option 2**.
+`gpu-2` remains XOAS's primary development environment and is not the Target 0 measurement host.
+XOAS must designate and qualify a more controllable x86-64 Linux host before M0 can lock its reference target or admit performance-gate evidence.
+
+This decision does not prohibit non-claiming compiler, test-harness, or benchmark-smoke development on `gpu-2`.
+It prohibits using that host's measurements for Target 0 proof, product-class, break-even, cache-compatibility, or winning-plan claims.
+
+Promoting `gpu-2` later requires new evidence for PMU access, isolation, migration/exclusivity, reboot identity, frequency/power/thermal observability, and noise, followed by an explicit decision update.
+
+## Requested decision history
 
 The user confirmed on 2026-08-28 that `gpu-2` is XOAS's primary development environment.
 No alternative server is currently designated; an AMD desktop may be evaluated later.
@@ -18,7 +29,7 @@ The remaining decision is whether the `gpu-2` OpenStack/KVM server should:
 2. remain the primary development host while XOAS acquires or designates a more controllable Target 0 measurement host; or
 3. become the measurement host under a deliberately narrower VM-specific claim that accepts unavailable controls and counters.
 
-The recommendation is **Option 2 now**. Keep `gpu-2` as the primary development host, do not bind performance claims or cache compatibility to it as a qualified Target 0, and seek a controlled x86-64 measurement environment. If the current provider can expose the required PMU, isolation, reboot identity, and host-stability controls, reconsider Option 1 through an evidence update to this proposal before acquiring another host.
+The recommendation was **Option 2 now**. The user approved that recommendation on 2026-08-28. If the current provider later exposes the required PMU, isolation, reboot identity, and host-stability controls, reconsidering Option 1 requires an evidence update and explicit approval.
 
 ## Affected specifications, interfaces, and milestones
 
@@ -92,9 +103,9 @@ This option would identify the target as the observed VM fingerprint, use wall t
 
 **Disadvantages:** requires an approved architecture change to the measurement gate; weaker causal evidence; provider migration may invalidate results; not recommended as the default research claim.
 
-## Recommended option
+## Approved option
 
-Approve Option 2 for M0: `gpu-2` is the primary development host but not the Target 0 measurement host. In parallel, ask the provider whether Option 1 controls can be supplied. If they can, update the evidence and request approval to promote `gpu-2`; if they cannot, designate a controlled x86-64 host and capture a new reference manifest.
+Option 2 controls M0: `gpu-2` is the primary development host but not the Target 0 measurement host. XOAS must designate a controlled x86-64 host and capture a new reference manifest. Provider evidence may later motivate a proposal to promote `gpu-2`, but cannot change this decision implicitly.
 
 Do not change the CPU-only Target 0 scope. The visible NVIDIA L4 is irrelevant to this decision.
 
@@ -115,7 +126,7 @@ No numerical mode may be weakened to make a baseline or host applicable.
 
 ## Benchmark and performance-gate impact
 
-Under the recommendation:
+Under the approved decision:
 
 - no Target 0 performance, proof-gate, product-class, or break-even claim may cite `gpu-2` measurements as gate evidence;
 - smoke measurements may later diagnose harness behavior when clearly labeled non-claiming;
@@ -123,24 +134,25 @@ Under the recommendation:
 - the target manifest required by M0 is not locked, so M0 remains open;
 - no research threshold or sampling rule changes.
 
-## Work blocked by the decision
+## Work still blocked after the decision
 
-- M0 gate closure and its exact reference-target statement.
+- M0 gate closure and its exact reference-target statement until another host is designated and qualified.
 - M1 start under the build plan's “no compiler implementation before M0” dependency.
 - Baseline installation/qualification as reference-machine evidence.
 - Any generated-kernel performance claim, cache compatibility decision, or break-even report.
 
-## Work that can continue independently
+## Work unblocked or independently valid
 
 - Review and correct M0 charter, prior-art, baseline, corpus, schema, and protocol documents.
-- Obtain the user's remaining measurement-role decision on this proposal.
+- Execute the reviewed `gpu-2` development-toolchain plan without treating its output as measurement qualification.
+- Designate and qualify a controlled x86-64 Target 0 measurement host through a new manifest and acceptance update.
 - Collect provider facts about PMU access, VM exclusivity, migration, and reboot persistence.
 - Prepare a separately reviewed, reversible provisioning plan for the selected host.
 - Verify external source artifacts and JSON/document consistency.
 
 Product compiler scaffolding does not continue independently because the approved milestone order makes M0 a prerequisite.
 
-## Qualification evidence required after approval
+## Qualification evidence required for the replacement measurement host
 
 Whichever host is selected must produce a versioned manifest and acceptance record containing:
 
@@ -158,6 +170,6 @@ Whichever host is selected must produce a versioned manifest and acceptance reco
 
 On 2026-08-28, the user explicitly designated `gpu-2` as the primary development environment and stated that no alternative server is currently available, while noting that an AMD desktop could be considered later.
 
-This approves the development role only.
-It does not qualify `gpu-2` for Target 0 measurements, waive any blocker above, or select Options 1, 2, or 3 for performance-gate evidence.
-The measurement-role decision remains open and must be recorded explicitly with its exact commit.
+On 2026-08-28, after reviewing the written specification and the explicit AR-0001 recommendation, the user approved Option 2.
+This selects development-only use for `gpu-2`, leaves the Target 0 measurement-host slot unfilled, preserves every measurement gate, and unblocks the separately reviewed development-toolchain plan.
+The exact integration commit is recorded in the milestone ledger after this decision document is committed.

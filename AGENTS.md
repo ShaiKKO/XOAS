@@ -38,7 +38,7 @@ Read these files before working:
 5. For any source, tooling, CI, or review work: [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md) and [`docs/adr/IDR-0001-engineering-quality-system.md`](docs/adr/IDR-0001-engineering-quality-system.md).
 6. For benchmark, corpus, or performance work: [`docs/architecture/050-benchmark-protocol.md`](docs/architecture/050-benchmark-protocol.md), [`docs/experiments/baseline-matrix.md`](docs/experiments/baseline-matrix.md), and [`docs/experiments/corpus-policy.md`](docs/experiments/corpus-policy.md).
 7. For research-claim work: [`docs/experiments/prior-art-matrix.md`](docs/experiments/prior-art-matrix.md).
-8. For target/toolchain work: [`docs/architecture/proposals/AR-0001-target-0-host-qualification.md`](docs/architecture/proposals/AR-0001-target-0-host-qualification.md) and the candidate/approved target manifest. The primary development role is approved; Target 0 measurement qualification remains open.
+8. For target/toolchain work: [`docs/architecture/proposals/AR-0001-target-0-host-qualification.md`](docs/architecture/proposals/AR-0001-target-0-host-qualification.md) and the candidate/approved target manifest. AR-0001 Option 2 is approved: `gpu-2` is development-only, and a controlled Target 0 measurement host must still be designated and qualified.
 9. [`docs/repository_discovery_and_project_understanding_report.md`](docs/repository_discovery_and_project_understanding_report.md) — point-in-time repository, host, toolchain, and evidence gaps; refresh drift-prone facts.
 10. The nearest scoped `AGENTS.md` if nested instructions are added later.
 
@@ -107,7 +107,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-implementation-plan.md` — executable M0 plan and commit boundaries.
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
-- `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, and the unqualified `gpu-2` candidate-target capture. It contains no executable harness or measured performance result.
+- `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, and the historical unqualified `gpu-2` candidate-target capture. AR-0001 Option 2 excludes that host from current Target 0 measurement authority. The directory contains no executable harness or measured performance result.
 - `schemas/benchmark-result-v1.schema.json` — draft-2020-12 result/evidence schema; syntax checked, full validator execution still open.
 
 There is currently no product source/public include tree, build system, test tree, executable benchmark harness, database, artifact store, script directory, repository README, or dependency manifest.
@@ -150,7 +150,7 @@ Structural optimization and algebraic optimization are separate pipelines with s
 
 The repository has no build system or product code. Therefore no configure, product build, formatter, C++ lint/static-analysis, sanitizer, executable benchmark, or generated-artifact cleanup command exists yet. Do not substitute a guessed generic command.
 
-The primary Linux development server is `gpu-2`, Ubuntu 24.04.4 LTS on x86-64 KVM/OpenStack. It is a development host and only a candidate measurement host until Target 0 qualification closes. Access credentials and network coordinates are external secrets and must never be committed.
+The primary Linux development server is `gpu-2`, Ubuntu 24.04.4 LTS on x86-64 KVM/OpenStack. AR-0001 Option 2 makes it development-only; it is not the Target 0 measurement host. Access credentials and network coordinates are external secrets and must never be committed.
 
 The fresh M0 capture at `2026-08-28T23:01:51Z` records `gpu-2` in `benchmarks/manifests/target-gpu-2-candidate.json`: Git 2.43.0 and Python 3.12.3 are present; CMake, Ninja, GCC/G++, Clang/Clang++, SQLite CLI/development tooling, `pkg-config`, OpenBLAS, oneMKL, and LIBXSMM are absent. PMU cycles/instructions are unavailable to the unprivileged guest. Do not claim the host is build-ready or measurement-qualified until AR-0001, provisioning, and qualification close.
 
@@ -439,11 +439,11 @@ Compilation alone is never done.
 
 Read and update [`docs/milestones/status.md`](docs/milestones/status.md).
 
-Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, candidate-host capture, approved engineering-quality design, and target-host proposal exist. The user has designated `gpu-2` as the primary development environment; whether it may also become the Target 0 measurement host remains open. No product implementation begins before M0 closes.
+Current frontier: M0 is in progress and its gate is open. Its charter, prior-art/baseline policies, benchmark protocol/schema, frozen corpus manifests, historical candidate-host capture, approved engineering-quality design, and target-host decision exist. AR-0001 Option 2 designates `gpu-2` as development-only; no controlled Target 0 measurement host is designated. No product implementation begins before M0 closes.
 
 The written engineering-quality specification is approved. Its dependency-ordered execution plans are [`docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](docs/superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) and [`docs/superpowers/plans/2026-08-28-engineering-quality-gates.md`](docs/superpowers/plans/2026-08-28-engineering-quality-gates.md). Neither plan has been executed; the planned commands and target names are not yet repository capabilities.
 
-The earliest executable slice remains M0 target qualification: obtain the `AR-0001` decision, provision and pin the selected C++ toolchain and admitted baselines on the approved host, establish the required measurement controls and PMU evidence, run non-claiming qualification/noise checks, execute full schema validation, obtain the required review, and update the acceptance record. Do not begin M1 product scaffolding to bypass these blockers.
+The earliest executable slice is the reviewed `gpu-2` development-toolchain plan, followed in parallel by designation and qualification of a controlled Target 0 measurement host. Baseline installation, measurement controls, PMU evidence, noise checks, and target-bound benchmark evidence belong on that selected measurement host. Execute full schema validation, obtain the required review, and update the acceptance record before M0 closes. Do not begin M1 product scaffolding to bypass these blockers.
 
 Do not embed percentage estimates. Record states, exact commits, evidence, deviations, and gates.
 

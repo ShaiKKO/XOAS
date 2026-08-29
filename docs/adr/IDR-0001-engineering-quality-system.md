@@ -130,8 +130,8 @@ The implementation is accepted only when:
 ## Rollout sequence
 
 1. Accept this design and normative standard.
-2. Resolve AR-0001's remaining Target 0 measurement decision and approve a reversible provisioning plan for `gpu-2`.
-3. Pin and provision the initial Clang/LLVM, CMake, Ninja, Doxygen, and analysis tool versions.
+2. Record AR-0001 Option 2 and approve the reversible `gpu-2` development-toolchain plan. This prerequisite is closed.
+3. Pin and provision the initial Clang/LLVM, CMake, Ninja, Doxygen, and analysis tool versions on `gpu-2`.
 4. Write a test-driven implementation plan for formatter, diagnostics, tidy, documentation, sanitizer, and CI fixtures.
 5. Implement the smallest quality harness before or with the first authorized M1 source slice.
 6. Verify protected-main checks before merging production C++.

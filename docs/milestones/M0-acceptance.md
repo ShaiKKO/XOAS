@@ -18,21 +18,21 @@
 - Root [`../../AGENTS.md`](../../AGENTS.md).
 - User's 2026-08-28 instruction to begin the first stage on a fresh repository and to use the current server as the primary development host.
 
-The user has not yet approved the server as the Target 0 measurement host.
+The user approved AR-0001 Option 2: `gpu-2` is development-only and is not the Target 0 measurement host.
 
 ## Deliverable traceability
 
 | M0 requirement | Evidence | State |
 |---|---|---|
 | Product charter and non-goals | [`../architecture/000-charter.md`](../architecture/000-charter.md) | Implemented and committed at `60044e8` |
-| Lock Target 0 | Charter; target decision [`../architecture/proposals/AR-0001-target-0-host-qualification.md`](../architecture/proposals/AR-0001-target-0-host-qualification.md) | Semantic scope locked; physical measurement host open |
+| Lock Target 0 | Charter; target decision [`../architecture/proposals/AR-0001-target-0-host-qualification.md`](../architecture/proposals/AR-0001-target-0-host-qualification.md) | Option 2 approved; controlled physical measurement host still unselected |
 | Required prior-art comparison | [`../experiments/prior-art-matrix.md`](../experiments/prior-art-matrix.md) | Implemented and committed at `30616bc` |
-| Baseline selection | [`../experiments/baseline-matrix.md`](../experiments/baseline-matrix.md) | Admission policy committed at `30616bc`; binaries unavailable on candidate host |
+| Baseline selection | [`../experiments/baseline-matrix.md`](../experiments/baseline-matrix.md) | Admission policy committed at `30616bc`; selected measurement host and its binaries unavailable |
 | Benchmark protocol | [`../architecture/050-benchmark-protocol.md`](../architecture/050-benchmark-protocol.md) | Implemented and committed at `00afbf7`; no harness exists |
 | Result schema | [`../../schemas/benchmark-result-v1.schema.json`](../../schemas/benchmark-result-v1.schema.json) and non-claiming example | JSON syntax and custom invariants checked; full JSON Schema validator unavailable |
 | Synthetic and application sources | [`../experiments/corpus-policy.md`](../experiments/corpus-policy.md) and three corpus manifests | Frozen and committed at `8a7032b`; M1 materialization not implemented |
 | Holdout | [`../../benchmarks/manifests/holdout-v0.json`](../../benchmarks/manifests/holdout-v0.json) | Frozen, public identity, no measurements, design use prohibited |
-| Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Candidate capture committed at `6e6adf3`; qualification and approval open |
+| Reference hardware fingerprint | [`../../benchmarks/manifests/target-gpu-2-candidate.json`](../../benchmarks/manifests/target-gpu-2-candidate.json) | Historical candidate capture committed at `6e6adf3`; Option 2 makes it ineligible as the current reference target |
 | Architecture index and operating manual | [`../architecture/README.md`](../architecture/README.md) and root [`../../AGENTS.md`](../../AGENTS.md) | Integrated and verified at `3d635d3` |
 
 ## Exit-gate statement
@@ -98,7 +98,7 @@ The benchmark-result example is synthetic and explicitly non-claiming.
 
 - Head engineering self-review: performed incrementally and again against the exact `3d635d3` diff, build-plan M0 work/deliverables/exit gate, and M0 implementation plan.
 - Independent implementation-quality review: not performed. No subagent or external reviewer was requested for this stage.
-- Architecture approval: AR-0001 pending.
+- Architecture approval: AR-0001 Option 2 approved by the user on 2026-08-28; exact integration commit recorded in the milestone ledger.
 
 Self-review is not represented as independent review.
 
@@ -106,7 +106,7 @@ Self-review is not represented as independent review.
 
 1. The build-plan front matter still says `Proposed architectural program`; the user handoff approved it as execution authority. The charter and index record the authority distinction without rewriting technical semantics.
 2. The build plan requires cycles and instructions at minimum, but the candidate VM currently denies those events. No exception has been made.
-3. The M0 instruction to lock libraries available on the reference machine cannot close because the candidate host has no admitted libraries installed and the measurement host is undecided.
+3. The M0 instruction to lock libraries available on the reference machine cannot close because the replacement measurement host is not designated and has no admitted libraries installed.
 4. The result schema lacks full validator execution.
 5. Corpus supports are specified but not materialized by code; no canonical support digests exist.
 6. Independent review remains absent. Task 6 self-review is recorded but is not substituted for it.
@@ -115,22 +115,21 @@ Self-review is not represented as independent review.
 
 M0 remains **OPEN**. Closing it requires:
 
-1. user decision on AR-0001's remaining Target 0 measurement role;
-2. qualified, approved Target 0 manifest satisfying the selected option;
-3. exact installed compiler and serious baseline-library identities on that target;
-4. full schema/example validation with the approved M1-or-earlier validator tool;
-5. independent review or explicit user acceptance of the documented review model.
+1. qualified, approved Target 0 manifest for the controlled replacement host required by Option 2;
+2. exact installed compiler and serious baseline-library identities on that target;
+3. full schema/example validation with the approved M1-or-earlier validator tool;
+4. independent review or explicit user acceptance of the documented review model.
 
 ## Earliest executable next slice
 
 The earliest valid slice is still within M0:
 
-1. obtain and record the remaining AR-0001 measurement-role decision;
-2. execute the reviewed reversible `gpu-2` development-toolchain plan without treating it as measurement qualification;
-3. write and review the qualification/baseline plan for the selected measurement host;
+1. execute the reviewed reversible `gpu-2` development-toolchain plan without treating it as measurement qualification;
+2. designate a controlled x86-64 Linux measurement host;
+3. write and review its qualification/baseline plan;
 4. install and pin the admitted baselines on that selected measurement host;
 5. enable/verify measurement controls and PMU evidence;
 6. run non-claiming qualification smoke and noise characterization;
-7. update the target manifest and this acceptance record.
+7. add the qualified target manifest and update this acceptance record.
 
 M1 product implementation does not begin while M0 remains open.

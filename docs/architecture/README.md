@@ -25,7 +25,7 @@ If two sources conflict, stop work affected by the conflict, quote the exact sec
 
 | Document | State | Requested decision |
 |---|---|---|
-| [`proposals/AR-0001-target-0-host-qualification.md`](proposals/AR-0001-target-0-host-qualification.md) | Primary development role approved; measurement decision required | Conditionally qualify `gpu-2`, keep it development-only, or approve a narrower VM measurement claim |
+| [`proposals/AR-0001-target-0-host-qualification.md`](proposals/AR-0001-target-0-host-qualification.md) | Approved — Option 2 | `gpu-2` is development-only; designate and qualify a controlled Target 0 measurement host |
 
 Approved proposals override the affected sections of lower-authority documents only to the extent their requested decision says so. Rejected and superseded proposals remain evidence and must be labeled accordingly.
 
@@ -41,7 +41,7 @@ Use the next unused `../adr/IDR-####-short-title.md` number for a durable, seman
 
 | Document | State | Scope |
 |---|---|---|
-| [`../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) | Prepared after written-spec approval; execution blocked on AR-0001's measurement-role decision | Reversible exact-version provisioning and verification of the primary development toolchain; excludes baselines and measurement qualification |
+| [`../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md`](../superpowers/plans/2026-08-28-gpu-2-development-toolchain.md) | Prepared; AR-0001 prerequisite closed; execution not started | Reversible exact-version provisioning and verification of the primary development toolchain; excludes baselines and measurement qualification |
 | [`../superpowers/plans/2026-08-28-engineering-quality-gates.md`](../superpowers/plans/2026-08-28-engineering-quality-gates.md) | Prepared; depends on the verified toolchain plan; execution not started | Local quality fixtures/targets, pinned hosted CI, and protected `main`; excludes product/compiler implementation |
 
 An implementation plan does not change architecture authority. Its execution must preserve the controlling specification and record exact commits and evidence.

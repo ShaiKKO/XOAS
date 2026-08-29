@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Do not begin state-changing execution until the user explicitly records AR-0001's remaining Target 0 measurement-role decision. Preparing and reviewing this plan does not select an option.
+- AR-0001 Option 2 must be recorded at an exact commit before state-changing execution. That prerequisite is satisfied once the milestone ledger names the decision integration commit.
 - Work in the primary checkout; do not create a worktree unless a concrete isolation need appears.
 - Do not record network coordinates, login identities, credentials, private-key locations, or connection commands in repository content or handoff text.
 - Begin from an already authenticated shell on `gpu-2`; server access setup is outside this plan.
@@ -555,4 +555,4 @@ This plan is complete only when all of the following are true on one exact commi
 - baseline libraries, product code, and self-hosted CI remain absent;
 - the exact verified commit is pushed and reported.
 
-Completion of this plan closes only the primary-development-toolchain prerequisite. It does not close M0, AR-0001's measurement decision, the benchmark baseline gate, or any performance claim.
+Completion of this plan closes only the primary-development-toolchain prerequisite. It does not close M0, designate or qualify the replacement measurement host, close the benchmark baseline gate, or support any performance claim.
