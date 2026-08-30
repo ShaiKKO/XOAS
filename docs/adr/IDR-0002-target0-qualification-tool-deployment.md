@@ -198,6 +198,15 @@ manifest, inventory, executable, and normalized executable-identity digests.
 The compact non-secret receipt is retained in
 [`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json).
 
+Replacement bundle `target0-qualification-tools-a396f642d5c2ec6e` later
+repeated the same accepted flow at exact clean source
+`a396f642d5c2ec6ed670cc2341170ec7d9f1a886`. Its physical bundle passed
+dual-build and 5/5 compatibility verification, was copied byte-for-byte to
+`gpu-2`, and passed a fresh verifier there with identical manifest, inventory,
+executable, and normalized executable-identity SHA-256 values. The repository
+receipt now binds this replacement bundle. No preflight, campaign, PMU,
+qualification, reboot, or performance authority followed from deployment.
+
 This closes deployment compatibility only. It is not campaign, benchmark,
 qualification, reboot, or performance evidence.
 

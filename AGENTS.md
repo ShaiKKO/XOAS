@@ -123,7 +123,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/status.md` — canonical frontier ledger.
 - `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented, Task 5 attempt 1 is a retained restoration rejection, and Tasks 5–7 remain open.
 - `docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md` — executed native preparation/bundle deployment plan; exact implementation `a312aa2` and the accepted non-claiming deployment receipt are verified.
-- `docs/superpowers/plans/2026-08-29-target0-qualification-campaign-runner.md` — active campaign-runner plan; implementation Tasks 1–7 passed exact-commit quality through `7b486e1`, Tasks 8–9 closed at source `1141713c`, and Task 10 attempt 1 is retained as `restoration_failure` before PMU.
+- `docs/superpowers/plans/2026-08-29-target0-qualification-campaign-runner.md` — active campaign-runner plan; implementation Tasks 1–7 passed exact-commit quality through `7b486e1`, replacement Task 8 deployment is cross-host verified at source `a396f64`, replacement Task 9 preflight remains open, and Task 10 attempt 1 is retained as `restoration_failure` before PMU.
 - `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate capture and verified provisioning evidence, explicit gaps, and remaining gates; it is not measurement qualification.
 - `toolchains/target0-amd-ryzen9-7900x-v1.lock.json` — exact installed support-package closure, source/build commands, artifact hashes, validation evidence, and rollback boundary for the physical candidate.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, the historical unqualified `gpu-2` capture, and the explicitly unqualified physical AMD candidate manifest. The directory contains no executable benchmark harness or measured performance result.
@@ -133,7 +133,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `schemas/target0-toolchain-lock-v1.schema.json` — closed physical-target provisioning, source, validation, artifact, and rollback contract.
 - `schemas/target0-qualification-tool-bundle-v1.schema.json` — closed non-claiming native deployment-bundle contract for checkout, toolchain, dual build, ELF/runtime, and compatibility evidence.
 - `schemas/target0-qualification-campaign-v1.schema.json` — closed non-claiming campaign receipt contract for preflight, five primary processes, PMU evidence, thresholds, and inventory binding.
-- `benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json` and its adjacent digest record — canonical accepted deployment receipt for exact implementation `a312aa2`; full bundles remain in external private evidence roots.
+- `benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json` and its adjacent digest record — canonical accepted replacement deployment receipt for exact source `a396f64`; full bundles remain in external private evidence roots.
 - `tools/target0/` — non-product Target 0 qualification tooling: the deterministic native CPU probe, non-secret host capture/core selector, reversible measurement-session controller, native bundle preparer/verifier, closed campaign runner, and fresh campaign verifier.
 - `tests/target0/` — behavioral, negative, deterministic, schema-closure, fixture-capture, signal, apply-failure, exact-restoration, compile-contract, ELF/runtime, campaign, inventory, tamper, and replica-verification tests for qualification tooling.
 
@@ -473,10 +473,13 @@ python3 tools/target0/verify_qualification_bundle.py
   --schema schemas/target0-qualification-tool-bundle-v1.schema.json
 ```
 
-For accepted bundle `target0-qualification-tools-a312aa2bbbb403b3`, physical
-and `gpu-2` fresh-process verification matched the bundle manifest, inventory,
-executable, and normalized executable-identity digests; the physical build also
-passed 5/5 compatibility checks. The canonical non-secret receipt is
+The initial accepted bundle at implementation subject `a312aa2` established
+the deployment path. Current replacement bundle
+`target0-qualification-tools-a396f642d5c2ec6e` was built natively at exact
+source `a396f64`, passed 5/5 compatibility checks, and was copied byte-for-byte
+to `gpu-2`. Fresh physical and `gpu-2` verification matched the bundle
+manifest, inventory, executable, and normalized executable-identity digests.
+The canonical non-secret receipt is
 `benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`.
 This closes deployment only. Compatibility-test timings are not campaign or
 benchmark samples, and the command provides no measurement-session, reboot,
@@ -872,13 +875,13 @@ measurement host. At clean merged source `a396f64`, one bounded physical
 restoration-only session returned 0 and independently matched sibling,
 governor, EPP, and boost to its canonical pre-state. A fresh physical-native
 bundle at the same source passed preparation and fresh physical verification.
-IDR-0002's byte-identical `gpu-2` replica and independent verification remain
-open, so no replacement preflight, campaign, PMU phase, qualification, or
-performance claim occurred. This proof neither authorized nor performed a
-controlled campaign reboot; the incidental administrator reboot remains
-non-campaign evidence. Before a new attempt, require that replica, a
-new read-only preflight, and separate live-attempt authority. Never reuse or
-rewrite the rejected root.
+IDR-0002's byte-identical `gpu-2` replica and independent verification passed
+at the same exact source. No replacement preflight, campaign, PMU phase,
+qualification, or performance claim occurred. This proof neither authorized
+nor performed a controlled campaign reboot; the incidental administrator
+reboot remains non-campaign evidence. Before a new attempt, require a new
+read-only preflight and separate live-attempt authority. Never reuse or rewrite
+the rejected root.
 The pinned JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound

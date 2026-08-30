@@ -240,13 +240,14 @@ physical verifier accepted it. Its authoritative candidate digests are:
 - normalized executable identity:
   `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
 
-This closes physical restoration validation and the physical-native half of
-fresh deployment only. IDR-0002 still requires the complete bundle to be
-copied byte-for-byte to `gpu-2` and independently verified in a clean checkout
-at the same source. No such replica, replacement preflight, new campaign, PMU
-collection, qualification decision, or performance claim exists. This proof
-neither authorized nor performed a controlled campaign reboot; the incidental
-administrator reboot remains non-campaign evidence.
+The complete bundle was copied byte-for-byte to `gpu-2`, where a fresh verifier
+in a clean checkout at the same exact source returned accepted with identical
+manifest, inventory, executable, and normalized executable-identity digests.
+This closes physical restoration validation and fresh cross-host deployment.
+No replacement preflight, new campaign, PMU collection, qualification
+decision, or performance claim exists. This proof neither authorized nor
+performed a controlled campaign reboot; the incidental administrator reboot
+remains non-campaign evidence.
 
 ## Deferred comparator boundaries
 
@@ -264,15 +265,13 @@ The candidate remains unqualified until all applicable gates close:
 
 1. resolve the open M0/M2 dependency for independent numerical admission of
    every applicable baseline adapter;
-2. copy the accepted physical bundle at exact source `a396f64` byte-for-byte to
-   `gpu-2` and pass a fresh independent verifier there;
-3. pass a new read-only preflight and a separately authorized campaign-one
+2. pass a new read-only preflight and a separately authorized campaign-one
    attempt from a new immutable root;
-4. pass non-claiming smoke, PMU, and noise characterization;
-5. obtain separate approval for the exact controlled reboot action only after
+3. pass non-claiming smoke, PMU, and noise characterization;
+4. obtain separate approval for the exact controlled reboot action only after
    campaign one is accepted;
-6. complete campaign two under a distinct controlled boot identity;
-7. reconcile both campaigns and complete the accepted review model.
+5. complete campaign two under a distinct controlled boot identity;
+6. reconcile both campaigns and complete the accepted review model.
 
 No final compatibility digest is computed here. M1 owns the versioned
 canonical binary identity.

@@ -911,9 +911,9 @@ infinity, and overflowed syntax now reach the closed process/restoration
 rejection classes. The final source subject passed complete Debug and Release
 50/50 suites, isolated sanitizer 3/3, and repository policy on
 `wineth-ubuntu`, and follow-up review reported no remaining finding. Physical
-restoration proof, a new exact-commit bundle/replica, and a new preflight remain
-open. Steps 3–5 are acceptance-path work for a separately authorized new
-attempt.
+At that checkpoint, physical restoration proof, a new exact-commit
+bundle/replica, and a new preflight remained open. Steps 3–5 are
+acceptance-path work for a separately authorized new attempt.
 
 A bounded restoration-only control cycle later passed on the physical host at
 clean merged source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886`.
@@ -928,10 +928,11 @@ normalized executable-identity SHA-256 values
 `44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf`,
 `db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`,
 and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
-The byte-identical `gpu-2` replica required by IDR-0002 has not been produced
-or independently verified. Task 9 replacement preflight and every Task 10
-acceptance-path step therefore remain blocked; no new campaign or PMU phase
-occurred.
+The complete bundle was copied byte-for-byte to `gpu-2`. A fresh verifier from
+a clean checkout at the same exact source accepted matching manifest,
+inventory, executable, and normalized executable-identity digests. Task 8
+replacement deployment is closed. Task 9 replacement preflight and every Task
+10 acceptance-path step remain open; no new campaign or PMU phase occurred.
 
 - [ ] **Step 3: Fresh-verify the finalized evidence**
 
