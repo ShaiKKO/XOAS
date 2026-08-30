@@ -632,26 +632,77 @@ def _file_sha256(path: Path) -> str:
 def _run_measurement_session(
     *,
     session_directory: Path,
+    traversal_directory: Path | None = None,
     session_runner: CommandRunner,
     command: tuple[str, ...],
     repository_root: Path,
 ) -> SimpleNamespace:
-    """Open only the child publication boundary while its session runs."""
-    descriptor = os.open(
-        session_directory,
-        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
-    )
+    """Open one session's minimum publication and traversal boundaries."""
+    traversal_descriptor: int | None = None
+    session_descriptor: int | None = None
+    traversal_mode_changed = False
+    session_mode_changed = False
     try:
-        status = os.fstat(descriptor)
-        if not stat.S_ISDIR(status.st_mode):
+        if traversal_directory is not None:
+            try:
+                if (
+                    traversal_directory.is_symlink()
+                    or session_directory.is_symlink()
+                    or session_directory.resolve(strict=True).parent
+                    != traversal_directory.resolve(strict=True)
+                ):
+                    raise CampaignError("session traversal boundary differs")
+            except OSError as error:
+                raise CampaignError(
+                    "session traversal boundary is unavailable"
+                ) from error
+            traversal_descriptor = os.open(
+                traversal_directory,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            )
+            traversal_status = os.fstat(traversal_descriptor)
+            if (
+                not stat.S_ISDIR(traversal_status.st_mode)
+                or stat.S_IMODE(traversal_status.st_mode) != 0o700
+            ):
+                raise CampaignError("session traversal boundary is invalid")
+            session_descriptor = os.open(
+                session_directory.name,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                dir_fd=traversal_descriptor,
+            )
+        else:
+            session_descriptor = os.open(
+                session_directory,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            )
+        session_status = os.fstat(session_descriptor)
+        if (
+            not stat.S_ISDIR(session_status.st_mode)
+            or stat.S_IMODE(session_status.st_mode) != 0o700
+        ):
             raise CampaignError("session output boundary is invalid")
-        os.fchmod(descriptor, 0o1733)
+        if traversal_descriptor is not None:
+            os.fchmod(traversal_descriptor, 0o711)
+            traversal_mode_changed = True
+        os.fchmod(session_descriptor, 0o1733)
+        session_mode_changed = True
         return session_runner(command, repository_root, timeout=35)
     finally:
         try:
-            os.fchmod(descriptor, 0o700)
+            if session_descriptor is not None and session_mode_changed:
+                os.fchmod(session_descriptor, 0o700)
         finally:
-            os.close(descriptor)
+            try:
+                if session_descriptor is not None:
+                    os.close(session_descriptor)
+            finally:
+                if traversal_descriptor is not None:
+                    try:
+                        if traversal_mode_changed:
+                            os.fchmod(traversal_descriptor, 0o700)
+                    finally:
+                        os.close(traversal_descriptor)
 
 
 def _primary_session_command(
@@ -1058,6 +1109,7 @@ def execute_pmu_sessions(
             )
             result = _run_measurement_session(
                 session_directory=session_directory,
+                traversal_directory=pmu_root,
                 session_runner=session_runner,
                 command=command,
                 repository_root=repository_root,
