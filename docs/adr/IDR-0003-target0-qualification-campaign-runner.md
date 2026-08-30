@@ -162,12 +162,21 @@ No PMU phase, reboot, qualification decision, or performance claim occurred.
 
 The source correction was implemented test-first. Red subject `485eb6b` added
 exact-byte and restoration-order regressions that failed against the prior
-implementation. Exact repair subject `93e9070` restores the sibling first, the
+implementation. Initial repair subject `93e9070` restores the sibling first, the
 governor second, and EPP third; emits compact sorted newline-terminated JSON
 from both the native probe and Bash restoration record; and requires canonical
 bytes when the runner or fresh verifier ingests either record. The subject
 passed complete Debug and Release 50/50 suites, the isolated 3/3 sanitizer
 gate, and repository policy on `wineth-ubuntu`.
+
+Independent review then identified non-finite JSON classification as an
+important retained-evidence gap. Red subject `c68474c` proved that `NaN`,
+positive/negative infinity, and overflowed numeric syntax were rejected as
+`unexpected_internal_failure`. Repair subject `c9af373` normalizes those
+canonicalization failures to the closed process/restoration rejection classes;
+it passed complete Debug and Release 50/50 suites, sanitizer 3/3, and repository
+policy on `wineth-ubuntu`. Follow-up independent review reported no remaining
+critical, important, or minor implementation finding.
 
 This closes the source and fixture evidence defects only. Before another
 campaign attempt, physically verify governor/EPP restoration on the designated

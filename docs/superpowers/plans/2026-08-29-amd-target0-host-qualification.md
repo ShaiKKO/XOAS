@@ -585,14 +585,16 @@ not restore after the governor transition. Closed rejection SHA-256 is
 Bounded recovery restored exact host pre-state. The rejected root is retained
 and cannot be retried or rewritten.
 
-The source defect was repaired test-first. Red subject `485eb6b` captured the
-ordering and canonical-byte failures; exact repair subject `93e9070` restores
-the sibling, governor, then EPP and enforces canonical process/restoration JSON
-at production and ingestion boundaries. Complete Debug and Release 50/50
+The source defect was repaired test-first. Red subjects `485eb6b` and
+`c68474c` captured the ordering, canonical-byte, and non-finite classification
+failures. Exact repair through `c9af373` restores the sibling, governor, then
+EPP and enforces canonical process/restoration JSON at production and ingestion
+boundaries with closed rejection classes. Complete Debug and Release 50/50
 suites, isolated sanitizer 3/3, and repository policy passed on
-`wineth-ubuntu`. This is source/fixture evidence only: physical restoration
-verification, a new native bundle and replica, a new preflight, and separate
-authority remain prerequisites for another Task 5 attempt.
+`wineth-ubuntu`; follow-up independent review reported no remaining finding.
+This is source/fixture evidence only: physical restoration verification, a new
+native bundle and replica, a new preflight, and separate authority remain
+prerequisites for another Task 5 attempt.
 
 Before each qualification process, independently recompute and retain the
 accepted executable, compiler, linker, fixed source set, provisioning lock,

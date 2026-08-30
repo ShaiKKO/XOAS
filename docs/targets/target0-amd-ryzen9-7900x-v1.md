@@ -231,7 +231,7 @@ The candidate remains unqualified until all applicable gates close:
 1. resolve the open M0/M2 dependency for independent numerical admission of
    every applicable baseline adapter;
 2. physically verify the repaired governor/EPP restoration order from exact
-   source `93e9070`, then build and cross-verify a fresh exact-commit bundle;
+   source `c9af373`, then build and cross-verify a fresh exact-commit bundle;
 3. pass a new read-only preflight and a separately authorized campaign-one
    attempt from a new immutable root;
 4. pass non-claiming smoke, PMU, and noise characterization;

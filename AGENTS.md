@@ -860,12 +860,14 @@ restored, but EPP remained `performance` instead of `balance_performance`.
 Bounded one-field recovery restored exact pre-state and independent live
 identity replay passed. No PMU phase, accepted campaign receipt, reboot,
 qualification, or performance claim occurred. The test-first source repair is
-verified: red subject `485eb6b` exposed the restoration-order and canonical-byte
-defects, and exact repair subject `93e9070` restores the sibling, governor, then
-EPP, emits canonical process/restoration JSON, and rejects noncanonical retained
-records. That subject passed complete Debug and Release 50/50 suites plus the
-isolated 3/3 sanitizer gate on `wineth-ubuntu`; this supplemental quality evidence
-does not qualify the measurement host. Before a new attempt, require physical
+verified: red subjects `485eb6b` and `c68474c` exposed the restoration-order,
+canonical-byte, and non-finite classification defects. Exact repair through
+`c9af373` restores the sibling, governor, then EPP; emits canonical
+process/restoration JSON; and classifies noncanonical and non-finite retained
+records through the closed rejection paths. That subject passed complete Debug
+and Release 50/50 suites plus the isolated 3/3 sanitizer gate on
+`wineth-ubuntu`; this supplemental quality evidence does not qualify the
+measurement host. Before a new attempt, require physical
 restoration verification, a new native bundle/replica, a new read-only preflight,
 and separate live-attempt authority. Never reuse or rewrite the rejected root.
 The pinned JITSpMM revision has no license statement;
