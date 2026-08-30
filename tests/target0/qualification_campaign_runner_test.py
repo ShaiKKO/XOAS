@@ -528,6 +528,11 @@ class PmuSessionRunner:
         child = command[separator + 1 :]
         seed = int(child[child.index("--seed") + 1])
         process_path = Path(child[child.index("--output") + 1])
+        pmu_parent = process_path.parent.parent
+        if stat.S_IMODE(pmu_parent.stat().st_mode) != 0o711:
+            raise AssertionError(
+                "PMU parent traversal boundary is not executable"
+            )
         if stat.S_IMODE(process_path.parent.stat().st_mode) != 0o1733:
             raise AssertionError("PMU child output boundary is not writable")
         process_path.write_bytes(
@@ -1932,6 +1937,10 @@ class QualificationCampaignPrimaryProcessTest(unittest.TestCase):
                     stat.S_IMODE(path.stat().st_mode) == 0o700
                     for path in (campaign_root / "pmu").iterdir()
                 )
+            )
+            self.assertEqual(
+                stat.S_IMODE((campaign_root / "pmu").stat().st_mode),
+                0o700,
             )
             self.assertFalse((campaign_root / "rejection.json").exists())
             self.assertTrue((campaign_root / "acceptance.json").is_file())
