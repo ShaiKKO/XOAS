@@ -1,6 +1,7 @@
 # IDR-0003: Target 0 Qualification Campaign Runner
 
-**Status:** Accepted; implementation pending
+**Status:** Accepted; implementation complete, exact-commit deployment and live
+execution pending
 
 **Written-spec approval:** Approved by the user on 2026-08-29.
 
@@ -129,6 +130,22 @@ Implementation acceptance requires:
 
 Live campaign acceptance remains governed by the controlling Task 5 thresholds
 and does not follow merely from implementation tests.
+
+Implementation Tasks 1–6 are committed through exact subject
+`cf149ae25bbea5b55577791b8511ae9d2489445e`. Content-neutral merge
+`f90c27d57586e1314568929c86bb1826500af730` adds protected-main ancestry with a
+tree byte-identical to `cf149ae`. Source-clean CLI execution and its runner and
+verifier regressions are committed at current implementation subject
+`db0eb8797b54f26eb9a86417af9e0eb626f9669f`. The resulting tree passed
+repository policy and all 19 Target 0 tests on `gpu-2`, including the real
+fixture five-process/PMU orchestration, fresh-process replay, re-bound tamper
+rejection, and absence of source-tree Python bytecode after CLI inspection.
+
+This evidence closes implementation and focused replay verification only. The
+complete exact-commit Debug/Release/sanitizer gate, a fresh native physical
+bundle and matching `gpu-2` replica, physical preflight, campaign one, and the
+separately authorized reboot boundary remain open. No live measurement session,
+campaign, qualification decision, or reboot has occurred.
 
 ## Reversal and migration
 

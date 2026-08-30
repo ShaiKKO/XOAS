@@ -61,7 +61,7 @@ qualification probe.
   operator interfaces, evidence layout, statistical definitions, and execution
   boundaries used by every later task.
 
-- [ ] **Step 1: Verify every new document link and authority statement**
+- [x] **Step 1: Verify every new document link and authority statement**
 
 Run:
 
@@ -72,14 +72,14 @@ git diff --check
 
 Expected: both targets and `git diff --check` exit zero.
 
-- [ ] **Step 2: Review the design against Task 5**
+- [x] **Step 2: Review the design against Task 5**
 
 Require a direct mapping for exact bundle verification, five primary
 processes, 30 retained rounds, separate PMU evidence, exact restoration,
 identity drift rejection, the `0.005`/`0.010` MAD ratios, nearest-rank p99 ratio
 `1.02`, write-once evidence, and the stop-before-reboot boundary.
 
-- [ ] **Step 3: Commit the approved design and plan**
+- [x] **Step 3: Commit the approved design and plan**
 
 ```bash
 git add docs/adr/IDR-0003-target0-qualification-campaign-runner.md \
@@ -116,7 +116,7 @@ Expected: one documentation-only commit with no source or live-host effect.
   `parse_perf_stat()`, `validate_campaign_manifest()`,
   `build_raw_inventory()`, and closed record validators used by Tasks 4 and 5.
 
-- [ ] **Step 1: Write failing deterministic seed and statistics tests**
+- [x] **Step 1: Write failing deterministic seed and statistics tests**
 
 Add literal expectations derived independently from the implementation:
 
@@ -152,7 +152,7 @@ python3 tests/target0/qualification_campaign_test.py \
 
 Expected: import failure because `qualification_campaign.py` does not exist.
 
-- [ ] **Step 2: Implement the minimum pure contract**
+- [x] **Step 2: Implement the minimum pure contract**
 
 Implement these exact interfaces:
 
@@ -178,7 +178,7 @@ percentages.
 
 Run the focused test and require it to pass.
 
-- [ ] **Step 3: Write failing schema and closed-validator tests**
+- [x] **Step 3: Write failing schema and closed-validator tests**
 
 The positive fixture must include exactly five process summaries, one required
 PMU summary, eight optional PMU summaries, exact accepted thresholds, an
@@ -196,7 +196,7 @@ python3 tests/target0/qualification_campaign_test.py \
 
 Expected: failure because the schema and validator do not exist.
 
-- [ ] **Step 4: Implement campaign, identity, restoration, PMU, and inventory validators**
+- [x] **Step 4: Implement campaign, identity, restoration, PMU, and inventory validators**
 
 Add exact interfaces:
 
@@ -224,7 +224,7 @@ Exclude only `inventory.json`, `campaign.json`, `acceptance.json`, and
 
 Run the complete new test file and require it to pass.
 
-- [ ] **Step 5: Register schema and focused tests**
+- [x] **Step 5: Register schema and focused tests**
 
 Add `target0-qualification-campaign-contract` and
 `target0-qualification-campaign-schema` CTest entries.
@@ -243,7 +243,7 @@ ctest --preset dev-debug \
 
 Expected: configure, compilation checks, repository policy, and both tests pass.
 
-- [ ] **Step 6: Commit the pure campaign contract**
+- [x] **Step 6: Commit the pure campaign contract**
 
 ```bash
 git add cmake/quality/RepositoryPolicy.cmake \
@@ -273,7 +273,7 @@ git commit -m "tool: define Target 0 qualification campaign contract"
   `--perf-output PATH`, and `--perf-events EVENT_LIST` without changing the
   default probe behavior.
 
-- [ ] **Step 1: Write the failing privileged-perf fixture test**
+- [x] **Step 1: Write the failing privileged-perf fixture test**
 
 Create an executable fake perf frontend inside the temporary test directory.
 It must parse the real fixed frontend options, write a literal semicolon record
@@ -301,7 +301,7 @@ python3 tests/target0/measurement_session_test.py \
 
 Expected: exit `2` because the new option is unknown.
 
-- [ ] **Step 2: Implement the minimum dedicated mode**
+- [x] **Step 2: Implement the minimum dedicated mode**
 
 The default `probe` mode remains byte-for-byte behaviorally compatible.
 The new mode must:
@@ -319,7 +319,7 @@ The new mode must:
 
 Run the focused test and the complete session test file.
 
-- [ ] **Step 3: Write and pass rejection tests**
+- [x] **Step 3: Write and pass rejection tests**
 
 Reject missing perf output, existing perf output, missing events, unknown event,
 multiple optional events, perf options in probe mode, root target user, fake
@@ -336,7 +336,7 @@ shellcheck tools/target0/measurement_session.sh
 
 Expected: all tests and ShellCheck pass with no new suppression.
 
-- [ ] **Step 4: Commit the privilege-boundary change**
+- [x] **Step 4: Commit the privilege-boundary change**
 
 ```bash
 git add tools/target0/measurement_session.sh \
@@ -363,7 +363,7 @@ git commit -m "tool: bound Target 0 privileged PMU sessions"
 - Produces: `preflight` CLI and `collect_live_identity()` with canonical
   write-once `preflight.json` and `core-selection.json`.
 
-- [ ] **Step 1: Write failing exact-identity tests**
+- [x] **Step 1: Write failing exact-identity tests**
 
 Use a real temporary Git checkout and literal bundle/lock fixture identities.
 Verify the accepted case and one mutation each for commit, tree, dirty state,
@@ -379,7 +379,7 @@ python3 tests/target0/qualification_campaign_test.py \
 
 Expected: import or missing-function failure.
 
-- [ ] **Step 2: Implement live identity collection**
+- [x] **Step 2: Implement live identity collection**
 
 Add:
 
@@ -404,7 +404,7 @@ Compare the accepted bundle's fixed source list byte-for-byte and reject any
 added, missing, or changed source.
 Serialize no private root or target username.
 
-- [ ] **Step 3: Write failing preflight eligibility tests**
+- [x] **Step 3: Write failing preflight eligibility tests**
 
 Tests must cover explicit exclusivity, one-minute load `0.499` acceptance and
 `0.5` rejection, aggregate interactive-session eligibility, no thermal alarm,
@@ -420,7 +420,7 @@ interactive session.
 Inject a zero-duration observation clock only at the core-selector boundary;
 do not mock the identity or evidence validators.
 
-- [ ] **Step 4: Implement the closed preflight CLI**
+- [x] **Step 4: Implement the closed preflight CLI**
 
 The parser must require every design option.
 Create the output root only after repository and path safety validation.
@@ -440,7 +440,7 @@ ctest --preset dev-debug \
   --output-on-failure
 ```
 
-- [ ] **Step 5: Commit accepted preflight behavior**
+- [x] **Step 5: Commit accepted preflight behavior**
 
 ```bash
 git add tools/target0/run_qualification_campaign.py \
@@ -468,7 +468,7 @@ git commit -m "tool: add Target 0 campaign preflight"
 - Produces: the `run` CLI, five ordered primary process directories, required
   PMU evidence, eight optional PMU outcomes, and closed rejection behavior.
 
-- [ ] **Step 1: Write a failing five-process integration test**
+- [x] **Step 1: Write a failing five-process integration test**
 
 Run the real operator code against temporary host, repository, session, probe,
 and schema fixtures.
@@ -486,7 +486,7 @@ self.assertTrue(all(record["sample_count"] == 30 for record in processes))
 
 Run the focused test and observe failure because `run` is not implemented.
 
-- [ ] **Step 2: Implement the five primary process loop**
+- [x] **Step 2: Implement the five primary process loop**
 
 Before every process, capture host state and recompute the complete live
 identity.
@@ -499,7 +499,7 @@ count, restoration, temperature, and identity equality before proceeding.
 Do not catch a restoration failure as an ordinary process failure.
 Write one rejection and stop immediately.
 
-- [ ] **Step 3: Write failing PMU ordering and parser integration tests**
+- [x] **Step 3: Write failing PMU ordering and parser integration tests**
 
 Require one `cycles,instructions` session followed by exactly these separate
 optional sessions in order:
@@ -519,14 +519,14 @@ Test required unsupported and `99.99` percent running as campaign rejection.
 Test each optional unsupported event as retained `unsupported` without
 campaign rejection.
 
-- [ ] **Step 4: Implement PMU sessions through the dedicated session mode**
+- [x] **Step 4: Implement PMU sessions through the dedicated session mode**
 
 Every PMU session gets a fresh identity, process record, raw perf file,
 restoration record, and before/after capture.
 The required pair must be supported with unit scale.
 Optional events never receive estimates or aliases.
 
-- [ ] **Step 5: Write and pass failure-injection tests**
+- [x] **Step 5: Write and pass failure-injection tests**
 
 Cover identity drift at process 2, invalid process schema, 19 ms and 201 ms
 samples, migration, second thread, checksum failure, thermal alarm,
@@ -543,7 +543,7 @@ ctest --preset dev-debug \
   --output-on-failure
 ```
 
-- [ ] **Step 6: Commit the live orchestration behavior**
+- [x] **Step 6: Commit the live orchestration behavior**
 
 ```bash
 git add tools/target0/run_qualification_campaign.py \
@@ -575,7 +575,7 @@ git commit -m "tool: orchestrate Target 0 qualification campaign"
   `inventory.json`, `campaign.json`, `acceptance.json`, and fresh verification
   CLI.
 
-- [ ] **Step 1: Write the failing finalization and tamper tests**
+- [x] **Step 1: Write the failing finalization and tamper tests**
 
 Accept a complete fixture attempt and require bytewise path ordering,
 write-once output, canonical JSON, exact manifest/inventory binding, and one
@@ -585,7 +585,7 @@ file, alter the retained executable, alter the retained bundle record, alter a
 statistic, alter the inventory, and alter acceptance.
 Every mutation must fail fresh verification.
 
-- [ ] **Step 2: Implement deterministic finalization**
+- [x] **Step 2: Implement deterministic finalization**
 
 Add exact interfaces:
 
@@ -611,7 +611,7 @@ The acceptance output contains only manifest version, campaign ID, status,
 performance/qualification false, campaign SHA-256, inventory SHA-256, expected
 commit, boot ID SHA-256, selected CPU, and process count.
 
-- [ ] **Step 3: Implement the fresh verifier CLI**
+- [x] **Step 3: Implement the fresh verifier CLI**
 
 The CLI accepts only the four design options, writes accepted canonical JSON to
 stdout, prints one generic diagnostic on failure, and never writes files.
@@ -623,7 +623,7 @@ python3 tests/target0/qualification_campaign_test.py
 python3 tools/target0/verify_qualification_campaign.py --help
 ```
 
-- [ ] **Step 4: Register all source and policy inputs**
+- [x] **Step 4: Register all source and policy inputs**
 
 Add the three Python campaign tools to `target0-host-tools` byte-compilation.
 Register focused CTests and add all new source, test, and schema paths to the
@@ -639,7 +639,7 @@ cmake --build --preset dev-debug \
 ctest --preset dev-debug -R '^target0-' --output-on-failure
 ```
 
-- [ ] **Step 5: Commit finalization and replay verification**
+- [x] **Step 5: Commit finalization and replay verification**
 
 ```bash
 git add cmake/quality/RepositoryPolicy.cmake \
@@ -655,6 +655,16 @@ git add cmake/quality/RepositoryPolicy.cmake \
 git diff --cached --check
 git commit -m "tool: verify Target 0 qualification campaigns"
 ```
+
+Implemented through exact subject
+`cf149ae25bbea5b55577791b8511ae9d2489445e`. The final focused `gpu-2` gate
+passed repository policy and all 19 Target 0 tests, including five-process/PMU
+orchestration, fresh-process replay, and re-bound semantic tamper rejection.
+Protected-main ancestry synchronization
+`f90c27d57586e1314568929c86bb1826500af730` changes no tree bytes.
+Source-clean runner/verifier execution and direct regressions are committed at
+`db0eb8797b54f26eb9a86417af9e0eb626f9669f`; its patched tree passed repository
+policy and all 19 Target 0 tests on `gpu-2` without recreating source bytecode.
 
 ---
 
@@ -678,7 +688,7 @@ git commit -m "tool: verify Target 0 qualification campaigns"
 - Produces: documented commands, exact implementation subject, quality evidence,
   pushed campaign branch, and open live-execution boundary.
 
-- [ ] **Step 1: Update durable commands and current frontier**
+- [x] **Step 1: Update durable commands and current frontier**
 
 Document only commands that exist and pass.
 Keep Task 5 open and state that no live session, campaign, qualification, or
@@ -703,6 +713,13 @@ git status --short --branch
 
 Expected: every command exits zero; CTest reports zero failures; the checkout
 contains only the exact reviewed documentation updates before their commit.
+
+The exact `cf149ae` Debug `quality` aggregate and explicit 50/50 Debug CTest
+replay passed on `gpu-2`, including the isolated 3/3 sanitizer gate. The
+`db0eb87` tree also passed repository policy and all 19 Target 0 tests. Complete
+Debug, Release, sanitizer, and final exact documentation-subject verification
+remain open. No physical host checkout, bundle replacement, live preflight,
+campaign, or reboot has occurred.
 
 - [ ] **Step 3: Commit documentation and push the exact subject**
 

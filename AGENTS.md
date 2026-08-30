@@ -35,7 +35,7 @@ Read these files before working:
 2. [`docs/architecture/README.md`](docs/architecture/README.md) — actual architecture/decision/evidence inventory and approval state.
 3. [`docs/architecture/000-charter.md`](docs/architecture/000-charter.md) — locked v0 claim, Target 0, numerical boundary, non-goals, and falsification.
 4. [`docs/milestones/status.md`](docs/milestones/status.md) and the active milestone acceptance/implementation plan — canonical frontier, gate state, exact evidence, and current task contract.
-5. For any source, tooling, CI, or review work: [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md) and [`docs/adr/IDR-0001-engineering-quality-system.md`](docs/adr/IDR-0001-engineering-quality-system.md). For Target 0 qualification-tool deployment, also read [`docs/adr/IDR-0002-target0-qualification-tool-deployment.md`](docs/adr/IDR-0002-target0-qualification-tool-deployment.md), [`docs/superpowers/specs/2026-08-29-target0-qualification-tool-deployment-design.md`](docs/superpowers/specs/2026-08-29-target0-qualification-tool-deployment-design.md), and [`docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md`](docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md).
+5. For any source, tooling, CI, or review work: [`docs/engineering/coding-standards.md`](docs/engineering/coding-standards.md) and [`docs/adr/IDR-0001-engineering-quality-system.md`](docs/adr/IDR-0001-engineering-quality-system.md). For Target 0 qualification-tool deployment, also read [`docs/adr/IDR-0002-target0-qualification-tool-deployment.md`](docs/adr/IDR-0002-target0-qualification-tool-deployment.md), [`docs/superpowers/specs/2026-08-29-target0-qualification-tool-deployment-design.md`](docs/superpowers/specs/2026-08-29-target0-qualification-tool-deployment-design.md), and [`docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md`](docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md). For campaign implementation or execution, also read [`docs/adr/IDR-0003-target0-qualification-campaign-runner.md`](docs/adr/IDR-0003-target0-qualification-campaign-runner.md), its [normative design](docs/superpowers/specs/2026-08-29-target0-qualification-campaign-runner-design.md), and its [implementation plan](docs/superpowers/plans/2026-08-29-target0-qualification-campaign-runner.md).
 6. For benchmark, corpus, or performance work: [`docs/architecture/050-benchmark-protocol.md`](docs/architecture/050-benchmark-protocol.md), [`docs/experiments/baseline-matrix.md`](docs/experiments/baseline-matrix.md), and [`docs/experiments/corpus-policy.md`](docs/experiments/corpus-policy.md).
 7. For research-claim work: [`docs/experiments/prior-art-matrix.md`](docs/experiments/prior-art-matrix.md).
 8. For target/toolchain work: [`docs/architecture/proposals/AR-0001-target-0-host-qualification.md`](docs/architecture/proposals/AR-0001-target-0-host-qualification.md), [`docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md`](docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md), and the candidate/approved target manifest. AR-0001 Option 2 is approved: `gpu-2` is development-only, and the designated physical AMD Target 0 candidate must still be qualified. AR-0002 Option 1 is approved: AOCL-BLAS joins the admitted comparator set without removing existing applicable baselines.
@@ -103,6 +103,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/engineering/coding-standards.md` — approved LLVM-derived source, documentation, enforcement, and review contract.
 - `docs/adr/IDR-0001-engineering-quality-system.md` — accepted engineering-quality design and staged implementation decision.
 - `docs/adr/IDR-0002-target0-qualification-tool-deployment.md` — accepted native-build/quality-authority split, closed evidence bundle, replica verification, and deployment limits.
+- `docs/adr/IDR-0003-target0-qualification-campaign-runner.md` — accepted two-phase campaign runner, deterministic statistics, dedicated privileged-PMU boundary, and fresh replay rules.
 - `CMakeLists.txt` and `CMakePresets.json` — quality-only C++23 build, test, and sanitizer surface; they do not contain product modules.
 - `.clang-format`, `.clang-tidy`, `.editorconfig`, and `Doxyfile.in` — pinned first-party formatting, static-analysis, editor, and documentation policy.
 - `cmake/quality/` — reusable non-product quality checks, aggregate orchestration, and bounded cleanup.
@@ -121,6 +122,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/status.md` — canonical frontier ledger.
 - `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented and Tasks 5–7 remain open.
 - `docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md` — executed native preparation/bundle deployment plan; exact implementation `a312aa2` and the accepted non-claiming deployment receipt are verified.
+- `docs/superpowers/plans/2026-08-29-target0-qualification-campaign-runner.md` — active campaign-runner plan; implementation Tasks 1–6 and the source-clean execution fix are committed through `db0eb87`, while exact-commit quality, replacement bundle, preflight, and campaign one remain open.
 - `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate capture and verified provisioning evidence, explicit gaps, and remaining gates; it is not measurement qualification.
 - `toolchains/target0-amd-ryzen9-7900x-v1.lock.json` — exact installed support-package closure, source/build commands, artifact hashes, validation evidence, and rollback boundary for the physical candidate.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, the historical unqualified `gpu-2` capture, and the explicitly unqualified physical AMD candidate manifest. The directory contains no executable benchmark harness or measured performance result.
@@ -129,9 +131,10 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `schemas/target0-host-qualification-v1.schema.json` — closed fixed-process qualification schema; real instances are build-tree test artifacts, not performance claims.
 - `schemas/target0-toolchain-lock-v1.schema.json` — closed physical-target provisioning, source, validation, artifact, and rollback contract.
 - `schemas/target0-qualification-tool-bundle-v1.schema.json` — closed non-claiming native deployment-bundle contract for checkout, toolchain, dual build, ELF/runtime, and compatibility evidence.
+- `schemas/target0-qualification-campaign-v1.schema.json` — closed non-claiming campaign receipt contract for preflight, five primary processes, PMU evidence, thresholds, and inventory binding.
 - `benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json` and its adjacent digest record — canonical accepted deployment receipt for exact implementation `a312aa2`; full bundles remain in external private evidence roots.
-- `tools/target0/` — non-product Target 0 qualification tooling: the deterministic native CPU probe, non-secret host capture/core selector, reversible measurement-session controller, native bundle preparer, and fresh-process verifier.
-- `tests/target0/` — behavioral, negative, deterministic, schema-closure, fixture-capture, signal, apply-failure, exact-restoration, compile-contract, ELF/runtime, inventory, and replica-verification tests for qualification tooling.
+- `tools/target0/` — non-product Target 0 qualification tooling: the deterministic native CPU probe, non-secret host capture/core selector, reversible measurement-session controller, native bundle preparer/verifier, closed campaign runner, and fresh campaign verifier.
+- `tests/target0/` — behavioral, negative, deterministic, schema-closure, fixture-capture, signal, apply-failure, exact-restoration, compile-contract, ELF/runtime, campaign, inventory, tamper, and replica-verification tests for qualification tooling.
 
 There is currently no product source/public include tree, product library or executable, independent oracle, executable benchmark harness, database, artifact store, repository README, or product dependency manifest.
 The existing build and test tree enforces engineering quality only.
@@ -471,6 +474,23 @@ This closes deployment only. Compatibility-test timings are not campaign or
 benchmark samples, and the command provides no measurement-session, reboot,
 qualification, or performance authority.
 
+The closed campaign contract, runner, and fresh verifier are verified on
+`gpu-2` with:
+
+```bash
+cmake --build --preset dev-debug \
+  --target target0-host-tools repository-policy
+ctest --preset dev-debug -R '^target0-' --output-on-failure
+python3 tools/target0/verify_qualification_campaign.py --help
+```
+
+The 19 Target 0 tests cover deterministic statistics and seeds, schema and
+identity closure, read-only preflight, core-selection input retention, five
+primary processes, privileged required and optional PMU sessions, exact
+restoration, deterministic finalization, raw replay, generic verifier failure,
+and re-bound tamper rejection. They use fixtures and do not execute live host
+controls, a campaign, a reboot, or a performance measurement.
+
 The only approved quality-build cleanup command is:
 
 ```bash
@@ -513,15 +533,17 @@ aggregate wiring, cleanup boundaries, hosted-workflow policy, and the live
 branch-protection evidence contract with positive and isolated negative probes.
 
 The `tests/target0/` harness adds the non-claiming qualification-process probe
-contract, reversible host-control tests, and closed native deployment-bundle
-tests. Run the exact targeted commands from section 6; they are required for
+contract, reversible host-control tests, closed native deployment-bundle
+tests, and campaign contract/replay tests. Run the exact targeted commands
+from section 6; they are required for
 any change to the process schema, probe CLI, deterministic workload, affinity,
 timing, thread/context-switch observation, capture allowlist, core selector,
 session preconditions, signal forwarding, state application, restoration, or
 evidence publication behavior. Changes to preparation, verification, bundle
 schema, compiler/linker identity, source retention, ELF/runtime parsing,
-compatibility execution, finalization, or inventory semantics must run all
-eight Target 0 tests, not only one focused class.
+compatibility execution, campaign ordering, PMU parsing, finalization, or
+inventory semantics must run the complete Target 0 surface, not only one
+focused class.
 
 Product unit, property, differential, numerical-semantic, generated-kernel,
 artifact/serialization, regression, and benchmark-smoke suites remain
@@ -735,6 +757,7 @@ An IDR records context, decision, alternatives, consequences, affected files/int
 - `main` is the published integration branch and tracks `origin/main`. The discovery report's unborn-repository statement is historical snapshot evidence, not current state.
 - Work in the primary checkout by default, but protected `main` now makes a bounded `milestone/mN-short-name` or `task/mN-short-name` branch and pull request the normal integration path. A linked worktree still requires a concrete isolation need.
 - Normal scoped commits, task-branch pushes, pull requests, and green-check merges are part of the authorized engineering workflow. Review and verify exact staged paths before committing.
+- A task branch is not finished merely because its commits are pushed. After its scoped definition of done closes, open or update its protected-`main` pull request, require every configured check, merge without bypass, verify the terminal PR and exact merge commit, then delete only the verified merged local and remote branch. Keep genuinely active or unmerged branches and report them explicitly.
 - `main` is live-protected with administrator enforcement, linear history, the five App-bound quality checks, a pull-request path, conversation resolution, and force-push/deletion prohibitions. Do not use an administrative bypass without explicit authority for that bypass.
 - Preserve all user and agent work. Never reset, clean, checkout over, or delete unrelated changes.
 - Do not broadly stage. Stage exact reviewed paths.
@@ -815,8 +838,15 @@ deployment plan is complete: exact implementation `a312aa2` passed full
 `gpu-2` quality, physical dual-build and compatibility verification, and
 matching fresh physical/`gpu-2` replica verification. Its canonical receipt is
 repository-bound while full bundles remain external private evidence. Baseline
-numerical admission, real measurement controls, controlled campaigns, and
-qualification remain open. The pinned JITSpMM revision has no license statement;
+numerical admission remains open. The repository-owned campaign contract,
+dedicated privileged-PMU session mode, read-only preflight, five-process/PMU
+orchestration, deterministic finalization, fresh replay verifier, and
+source-clean CLI execution are implemented through `db0eb87`. Protected-main
+ancestry was synchronized at content-neutral commit `f90c27d` before the
+source-clean execution fix; complete exact-commit quality, a replacement
+native bundle, physical preflight, controlled campaign one, and qualification
+remain open. No live campaign session or reboot has occurred. The pinned
+JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound
 benchmark evidence belong on that selected measurement host. Obtain the
