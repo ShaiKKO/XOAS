@@ -132,6 +132,16 @@ passed. A direct full repository-policy diagnostic passed there only after a
 temporary exclusion for ShellCheck 0.11 SC2329; no exclusion was committed,
 and the authoritative pinned `gpu-2` policy passed without accommodation.
 
+On 2026-08-30, explicit user direction superseded the earlier decision not to
+install a supplemental quality environment on the physical host. The isolated
+toolchain in
+[`../adr/IDR-0004-wineth-quality-toolchain.md`](../adr/IDR-0004-wineth-quality-toolchain.md)
+preserves Ubuntu's system Python, Doxygen, and ShellCheck while supplying the
+repository-pinned versions to XOAS. Clean `main` subject `93f164c` passed the
+complete Debug and Release quality aggregates, explicit 50/50 replays for
+both configurations, and the final isolated 3/3 sanitizer gate on
+`wineth-ubuntu`, without a suppression or source change.
+
 ### Target qualification process checks
 
 On `gpu-2`, the Task 1 implementation passed the complete Debug, Release, and
@@ -347,7 +357,7 @@ Self-review is not represented as independent review.
 
 1. The build-plan front matter still says `Proposed architectural program`; the user handoff approved it as execution authority. The charter and index record the authority distinction without rewriting technical semantics.
 2. The historical `gpu-2` VM still denies unprivileged cycles and instructions and remains ineligible. The designated AMD candidate exposes working privileged events, but its PMU policy and reboot stability are not yet qualified.
-3. The physical host exposes Python 3.14.4 while repository configuration pins Python 3.12.3; a direct policy diagnostic also observes ShellCheck 0.11 SC2329 differences from the pinned development lane. The accepted native bundle proves the narrow preparation/verifier Python surface on that host but does not replace `gpu-2` as the complete quality authority or qualify the physical host's broader repository toolchain.
+3. The physical host's system tools remain Python 3.14.4, Doxygen 1.15.0, and ShellCheck 0.11.0. The isolated versions in IDR-0004 close the repository-quality gap without changing system defaults, the target-native bundle identity, or measurement qualification. The historical provisioning lock and candidate manifest remain point-in-time captures rather than a live inventory of this supplemental development prefix.
 4. JITSpMM has no license statement at the pinned inspection revision; no build or use is authorized unless M2 resolves that boundary.
 5. Corpus supports are specified but not materialized by code; no canonical support digests exist.
 6. Independent review remains absent. Task 6 self-review is recorded but is not substituted for it.

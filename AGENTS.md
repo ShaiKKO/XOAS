@@ -102,6 +102,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md` — approved AOCL-BLAS admission decision for the physical AMD target.
 - `docs/engineering/coding-standards.md` — approved LLVM-derived source, documentation, enforcement, and review contract.
 - `docs/adr/IDR-0001-engineering-quality-system.md` — accepted engineering-quality design and staged implementation decision.
+- `docs/adr/IDR-0004-wineth-quality-toolchain.md` — verified isolated quality-toolchain supplement for `wineth-ubuntu`; it grants no measurement or qualification authority.
 - `docs/adr/IDR-0002-target0-qualification-tool-deployment.md` — accepted native-build/quality-authority split, closed evidence bundle, replica verification, and deployment limits.
 - `docs/adr/IDR-0003-target0-qualification-campaign-runner.md` — accepted two-phase campaign runner, deterministic statistics, dedicated privileged-PMU boundary, and fresh replay rules.
 - `CMakeLists.txt` and `CMakePresets.json` — quality-only C++23 build, test, and sanitizer surface; they do not contain product modules.
@@ -192,15 +193,22 @@ verified below `/opt/xoas/target0-v1`. Its lock records 288 regular installed
 files and configuration SHA-256
 `810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3`.
 These artifacts are not numerically admitted and the host remains unqualified.
-The host exposes Python 3.14.4, while repository configuration requires Python
-3.12.3 exactly. The narrow native preparation and verifier surface passed on
-that host at exact implementation `a312aa2`; the same subject passed the full
-Debug, Release, and sanitizer quality contract on `gpu-2`. This preserves
-`gpu-2` as the full quality authority instead of running the physical host's
-complete CMake/policy lane. A direct policy diagnostic also found a ShellCheck
-0.11 SC2329 difference from the pinned development lane; do not weaken the
-repository policy or infer that the physical host's complete repository
-toolchain is green.
+The system Python remains 3.14.4. An isolated Python 3.12.3, Doxygen 1.9.8,
+and ShellCheck 0.9.0 quality toolchain is verified below
+`/opt/xoas/development` under
+[`docs/adr/IDR-0004-wineth-quality-toolchain.md`](docs/adr/IDR-0004-wineth-quality-toolchain.md).
+At clean `main` commit `93f164c`, `wineth-ubuntu` passed complete Debug and
+Release quality aggregates, explicit 50/50 CTest replays for both modes, and
+the isolated 3/3 sanitizer gate. This supplemental quality lane does not
+qualify the physical host or weaken the native artifact and measurement
+boundaries.
+
+On `wineth-ubuntu`, prepend the isolated Doxygen and ShellCheck directories
+before running the standard CMake commands:
+
+```bash
+export PATH="/opt/xoas/development/doxygen-1.9.8/bin:/opt/xoas/development/shellcheck-0.9.0/usr/bin:$PATH"
+```
 
 ### Commands currently verified
 
