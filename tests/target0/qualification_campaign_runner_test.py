@@ -39,6 +39,12 @@ BUNDLE_EXAMPLE_PATH = (
 TOOLCHAIN_LOCK_PATH = (
     REPOSITORY_ROOT / "toolchains/target0-amd-ryzen9-7900x-v1.lock.json"
 )
+NONFINITE_JSON_TOKENS = {
+    "nan": b"NaN",
+    "positive_infinity": b"Infinity",
+    "negative_infinity": b"-Infinity",
+    "overflow": b"1e309",
+}
 
 
 def canonical_json_bytes(record: object) -> bytes:
@@ -53,6 +59,24 @@ def canonical_json_bytes(record: object) -> bytes:
         )
         + "\n"
     ).encode("utf-8")
+
+
+def replace_json_number(
+    content: bytes,
+    key: str,
+    replacement: bytes,
+) -> bytes:
+    """Replace one numeric JSON member with an explicit test token."""
+    pattern = rb'("' + key.encode("ascii") + rb'":)-?\d+'
+    updated, replacement_count = re.subn(
+        pattern,
+        rb"\g<1>" + replacement,
+        content,
+        count=1,
+    )
+    if replacement_count != 1:
+        raise AssertionError(f"numeric JSON member is missing: {key}")
+    return updated
 
 
 def load_runner_module() -> ModuleType:
@@ -374,6 +398,15 @@ class PrimarySessionRunner:
             process_bytes = (json.dumps(process_record, indent=2) + "\n").encode(
                 "utf-8"
             )
+        if inject and self.mutation is not None and self.mutation.startswith(
+            "nonfinite_process_"
+        ):
+            token_name = self.mutation.removeprefix("nonfinite_process_")
+            process_bytes = replace_json_number(
+                process_bytes,
+                "iterations",
+                NONFINITE_JSON_TOKENS[token_name],
+            )
         process_path.write_bytes(process_bytes)
         state = {
             "boost": 1,
@@ -428,6 +461,17 @@ class PrimarySessionRunner:
             restoration_bytes = (
                 json.dumps(restoration, indent=2) + "\n"
             ).encode("utf-8")
+        if inject and self.mutation is not None and self.mutation.startswith(
+            "nonfinite_restoration_"
+        ):
+            token_name = self.mutation.removeprefix(
+                "nonfinite_restoration_"
+            )
+            restoration_bytes = replace_json_number(
+                restoration_bytes,
+                "cpu",
+                NONFINITE_JSON_TOKENS[token_name],
+            )
         restoration_path.write_bytes(restoration_bytes)
         return SimpleNamespace(returncode=return_status, stdout="", stderr="")
 
@@ -1991,6 +2035,11 @@ class QualificationCampaignPrimaryProcessTest(unittest.TestCase):
                 "raw-process-byte",
                 "noncanonical-process",
                 "noncanonical-restoration",
+                *(f"nonfinite-process-{name}" for name in NONFINITE_JSON_TOKENS),
+                *(
+                    f"nonfinite-restoration-{name}"
+                    for name in NONFINITE_JSON_TOKENS
+                ),
                 "core-selection",
                 "preflight-load",
                 "preflight-session-decision",
@@ -2042,6 +2091,34 @@ class QualificationCampaignPrimaryProcessTest(unittest.TestCase):
                         campaign_record["processes"][0]["evidence"][
                             digest_field
                         ] = hashlib.sha256(evidence_path.read_bytes()).hexdigest()
+                        write_canonical_json(campaign_path, campaign_record)
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name.startswith("nonfinite-"):
+                        _, evidence_kind, token_name = tamper_name.split("-", 2)
+                        evidence_name = f"{evidence_kind}.json"
+                        evidence_path = attempt / "process-01" / evidence_name
+                        numeric_key = (
+                            "iterations"
+                            if evidence_kind == "process"
+                            else "cpu"
+                        )
+                        evidence_path.write_bytes(
+                            replace_json_number(
+                                evidence_path.read_bytes(),
+                                numeric_key,
+                                NONFINITE_JSON_TOKENS[token_name],
+                            )
+                        )
+                        campaign_path = attempt / "campaign.json"
+                        campaign_record = json.loads(
+                            campaign_path.read_text(encoding="utf-8")
+                        )
+                        digest_field = f"{evidence_kind}_sha256"
+                        campaign_record["processes"][0]["evidence"][
+                            digest_field
+                        ] = hashlib.sha256(
+                            evidence_path.read_bytes()
+                        ).hexdigest()
                         write_canonical_json(campaign_path, campaign_record)
                         rebind_disposable_terminal(attempt)
                     elif tamper_name == "core-selection":
@@ -2197,6 +2274,14 @@ class QualificationCampaignPrimaryProcessTest(unittest.TestCase):
                 ("invalid_schema", "process_schema_failure"),
                 ("noncanonical_process", "process_schema_failure"),
                 ("noncanonical_restoration", "restoration_failure"),
+                *(
+                    (f"nonfinite_process_{name}", "process_schema_failure")
+                    for name in NONFINITE_JSON_TOKENS
+                ),
+                *(
+                    (f"nonfinite_restoration_{name}", "restoration_failure")
+                    for name in NONFINITE_JSON_TOKENS
+                ),
                 ("duration_low", "sample_bound_or_migration_failure"),
                 ("duration_high", "sample_bound_or_migration_failure"),
                 ("migration", "sample_bound_or_migration_failure"),

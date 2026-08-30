@@ -313,8 +313,8 @@ exec "$@"
             canonical_json_bytes(json.loads(retained_bytes.decode("utf-8"))),
         )
 
-    def test_restores_governor_before_energy_preference(self) -> None:
-        """Governor restoration must precede the dependent amd-pstate EPP."""
+    def test_restores_sibling_then_governor_then_energy_preference(self) -> None:
+        """Restoration must follow the complete amd-pstate dependency order."""
         traced_command = self.command(("/usr/bin/true",))
         traced_command.insert(1, "-x")
         completed = subprocess.run(
@@ -335,16 +335,23 @@ exec "$@"
             self.fixture_root
             / "sys/devices/system/cpu/cpu4/cpufreq/energy_performance_preference"
         )
+        sibling_path = (
+            self.fixture_root / "sys/devices/system/cpu/cpu16/online"
+        )
+        sibling_restore = f"+ writeValue {sibling_path} 1"
         governor_restore = (
             f"+ writeValue {governor_path} powersave"
         )
         preference_restore = (
             f"+ writeValue {preference_path} balance_performance"
         )
+        sibling_index = completed.stderr.rfind(sibling_restore)
         governor_index = completed.stderr.rfind(governor_restore)
         preference_index = completed.stderr.rfind(preference_restore)
+        self.assertNotEqual(sibling_index, -1, completed.stderr)
         self.assertNotEqual(governor_index, -1, completed.stderr)
         self.assertNotEqual(preference_index, -1, completed.stderr)
+        self.assertLess(sibling_index, governor_index)
         self.assertLess(governor_index, preference_index)
 
     def test_privileged_perf_mode_demotes_child_and_restores_exact_state(
