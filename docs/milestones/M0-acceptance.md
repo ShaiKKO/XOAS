@@ -19,13 +19,33 @@
 **Qualification-tool implementation subject:** `a312aa2bbbb403b31ffb67cf40200da063527a4f`
 (`build: add native Target 0 qualification bundle preparation`)
 
+**Campaign-runner implementation subject:**
+`db0eb8797b54f26eb9a86417af9e0eb626f9669f`
+(`fix: keep campaign execution source clean`), building on core implementation
+`cf149ae25bbea5b55577791b8511ae9d2489445e`.
+
+**Campaign-runner exact quality subject:**
+`7b486e1fe6ef56e414c65ba0cf09ebc9bbc77dc6`
+(`docs: bind Target 0 campaign runner evidence`).
+
+**Protected-main ancestry synchronization:**
+`f90c27d57586e1314568929c86bb1826500af730`; its tree is byte-identical to
+core implementation subject `cf149ae` and precedes source-clean execution fix
+`db0eb87`.
+
 **Qualification-tool implementation tree:** `b7279b22e40c848da7aecd7f3e4197a6857aa85f`
 
 **Qualification-tool deployment receipt:**
 [`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json),
 SHA-256 `0d62ab0c143fa224d31e4cde925e4c30a5a512c5cd391c4d8cd030b6608572ff`
 
-**Subject tree state:** Clean at verification; `main` was one commit ahead of `origin/main` before this documentation-only evidence update.
+**Qualification-tool protected-main integration:** PR #4, squash merge
+`a51a7f943689116bac69062c3f8a8e620740bcae`.
+
+**Subject tree state:** The campaign branch was clean and pushed at
+`7b486e1fe6ef56e414c65ba0cf09ebc9bbc77dc6` before this documentation update;
+local `main` and `origin/main` matched protected merge `a51a7f9`. The active
+campaign branch was the only remaining task branch.
 
 ## Controlling requirements
 
@@ -60,6 +80,7 @@ any existing applicable comparator.
 | Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented at `864f7fa` and repository-root integration repaired at `b7371ae`; no real measurement control was changed |
 | Physical candidate and provisioning lock | [`../targets/target0-amd-ryzen9-7900x-v1.md`](../targets/target0-amd-ryzen9-7900x-v1.md), [`../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json), and closed lock/schema | Task 3 resolved exact pre-state at `ee57ff5`; Task 4 installed and verified the 26-package closure plus AOCL-BLAS, OpenBLAS, and LIBXSMM against clean subject `16d698d`, with repository evidence committed at `9d44f64`; the candidate remains unqualified |
 | Qualification-tool deployment implementation | [`../../tools/target0/prepare_qualification_bundle.py`](../../tools/target0/prepare_qualification_bundle.py), [`../../tools/target0/verify_qualification_bundle.py`](../../tools/target0/verify_qualification_bundle.py), the closed [`../../schemas/target0-qualification-tool-bundle-v1.schema.json`](../../schemas/target0-qualification-tool-bundle-v1.schema.json), accepted [`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json), and [`../adr/IDR-0002-target0-qualification-tool-deployment.md`](../adr/IDR-0002-target0-qualification-tool-deployment.md) | Exact implementation subject `a312aa2bbbb403b31ffb67cf40200da063527a4f` passed Debug 38/38, Release 38/38, and sanitizer 3/3 on `gpu-2`; the physical host produced byte-identical dual builds and passed 5/5 compatibility tests; fresh physical and `gpu-2` verification matched the accepted bundle, inventory, executable, and normalized executable-identity digests. Deployment is closed without campaign, qualification, reboot, host-control, or performance authority. |
+| Target qualification campaign runner | [`../../schemas/target0-qualification-campaign-v1.schema.json`](../../schemas/target0-qualification-campaign-v1.schema.json), [`../../tools/target0/qualification_campaign.py`](../../tools/target0/qualification_campaign.py), [`../../tools/target0/run_qualification_campaign.py`](../../tools/target0/run_qualification_campaign.py), [`../../tools/target0/verify_qualification_campaign.py`](../../tools/target0/verify_qualification_campaign.py), and [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Implementation Tasks 1–6 plus source-clean runner/verifier execution are committed through `db0eb87`; exact clean evidence subject `7b486e1` passed complete Debug and Release quality aggregates and explicit 50/50 CTest replays, sanitizer 3/3, repository policy, and source-clean checkout verification on `gpu-2`. A replacement native bundle, physical preflight, and campaign one remain open. No live control, campaign, reboot, qualification, or performance claim occurred. |
 
 ## Exit-gate statement
 
@@ -196,6 +217,31 @@ No campaign, real measurement-session control, benchmark, reboot,
 qualification, or performance claim occurred. Deployment compatibility timing
 is not benchmark evidence.
 
+### Campaign-runner implementation verification
+
+Exact implementation subject
+`db0eb8797b54f26eb9a86417af9e0eb626f9669f` contains the closed campaign
+schema/contract, dedicated privileged-`perf` session mode, read-only preflight,
+five primary process and nine PMU-session orchestration, deterministic
+finalization, and fresh replay verifier. On `gpu-2`, the focused final gate
+passed repository policy and 19/19 Target 0 tests in 97.96 seconds. The
+integration fixture executes the real runner and session-controller boundary,
+retains five ordered 30-sample primary records, required and optional PMU
+records, finalizes canonical evidence, and rejects raw, identity, selector,
+thermal, restoration, inventory, acceptance, and whole-file-set tampering even
+after outer digests are deliberately rebound.
+
+The same subject passed the complete Debug `quality` aggregate and an explicit
+50/50 Debug CTest replay; the aggregate included repository policy,
+formatting, Doxygen, Clang-Tidy, and the isolated 3/3 ASan/UBSan gate. Exact
+clean evidence subject `7b486e1fe6ef56e414c65ba0cf09ebc9bbc77dc6`
+passed both complete Debug and Release quality aggregates and explicit 50/50
+CTest replays, the isolated 3/3 sanitizer gate, repository policy, and final
+source-clean checkout verification. Task 7 is closed. Protected-main ancestry
+synchronization `f90c27d` changed no bytes relative to the earlier `cf149ae`
+tree. No physical checkout, live preflight, measurement control,
+campaign, counter collection, reboot, or qualification decision occurred.
+
 ### External corpus evidence
 
 Official NIST artifacts were downloaded into temporary storage, never committed, and checked:
@@ -264,7 +310,7 @@ The benchmark-result example is synthetic and explicitly non-claiming.
 
 ## Review
 
-- Head engineering self-review: performed incrementally against the exact Task 4 provisioning subject `16d698d`, installed lock, live artifact hashes, retained upstream logs, build-plan M0 requirements, and the active AMD qualification plan. The deployment review examined exact subject `a312aa2`, its source and subprocess boundaries, canonical closed receipt, native dual-build/runtime evidence, compatibility results, and fresh cross-host verifier equality. Earlier M0 integration self-review remains bound to `3d635d3`.
+- Head engineering self-review: performed incrementally against the exact Task 4 provisioning subject `16d698d`, installed lock, live artifact hashes, retained upstream logs, build-plan M0 requirements, and the active AMD qualification plan. The deployment review examined exact subject `a312aa2`, its source and subprocess boundaries, canonical closed receipt, native dual-build/runtime evidence, compatibility results, and fresh cross-host verifier equality. Campaign-runner review examined exact subject `db0eb87`, privilege separation, identity/statistical closure, restoration dominance, deterministic selector replay, canonical write-once finalization, fresh verification, re-bound semantic tampering, and source-clean CLI execution. Earlier M0 integration self-review remains bound to `3d635d3`.
 - Independent implementation-quality review: not performed. No subagent or external reviewer was requested for this stage.
 - Architecture approval: AR-0001 Option 2 approved by the user on 2026-08-28 and integrated at `6904d49e4978f48d9ca3c5db29fac59bbc3233c6`.
 

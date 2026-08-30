@@ -78,6 +78,48 @@ class MeasurementSessionTest(unittest.TestCase):
         self.fixture_root = Path(self.temporary_directory.name)
         make_session_fixture(self.fixture_root)
         self.record_path = self.fixture_root / "restoration.json"
+        self.fake_perf_path = self.fixture_root / "perf"
+        self.fake_perf_path.write_text(
+            """#!/bin/sh
+set -eu
+output=''
+events=''
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    stat|--no-big-num)
+      shift
+      ;;
+    -x)
+      test "$2" = ';'
+      shift 2
+      ;;
+    --output)
+      output=$2
+      shift 2
+      ;;
+    --event)
+      events=$2
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      exit 91
+      ;;
+  esac
+done
+test -n "$output"
+test "$events" = 'cycles,instructions'
+test "$#" -gt 0
+printf '100000000;;cycles;1;100.00;;\n' >"$output"
+printf '200000000;;instructions;1;100.00;;\n' >>"$output"
+exec "$@"
+""",
+            encoding="utf-8",
+        )
+        self.fake_perf_path.chmod(0o755)
 
     def tearDown(self) -> None:
         self.temporary_directory.cleanup()
@@ -91,6 +133,7 @@ class MeasurementSessionTest(unittest.TestCase):
             "XOAS_TARGET0_TESTING": "1",
             "XOAS_TARGET0_SYSFS_ROOT": str(self.fixture_root / "sys"),
             "XOAS_TARGET0_PROCFS_ROOT": str(self.fixture_root / "proc"),
+            "XOAS_TARGET0_PERF_PATH": str(self.fake_perf_path),
         }
 
     def command(
@@ -101,11 +144,14 @@ class MeasurementSessionTest(unittest.TestCase):
         sibling: int = 16,
         target_user: str = "xoas-test",
         record_path: Path | None = None,
+        execution_mode: str | None = None,
+        perf_output: Path | None = None,
+        perf_events: str | None = None,
     ) -> list[str]:
         """Build one real controller command with explicit evidence output."""
         self.assertTrue(SCRIPT_PATH.is_file(), "measurement_session.sh is missing")
         output_path = self.record_path if record_path is None else record_path
-        return [
+        controller_command = [
             "/bin/bash",
             str(SCRIPT_PATH),
             "--cpu",
@@ -116,9 +162,15 @@ class MeasurementSessionTest(unittest.TestCase):
             target_user,
             "--restoration-record",
             str(output_path),
-            "--",
-            *command,
         ]
+        if execution_mode is not None:
+            controller_command.extend(("--execution-mode", execution_mode))
+        if perf_output is not None:
+            controller_command.extend(("--perf-output", str(perf_output)))
+        if perf_events is not None:
+            controller_command.extend(("--perf-events", perf_events))
+        controller_command.extend(("--", *command))
+        return controller_command
 
     def run_session(
         self,
@@ -235,6 +287,231 @@ class MeasurementSessionTest(unittest.TestCase):
         self.assertEqual(record["pre_state"], record["post_state"])
         self.assertIs(record["boost_unchanged"], True)
         self.assertNotIn("xoas-test", json.dumps(record))
+
+    def test_privileged_perf_mode_demotes_child_and_restores_exact_state(
+        self,
+    ) -> None:
+        """The closed perf frontend must preserve child isolation and restore."""
+        command_result = self.fixture_root / "perf-command-environment.json"
+        perf_output = self.fixture_root / "perf-stat.txt"
+        governor_path = (
+            self.fixture_root
+            / "sys/devices/system/cpu/cpu4/cpufreq/scaling_governor"
+        )
+        preference_path = (
+            self.fixture_root
+            / "sys/devices/system/cpu/cpu4/cpufreq/energy_performance_preference"
+        )
+        sibling_path = (
+            self.fixture_root / "sys/devices/system/cpu/cpu16/online"
+        )
+        python_source = (
+            "import json, os, pathlib; "
+            f"pathlib.Path({str(command_result)!r}).write_text("
+            "json.dumps({"
+            "'environment': dict(os.environ), "
+            f"'governor': pathlib.Path({str(governor_path)!r}).read_text().strip(), "
+            f"'preference': pathlib.Path({str(preference_path)!r}).read_text().strip(), "
+            f"'sibling_online': pathlib.Path({str(sibling_path)!r}).read_text().strip()"
+            "}, sort_keys=True), encoding='utf-8')"
+        )
+
+        completed = self.run_session(
+            ("/usr/bin/python3", "-c", python_source),
+            execution_mode="privileged-perf",
+            perf_output=perf_output,
+            perf_events="cycles,instructions",
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assert_restored()
+        self.assertEqual(
+            perf_output.read_text(encoding="utf-8"),
+            "100000000;;cycles;1;100.00;;\n"
+            "200000000;;instructions;1;100.00;;\n",
+        )
+        observations = json.loads(command_result.read_text(encoding="utf-8"))
+        self.assertEqual(
+            observations["environment"],
+            {
+                "HOME": "/nonexistent",
+                "LANG": "C.UTF-8",
+                "PATH": "/usr/bin:/usr/sbin",
+            },
+        )
+        self.assertEqual(observations["governor"], "performance")
+        self.assertEqual(observations["preference"], "performance")
+        self.assertEqual(observations["sibling_online"], "0")
+        record = json.loads(self.record_path.read_text(encoding="utf-8"))
+        self.assertEqual(record["command_exit_status"], 0)
+        self.assertIs(record["restored"], True)
+        self.assertNotIn("xoas-test", json.dumps(record))
+
+    def test_perf_output_alias_fails_before_command_or_control_mutation(
+        self,
+    ) -> None:
+        """Perf output must not collide with the restoration evidence path."""
+        command_marker = self.fixture_root / "aliased-command-ran"
+        state_before = self.control_state()
+
+        completed = self.run_session(
+            ("/usr/bin/touch", str(command_marker)),
+            execution_mode="privileged-perf",
+            perf_output=self.record_path,
+            perf_events="cycles,instructions",
+        )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertFalse(command_marker.exists())
+        self.assertEqual(self.control_state(), state_before)
+        self.assertFalse(self.record_path.exists())
+
+    def test_duplicate_perf_option_fails_before_control_mutation(self) -> None:
+        """A repeated closed-interface option must not silently replace input."""
+        command_marker = self.fixture_root / "duplicate-option-command-ran"
+        perf_output = self.fixture_root / "duplicate-option-perf.txt"
+        state_before = self.control_state()
+        command = self.command(
+            ("/usr/bin/touch", str(command_marker)),
+            execution_mode="privileged-perf",
+            perf_output=perf_output,
+            perf_events="cycles,instructions",
+        )
+        separator_index = command.index("--")
+        command[separator_index:separator_index] = (
+            "--perf-events",
+            "branches",
+        )
+
+        completed = subprocess.run(
+            command,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            env=self.environment(),
+        )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertFalse(command_marker.exists())
+        self.assertEqual(self.control_state(), state_before)
+        self.assertFalse(self.record_path.exists())
+        self.assertFalse(perf_output.exists())
+
+    def test_invalid_perf_preconditions_fail_before_mutation(self) -> None:
+        """Missing, conflicting, or unapproved perf options must fail early."""
+        cases = (
+            {
+                "name": "missing-output",
+                "execution_mode": "privileged-perf",
+                "perf_events": "cycles,instructions",
+            },
+            {
+                "name": "missing-events",
+                "execution_mode": "privileged-perf",
+                "perf_output": "perf.txt",
+            },
+            {
+                "name": "unknown-event-group",
+                "execution_mode": "privileged-perf",
+                "perf_output": "perf.txt",
+                "perf_events": "cycles,branches",
+            },
+            {
+                "name": "probe-with-perf-output",
+                "execution_mode": "probe",
+                "perf_output": "perf.txt",
+            },
+            {
+                "name": "unknown-mode",
+                "execution_mode": "root-command",
+            },
+        )
+
+        for case in cases:
+            with self.subTest(name=case["name"]):
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    self.fixture_root = Path(temporary_directory)
+                    make_session_fixture(self.fixture_root)
+                    self.record_path = self.fixture_root / "restoration.json"
+                    self.fake_perf_path = self.fixture_root / "perf"
+                    self.fake_perf_path.write_text(
+                        "#!/bin/sh\nexit 99\n",
+                        encoding="utf-8",
+                    )
+                    self.fake_perf_path.chmod(0o755)
+                    state_before = self.control_state()
+                    marker = self.fixture_root / "invalid-command-ran"
+                    perf_output_name = case.get("perf_output")
+                    perf_output = (
+                        self.fixture_root / str(perf_output_name)
+                        if perf_output_name is not None
+                        else None
+                    )
+
+                    completed = self.run_session(
+                        ("/usr/bin/touch", str(marker)),
+                        execution_mode=str(case["execution_mode"]),
+                        perf_output=perf_output,
+                        perf_events=case.get("perf_events"),
+                    )
+
+                    self.assertNotEqual(completed.returncode, 0)
+                    self.assertFalse(marker.exists())
+                    self.assertEqual(self.control_state(), state_before)
+                    self.assertFalse(self.record_path.exists())
+
+    def test_perf_failure_restores_and_retains_exact_command_status(self) -> None:
+        """A failed perf frontend must restore controls and retain its status."""
+        perf_output = self.fixture_root / "unsupported-perf.txt"
+
+        completed = self.run_session(
+            ("/bin/true",),
+            execution_mode="privileged-perf",
+            perf_output=perf_output,
+            perf_events="branches",
+        )
+
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        self.assert_restored()
+        record = json.loads(self.record_path.read_text(encoding="utf-8"))
+        self.assertEqual(record["command_exit_status"], 1)
+        self.assertEqual(record["status"], "restored")
+
+    def test_dangling_perf_output_symlink_fails_before_mutation(self) -> None:
+        """The privileged frontend must never follow a dangling output link."""
+        missing_target = self.fixture_root / "missing-perf-target"
+        perf_output = self.fixture_root / "dangling-perf-output"
+        perf_output.symlink_to(missing_target)
+        marker = self.fixture_root / "symlink-command-ran"
+        state_before = self.control_state()
+
+        completed = self.run_session(
+            ("/usr/bin/touch", str(marker)),
+            execution_mode="privileged-perf",
+            perf_output=perf_output,
+            perf_events="cycles,instructions",
+        )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertFalse(marker.exists())
+        self.assertFalse(missing_target.exists())
+        self.assertEqual(self.control_state(), state_before)
+        self.assertFalse(self.record_path.exists())
+
+    def test_dangling_restoration_symlink_fails_before_mutation(self) -> None:
+        """Restoration evidence must never follow or collide with a link."""
+        missing_target = self.fixture_root / "missing-restoration-target"
+        self.record_path.symlink_to(missing_target)
+        marker = self.fixture_root / "restoration-symlink-command-ran"
+        state_before = self.control_state()
+
+        completed = self.run_session(("/usr/bin/touch", str(marker)))
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertFalse(marker.exists())
+        self.assertFalse(missing_target.exists())
+        self.assertEqual(self.control_state(), state_before)
 
     def test_command_failure_and_term_restore_exact_state(self) -> None:
         """Command failure and TERM must retain status while restoring controls."""

@@ -1477,6 +1477,9 @@ class PrepareQualificationBundleInspectionTest(unittest.TestCase):
                     "py_compile",
                     "tools/target0/prepare_qualification_bundle.py",
                     "tools/target0/capture_host.py",
+                    "tools/target0/qualification_campaign.py",
+                    "tools/target0/run_qualification_campaign.py",
+                    "tools/target0/verify_qualification_campaign.py",
                 ),
             ),
             (
@@ -1701,6 +1704,23 @@ class PrepareQualificationBundleFinalizationTest(unittest.TestCase):
             ARGUMENTS.schema,
         )
         return manifest, acceptance
+
+    def test_source_collector_emits_bytewise_sorted_fixed_paths(self) -> None:
+        """Deployment and campaign identities must share one stable ordering."""
+        collector = getattr(self.module, "collect_source_records", None)
+        self.assertTrue(callable(collector), "public source collector is missing")
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            repository_root = Path(temporary_directory)
+            for source in self.example["sources"]:
+                path = repository_root / source["path"]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(source["path"].encode("utf-8"))
+
+            records = collector(repository_root)
+
+        paths = [record["path"] for record in records]
+        self.assertEqual(paths, sorted(paths, key=lambda path: path.encode("utf-8")))
+        self.assertEqual(paths, [source["path"] for source in self.example["sources"]])
 
     def test_inventory_and_acceptance_authenticate_exact_canonical_bytes(self) -> None:
         """Acceptance must bind sorted file bytes without recursive hashes."""

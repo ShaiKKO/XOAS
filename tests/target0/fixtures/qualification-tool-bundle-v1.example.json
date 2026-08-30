@@ -165,16 +165,44 @@
   ],
   "sources": [
     {
-      "path": "tools/target0/prepare_qualification_bundle.py",
-      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "path": "schemas/target0-host-qualification-v1.schema.json",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
     },
     {
-      "path": "tools/target0/verify_qualification_bundle.py",
-      "sha256": "0101010101010101010101010101010101010101010101010101010101010101"
+      "path": "schemas/target0-qualification-campaign-v1.schema.json",
+      "sha256": "0606060606060606060606060606060606060606060606060606060606060606"
     },
     {
-      "path": "tools/target0/qualification_probe.cpp",
-      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      "path": "schemas/target0-qualification-tool-bundle-v1.schema.json",
+      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "path": "schemas/target0-toolchain-lock-v1.schema.json",
+      "sha256": "0505050505050505050505050505050505050505050505050505050505050505"
+    },
+    {
+      "path": "tests/target0/capture_host_test.py",
+      "sha256": "0202020202020202020202020202020202020202020202020202020202020202"
+    },
+    {
+      "path": "tests/target0/fixtures/qualification-campaign-v1.example.json",
+      "sha256": "0707070707070707070707070707070707070707070707070707070707070707"
+    },
+    {
+      "path": "tests/target0/measurement_session_test.py",
+      "sha256": "0303030303030303030303030303030303030303030303030303030303030303"
+    },
+    {
+      "path": "tests/target0/qualification_campaign_runner_test.py",
+      "sha256": "0808080808080808080808080808080808080808080808080808080808080808"
+    },
+    {
+      "path": "tests/target0/qualification_campaign_test.py",
+      "sha256": "0909090909090909090909090909090909090909090909090909090909090909"
+    },
+    {
+      "path": "tests/target0/qualification_probe_test.py",
+      "sha256": "0404040404040404040404040404040404040404040404040404040404040404"
     },
     {
       "path": "tools/target0/capture_host.py",
@@ -185,28 +213,28 @@
       "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
     },
     {
-      "path": "tests/target0/capture_host_test.py",
-      "sha256": "0202020202020202020202020202020202020202020202020202020202020202"
+      "path": "tools/target0/prepare_qualification_bundle.py",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     {
-      "path": "tests/target0/measurement_session_test.py",
-      "sha256": "0303030303030303030303030303030303030303030303030303030303030303"
+      "path": "tools/target0/qualification_campaign.py",
+      "sha256": "1010101010101010101010101010101010101010101010101010101010101010"
     },
     {
-      "path": "tests/target0/qualification_probe_test.py",
-      "sha256": "0404040404040404040404040404040404040404040404040404040404040404"
+      "path": "tools/target0/qualification_probe.cpp",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     },
     {
-      "path": "schemas/target0-host-qualification-v1.schema.json",
-      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      "path": "tools/target0/run_qualification_campaign.py",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
     },
     {
-      "path": "schemas/target0-qualification-tool-bundle-v1.schema.json",
-      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      "path": "tools/target0/verify_qualification_bundle.py",
+      "sha256": "0101010101010101010101010101010101010101010101010101010101010101"
     },
     {
-      "path": "schemas/target0-toolchain-lock-v1.schema.json",
-      "sha256": "0505050505050505050505050505050505050505050505050505050505050505"
+      "path": "tools/target0/verify_qualification_campaign.py",
+      "sha256": "1212121212121212121212121212121212121212121212121212121212121212"
     }
   ],
   "status": "passed",
