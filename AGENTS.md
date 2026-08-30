@@ -859,11 +859,16 @@ process 1 with retained `restoration_failure`: sibling, governor, and boost
 restored, but EPP remained `performance` instead of `balance_performance`.
 Bounded one-field recovery restored exact pre-state and independent live
 identity replay passed. No PMU phase, accepted campaign receipt, reboot,
-qualification, or performance claim occurred. Before a new attempt, require a
-test-first restoration-order repair, resolution of the canonical-JSON evidence
-deviation, complete exact-commit `gpu-2` quality, a new native bundle/replica,
-a new read-only preflight, and separate live-attempt authority. Never reuse or
-rewrite the rejected root. The pinned JITSpMM revision has no license statement;
+qualification, or performance claim occurred. The test-first source repair is
+verified: red subject `485eb6b` exposed the restoration-order and canonical-byte
+defects, and exact repair subject `93e9070` restores the sibling, governor, then
+EPP, emits canonical process/restoration JSON, and rejects noncanonical retained
+records. That subject passed complete Debug and Release 50/50 suites plus the
+isolated 3/3 sanitizer gate on `wineth-ubuntu`; this supplemental quality evidence
+does not qualify the measurement host. Before a new attempt, require physical
+restoration verification, a new native bundle/replica, a new read-only preflight,
+and separate live-attempt authority. Never reuse or rewrite the rejected root.
+The pinned JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound
 benchmark evidence belong on that selected measurement host. Obtain the

@@ -80,7 +80,7 @@ any existing applicable comparator.
 | Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented at `864f7fa` and repository-root integration repaired at `b7371ae`; no real measurement control was changed |
 | Physical candidate and provisioning lock | [`../targets/target0-amd-ryzen9-7900x-v1.md`](../targets/target0-amd-ryzen9-7900x-v1.md), [`../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json), and closed lock/schema | Task 3 resolved exact pre-state at `ee57ff5`; Task 4 installed and verified the 26-package closure plus AOCL-BLAS, OpenBLAS, and LIBXSMM against clean subject `16d698d`, with repository evidence committed at `9d44f64`; the candidate remains unqualified |
 | Qualification-tool deployment implementation | [`../../tools/target0/prepare_qualification_bundle.py`](../../tools/target0/prepare_qualification_bundle.py), [`../../tools/target0/verify_qualification_bundle.py`](../../tools/target0/verify_qualification_bundle.py), the closed [`../../schemas/target0-qualification-tool-bundle-v1.schema.json`](../../schemas/target0-qualification-tool-bundle-v1.schema.json), accepted [`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json), and [`../adr/IDR-0002-target0-qualification-tool-deployment.md`](../adr/IDR-0002-target0-qualification-tool-deployment.md) | Exact implementation subject `a312aa2bbbb403b31ffb67cf40200da063527a4f` passed Debug 38/38, Release 38/38, and sanitizer 3/3 on `gpu-2`; the physical host produced byte-identical dual builds and passed 5/5 compatibility tests; fresh physical and `gpu-2` verification matched the accepted bundle, inventory, executable, and normalized executable-identity digests. Deployment is closed without campaign, qualification, reboot, host-control, or performance authority. |
-| Target qualification campaign runner | [`../../schemas/target0-qualification-campaign-v1.schema.json`](../../schemas/target0-qualification-campaign-v1.schema.json), [`../../tools/target0/qualification_campaign.py`](../../tools/target0/qualification_campaign.py), [`../../tools/target0/run_qualification_campaign.py`](../../tools/target0/run_qualification_campaign.py), [`../../tools/target0/verify_qualification_campaign.py`](../../tools/target0/verify_qualification_campaign.py), and [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Implementation Tasks 1–6 plus source-clean runner/verifier execution are committed through `db0eb87`; exact clean evidence subject `7b486e1` passed complete Debug and Release quality aggregates and explicit 50/50 CTest replays, sanitizer 3/3, repository policy, and source-clean checkout verification on `gpu-2`. Replacement bundle and preflight passed at source `1141713c`; campaign-one attempt 1 was retained as `restoration_failure` before PMU after CPU 2 EPP failed to restore. Bounded recovery returned the host to exact pre-state. An accepted campaign one, reboot, qualification, and performance claims remain open. |
+| Target qualification campaign runner | [`../../schemas/target0-qualification-campaign-v1.schema.json`](../../schemas/target0-qualification-campaign-v1.schema.json), [`../../tools/target0/qualification_campaign.py`](../../tools/target0/qualification_campaign.py), [`../../tools/target0/run_qualification_campaign.py`](../../tools/target0/run_qualification_campaign.py), [`../../tools/target0/verify_qualification_campaign.py`](../../tools/target0/verify_qualification_campaign.py), and [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Implementation Tasks 1–6 plus source-clean runner/verifier execution are committed through `db0eb87`; exact clean evidence subject `7b486e1` passed complete Debug and Release quality on `gpu-2`. Replacement bundle and preflight passed at source `1141713c`; campaign-one attempt 1 was retained as `restoration_failure` before PMU after CPU 2 EPP failed to restore, and bounded recovery returned exact pre-state. Red repair tests are at `485eb6b`; exact source repair `93e9070` passed complete Debug and Release 50/50 suites, sanitizer 3/3, and repository policy on `wineth-ubuntu`. Physical restoration proof, a new bundle/replica and preflight, accepted campaign one, reboot, qualification, and performance claims remain open. |
 
 ## Exit-gate statement
 
@@ -362,8 +362,8 @@ Self-review is not represented as independent review.
 5. Corpus supports are specified but not materialized by code; no canonical support digests exist.
 6. Independent review remains absent. Task 6 self-review is recorded but is not substituted for it.
 7. The qualification plan says Task 7 may set qualification true only when every requirement and review gate passes, while the candidate manifest defers `baseline_numerical_admission` to M2 and M1 is blocked on M0. This dependency conflict must be resolved explicitly before the Task 7 decision; it does not block Task 5 infrastructure qualification.
-8. Campaign-one attempt 1 proved a physical restoration defect: restoring EPP before the governor leaves EPP at `performance` on the `amd-pstate-epp` target. The retained rejection is terminal; a test-first source repair, full exact-commit quality, new bundle, new preflight, and separately authorized new campaign attempt are required.
-9. The normative campaign-runner design requires every retained JSON file to use canonical compact encoding, while the native probe and Bash restoration record are loaded as regular JSON and the rejected live files are not encoded by the canonical serializer. Resolve the implementation/specification deviation before another campaign attempt; do not silently relax the evidence contract.
+8. Campaign-one attempt 1 proved a physical restoration defect: restoring EPP before the governor leaves EPP at `performance` on the `amd-pstate-epp` target. Test-first source repair `93e9070` now restores governor before EPP and passed exact-commit fixture quality, but physical validation, a new bundle, new preflight, and separately authorized new campaign attempt are still required. The retained rejection is terminal.
+9. The normative campaign-runner design requires every retained JSON file to use canonical compact encoding. Source repair `93e9070` makes the native probe and Bash restoration record canonical and makes both consumers reject noncanonical bytes. The rejected live files remain immutable noncanonical failure evidence; the correction requires a new bundle and new root.
 
 ## Gate decision and blockers
 
@@ -376,17 +376,17 @@ M0 remains **OPEN**. Closing it requires:
 
 ## Earliest executable next slice
 
-The earliest valid slice is still within M0:
+The earliest valid slice is still within M0. The test-first repair and
+exact-commit repository-quality gates are closed at `485eb6b` and `93e9070`.
+Next:
 
-1. write a task-level repair plan covering the physical governor/EPP ordering
-   regression and the retained-JSON canonical-encoding deviation;
-2. implement both corrections test-first and pass complete pinned `gpu-2`
-   Debug, Release, sanitizer, and repository-policy gates;
-3. build and cross-verify a new exact-commit physical bundle, then execute and
+1. physically verify the repaired restoration dependency on the designated
+   host without beginning a qualification campaign;
+2. build and cross-verify a new exact-commit physical bundle, then execute and
    independently review a new read-only preflight;
-4. obtain explicit authority for one new campaign-one attempt. The retained
+3. obtain explicit authority for one new campaign-one attempt. The retained
    rejected root is never reused, rewritten, or retried;
-5. stop again before any controlled reboot unless campaign one is accepted and
+4. stop again before any controlled reboot unless campaign one is accepted and
    separate reboot authority is granted.
 
 The reviewed engineering-quality-gates plan is now unblocked as independent development-environment work, but it cannot substitute for the measurement-host critical path or authorize M1 product code.

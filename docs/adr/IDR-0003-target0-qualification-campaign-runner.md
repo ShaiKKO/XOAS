@@ -160,11 +160,19 @@ The immutable rejection SHA-256 is
 `e6458e2dac1097fa5649371c0815403708c7985da0b80d2ebf5c8b049efc5868`.
 No PMU phase, reboot, qualification decision, or performance claim occurred.
 
-Before another campaign attempt, the implementation must repair and physically
-verify the governor/EPP restoration order and resolve the normative-design
-requirement for canonical JSON against the regular JSON currently emitted by
-the native probe and Bash restoration record. Any source correction requires a
-new exact-commit bundle, replica verification, preflight, and attempt root.
+The source correction was implemented test-first. Red subject `485eb6b` added
+exact-byte and restoration-order regressions that failed against the prior
+implementation. Exact repair subject `93e9070` restores the sibling first, the
+governor second, and EPP third; emits compact sorted newline-terminated JSON
+from both the native probe and Bash restoration record; and requires canonical
+bytes when the runner or fresh verifier ingests either record. The subject
+passed complete Debug and Release 50/50 suites, the isolated 3/3 sanitizer
+gate, and repository policy on `wineth-ubuntu`.
+
+This closes the source and fixture evidence defects only. Before another
+campaign attempt, physically verify governor/EPP restoration on the designated
+host, build and cross-verify a new exact-commit bundle, pass a new read-only
+preflight, obtain separate attempt authority, and use a new immutable root.
 
 ## Reversal and migration
 
