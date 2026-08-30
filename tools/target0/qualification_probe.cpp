@@ -266,65 +266,58 @@ std::string serializeRecord(const Options &options,
                             std::uint64_t checksum,
                             const std::vector<std::string> &failureReasons) {
   std::ostringstream json;
-  json << "{\n"
-       << "  \"manifest_version\": "
-          "\"xoas.target0-qualification-process.v1\",\n"
-       << "  \"performance_claim\": false,\n"
-       << "  \"requested_cpu\": " << options.requestedCpu << ",\n"
-       << "  \"affinity_cpus\": [" << affinityCpus.front() << "],\n"
-       << "  \"warmup_rounds\": " << options.warmupRounds << ",\n"
-       << "  \"retained_rounds\": " << options.retainedRounds << ",\n"
-       << "  \"iterations\": " << options.iterations << ",\n"
-       << "  \"seed\": " << options.seed << ",\n"
-       << "  \"timer_clock\": \"CLOCK_MONOTONIC_RAW\",\n"
-       << "  \"timer_overhead_ns\": [";
+  json << "{\"affinity_cpus\":[" << affinityCpus.front() << "],"
+       << "\"checksum\":\"" << formatChecksum(checksum) << "\","
+       << "\"failure_reasons\":[";
+  for (std::size_t index = 0; index < failureReasons.size(); ++index) {
+    if (index != 0) {
+      json << ',';
+    }
+    json << '"' << failureReasons[index] << '"';
+  }
+  json << "],\"iterations\":" << options.iterations
+       << ",\"manifest_version\":"
+          "\"xoas.target0-qualification-process.v1\""
+       << ",\"max_observed_threads\":" << maximumObservedThreads
+       << ",\"performance_claim\":false"
+       << ",\"process_context_switches\":{"
+          "\"involuntary_delta\":"
+       << finalStatus.involuntaryContextSwitches -
+              initialStatus.involuntaryContextSwitches
+       << ",\"voluntary_delta\":"
+       << finalStatus.voluntaryContextSwitches -
+              initialStatus.voluntaryContextSwitches
+       << "},\"process_id\":" << ::getpid()
+       << ",\"requested_cpu\":" << options.requestedCpu
+       << ",\"retained_rounds\":" << options.retainedRounds
+       << ",\"samples\":[";
+  for (std::size_t index = 0; index < samples.size(); ++index) {
+    const Sample &sampleRecord = samples[index];
+    if (index != 0) {
+      json << ',';
+    }
+    json << "{\"checksum\":\"" << formatChecksum(sampleRecord.checksum)
+         << "\",\"elapsed_ns\":" << sampleRecord.elapsedNanoseconds
+         << ",\"involuntary_context_switches\":"
+         << sampleRecord.involuntaryContextSwitches
+         << ",\"observed_cpu_end\":" << sampleRecord.observedCpuEnd
+         << ",\"observed_cpu_start\":" << sampleRecord.observedCpuStart
+         << ",\"round\":" << sampleRecord.round
+         << ",\"voluntary_context_switches\":"
+         << sampleRecord.voluntaryContextSwitches << '}';
+  }
+  json << "],\"seed\":" << options.seed << ",\"status\":\""
+       << (failureReasons.empty() ? "passed" : "failed")
+       << "\",\"timer_clock\":\"CLOCK_MONOTONIC_RAW\""
+       << ",\"timer_overhead_ns\":[";
   for (std::size_t index = 0; index < timerOverhead.size(); ++index) {
     if (index != 0) {
       json << ',';
     }
     json << timerOverhead[index];
   }
-  json << "],\n"
-       << "  \"process_id\": " << ::getpid() << ",\n"
-       << "  \"process_context_switches\": {\"voluntary_delta\": "
-       << finalStatus.voluntaryContextSwitches -
-              initialStatus.voluntaryContextSwitches
-       << ", \"involuntary_delta\": "
-       << finalStatus.involuntaryContextSwitches -
-              initialStatus.involuntaryContextSwitches
-       << "},\n"
-       << "  \"max_observed_threads\": " << maximumObservedThreads << ",\n"
-       << "  \"warmup_checksum\": \"" << formatChecksum(warmupChecksum)
-       << "\",\n"
-       << "  \"samples\": [\n";
-  for (std::size_t index = 0; index < samples.size(); ++index) {
-    const Sample &sampleRecord = samples[index];
-    json << "    {\"round\": " << sampleRecord.round
-         << ", \"elapsed_ns\": " << sampleRecord.elapsedNanoseconds
-         << ", \"observed_cpu_start\": " << sampleRecord.observedCpuStart
-         << ", \"observed_cpu_end\": " << sampleRecord.observedCpuEnd
-         << ", \"checksum\": \"" << formatChecksum(sampleRecord.checksum)
-         << "\", \"voluntary_context_switches\": "
-         << sampleRecord.voluntaryContextSwitches
-         << ", \"involuntary_context_switches\": "
-         << sampleRecord.involuntaryContextSwitches << '}';
-    if (index + 1 != samples.size()) {
-      json << ',';
-    }
-    json << '\n';
-  }
-  json << "  ],\n"
-       << "  \"checksum\": \"" << formatChecksum(checksum) << "\",\n"
-       << "  \"status\": \"" << (failureReasons.empty() ? "passed" : "failed")
-       << "\",\n"
-       << "  \"failure_reasons\": [";
-  for (std::size_t index = 0; index < failureReasons.size(); ++index) {
-    if (index != 0) {
-      json << ", ";
-    }
-    json << '"' << failureReasons[index] << '"';
-  }
-  json << "]\n}\n";
+  json << "],\"warmup_checksum\":\"" << formatChecksum(warmupChecksum)
+       << "\",\"warmup_rounds\":" << options.warmupRounds << "}\n";
   return json.str();
 }
 
