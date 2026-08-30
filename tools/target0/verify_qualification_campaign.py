@@ -8,6 +8,8 @@ from collections.abc import Sequence
 from pathlib import Path
 import sys
 
+sys.dont_write_bytecode = True
+
 from prepare_qualification_bundle import canonical_json_bytes
 from qualification_campaign import CampaignError, verify_finalized_campaign
 

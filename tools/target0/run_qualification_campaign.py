@@ -20,6 +20,8 @@ import time
 from types import SimpleNamespace
 from typing import Protocol
 
+sys.dont_write_bytecode = True
+
 from capture_host import (
     CaptureError,
     build_capture,

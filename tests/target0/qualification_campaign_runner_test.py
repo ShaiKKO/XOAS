@@ -638,6 +638,22 @@ def write_text(root: Path, relative_path: str, content: str) -> None:
 class QualificationCampaignIdentityTest(unittest.TestCase):
     """Verify live identity recomputation against real retained inputs."""
 
+    def test_runner_help_is_read_only(self) -> None:
+        """Inspecting the runner interface must not dirty the source tree."""
+        bytecode_directory = TARGET0_TOOL_ROOT / "__pycache__"
+        self.assertFalse(bytecode_directory.exists())
+        result = subprocess.run(
+            (sys.executable, RUNNER_PATH, "--help"),
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("preflight", result.stdout)
+        self.assertIn("run", result.stdout)
+        self.assertFalse(bytecode_directory.exists())
+
     def test_live_identity_accepts_exact_checkout_bundle_and_toolchain(
         self,
     ) -> None:

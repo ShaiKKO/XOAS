@@ -815,6 +815,8 @@ class QualificationCampaignVerifierCliTest(unittest.TestCase):
     def test_verifier_help_and_required_arguments_are_read_only(self) -> None:
         """The verifier must expose only four required path arguments."""
         self.assertTrue(VERIFIER_PATH.is_file())
+        bytecode_directory = VERIFIER_PATH.parent / "__pycache__"
+        self.assertFalse(bytecode_directory.exists())
         help_result = subprocess.run(
             (sys.executable, VERIFIER_PATH, "--help"),
             check=False,
@@ -834,6 +836,7 @@ class QualificationCampaignVerifierCliTest(unittest.TestCase):
         self.assertIn("--process-schema", help_result.stdout)
         self.assertIn("--bundle-schema", help_result.stdout)
         self.assertEqual(missing_result.returncode, 2)
+        self.assertFalse(bytecode_directory.exists())
 
     def test_verifier_failure_exposes_only_one_generic_diagnostic(self) -> None:
         """A failed fresh replay must not disclose internal path diagnostics."""
