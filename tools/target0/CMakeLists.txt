@@ -17,6 +17,7 @@ add_custom_target(
     "${CMAKE_CURRENT_SOURCE_DIR}/capture_host.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/prepare_qualification_bundle.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/run_qualification_campaign.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/verify_qualification_bundle.py"
   COMMAND
     "${XOAS_SHELLCHECK_EXECUTABLE}"

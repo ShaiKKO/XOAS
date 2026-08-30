@@ -165,24 +165,16 @@
   ],
   "sources": [
     {
-      "path": "tools/target0/prepare_qualification_bundle.py",
-      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "path": "schemas/target0-host-qualification-v1.schema.json",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
     },
     {
-      "path": "tools/target0/verify_qualification_bundle.py",
-      "sha256": "0101010101010101010101010101010101010101010101010101010101010101"
+      "path": "schemas/target0-qualification-tool-bundle-v1.schema.json",
+      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     },
     {
-      "path": "tools/target0/qualification_probe.cpp",
-      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    },
-    {
-      "path": "tools/target0/capture_host.py",
-      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
-    },
-    {
-      "path": "tools/target0/measurement_session.sh",
-      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      "path": "schemas/target0-toolchain-lock-v1.schema.json",
+      "sha256": "0505050505050505050505050505050505050505050505050505050505050505"
     },
     {
       "path": "tests/target0/capture_host_test.py",
@@ -197,16 +189,24 @@
       "sha256": "0404040404040404040404040404040404040404040404040404040404040404"
     },
     {
-      "path": "schemas/target0-host-qualification-v1.schema.json",
-      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      "path": "tools/target0/capture_host.py",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
     },
     {
-      "path": "schemas/target0-qualification-tool-bundle-v1.schema.json",
-      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      "path": "tools/target0/measurement_session.sh",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
     },
     {
-      "path": "schemas/target0-toolchain-lock-v1.schema.json",
-      "sha256": "0505050505050505050505050505050505050505050505050505050505050505"
+      "path": "tools/target0/prepare_qualification_bundle.py",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "path": "tools/target0/qualification_probe.cpp",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "path": "tools/target0/verify_qualification_bundle.py",
+      "sha256": "0101010101010101010101010101010101010101010101010101010101010101"
     }
   ],
   "status": "passed",

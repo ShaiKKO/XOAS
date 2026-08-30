@@ -454,6 +454,131 @@ class QualificationCampaignRecordTest(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     campaign.validate_identity_record(mutation)
 
+    def test_identity_builder_binds_independent_live_inputs_to_bundle(self) -> None:
+        """A live source or provenance difference must reject identity assembly."""
+        campaign = load_campaign_module()
+        self.assertTrue(
+            hasattr(campaign, "build_identity_record"),
+            "identity builder is missing",
+        )
+        expected = self.identity_record()
+        bundle_acceptance = {
+            "bundle_id": expected["bundle"]["bundle_id"],
+            "bundle_manifest_sha256": expected["bundle"][
+                "bundle_manifest_sha256"
+            ],
+            "executable_identity_sha256": expected["bundle"][
+                "executable_identity_sha256"
+            ],
+            "executable_sha256": expected["bundle"]["executable_sha256"],
+            "inventory_sha256": expected["bundle"][
+                "bundle_inventory_sha256"
+            ],
+            "manifest_version": (
+                "xoas.target0-qualification-tool-acceptance.v1"
+            ),
+            "performance_claim": False,
+            "status": "accepted",
+        }
+        bundle_manifest = {
+            "build": {
+                "executable_sha256": expected["bundle"]["executable_sha256"]
+            },
+            "bundle_id": expected["bundle"]["bundle_id"],
+            "provisioning_lock": expected["provisioning_lock"],
+            "repository": expected["repository"],
+            "sources": expected["sources"],
+            "toolchain": expected["toolchain"],
+        }
+
+        observed = campaign.build_identity_record(
+            bundle_manifest=bundle_manifest,
+            bundle_acceptance=bundle_acceptance,
+            repository=expected["repository"],
+            provisioning_lock=expected["provisioning_lock"],
+            compiler=expected["toolchain"]["compiler"],
+            linker=expected["toolchain"]["linker"],
+            sources=expected["sources"],
+            boot_id_sha256=expected["boot_id_sha256"],
+            selected_cpu=4,
+            sibling=16,
+        )
+
+        self.assertEqual(observed, expected)
+
+        changed_sources = copy.deepcopy(expected["sources"])
+        changed_sources[0]["sha256"] = "ee" * 32
+        with self.assertRaises(RuntimeError):
+            campaign.build_identity_record(
+                bundle_manifest=bundle_manifest,
+                bundle_acceptance=bundle_acceptance,
+                repository=expected["repository"],
+                provisioning_lock=expected["provisioning_lock"],
+                compiler=expected["toolchain"]["compiler"],
+                linker=expected["toolchain"]["linker"],
+                sources=changed_sources,
+                boot_id_sha256=expected["boot_id_sha256"],
+                selected_cpu=4,
+                sibling=16,
+            )
+
+    def test_identity_builder_omits_bundle_only_execution_subject(self) -> None:
+        """Campaign identity must compare but not retain the execution subject."""
+        campaign = load_campaign_module()
+        expected = self.identity_record()
+        live_repository = {
+            **expected["repository"],
+            "public_remote": "https://github.com/ShaiKKO/XOAS.git",
+        }
+        live_lock = {
+            **expected["provisioning_lock"],
+            "execution_subject": expected["repository"]["actual_commit"],
+        }
+        bundle_acceptance = {
+            "bundle_id": expected["bundle"]["bundle_id"],
+            "bundle_manifest_sha256": expected["bundle"][
+                "bundle_manifest_sha256"
+            ],
+            "executable_identity_sha256": expected["bundle"][
+                "executable_identity_sha256"
+            ],
+            "executable_sha256": expected["bundle"]["executable_sha256"],
+            "inventory_sha256": expected["bundle"][
+                "bundle_inventory_sha256"
+            ],
+            "manifest_version": (
+                "xoas.target0-qualification-tool-acceptance.v1"
+            ),
+            "performance_claim": False,
+            "status": "accepted",
+        }
+        bundle_manifest = {
+            "build": {
+                "executable_sha256": expected["bundle"]["executable_sha256"]
+            },
+            "bundle_id": expected["bundle"]["bundle_id"],
+            "provisioning_lock": live_lock,
+            "repository": live_repository,
+            "sources": expected["sources"],
+            "toolchain": expected["toolchain"],
+        }
+
+        observed = campaign.build_identity_record(
+            bundle_manifest=bundle_manifest,
+            bundle_acceptance=bundle_acceptance,
+            repository=live_repository,
+            provisioning_lock=live_lock,
+            compiler=expected["toolchain"]["compiler"],
+            linker=expected["toolchain"]["linker"],
+            sources=expected["sources"],
+            boot_id_sha256=expected["boot_id_sha256"],
+            selected_cpu=4,
+            sibling=16,
+        )
+
+        self.assertEqual(observed["provisioning_lock"], expected["provisioning_lock"])
+        self.assertEqual(observed["repository"], expected["repository"])
+
     def test_pmu_validator_distinguishes_required_and_optional_support(
         self,
     ) -> None:

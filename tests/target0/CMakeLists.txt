@@ -43,6 +43,30 @@ add_test(
     "${Python3_EXECUTABLE}"
     "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_test.py"
     -k QualificationCampaignSchemaTest)
+add_test(
+  NAME target0-qualification-campaign-identity
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_runner_test.py"
+    -k QualificationCampaignIdentityTest)
+add_test(
+  NAME target0-qualification-campaign-preflight
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_runner_test.py"
+    -k QualificationCampaignPreflightTest)
+add_test(
+  NAME target0-qualification-campaign-sessions
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_runner_test.py"
+    -k QualificationCampaignSessionTest)
+add_test(
+  NAME target0-qualification-campaign-thermal
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_runner_test.py"
+    -k QualificationCampaignThermalTest)
 
 add_test(
   NAME target0-qualification-bundle-schema
@@ -106,9 +130,13 @@ set_tests_properties(
   target0-host-tools-capture
   target0-host-tools-session
   target0-qualification-campaign-pmu
+  target0-qualification-campaign-identity
+  target0-qualification-campaign-preflight
   target0-qualification-campaign-records
   target0-qualification-campaign-schema
+  target0-qualification-campaign-sessions
   target0-qualification-campaign-statistics
+  target0-qualification-campaign-thermal
   target0-qualification-bundle-build
   target0-qualification-bundle-finalization
   target0-qualification-bundle-inspection

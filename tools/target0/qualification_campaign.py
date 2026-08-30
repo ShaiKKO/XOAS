@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+import copy
 from decimal import Decimal, ROUND_HALF_EVEN, localcontext
 from fractions import Fraction
 import hashlib
@@ -396,6 +397,120 @@ def validate_identity_record(record: dict[str, object]) -> None:
             raise CampaignError(f"identity {description} version is invalid")
         _require_sha256(tool["sha256"], f"identity {description}")
         _validate_package_record(tool["package"], f"identity {description} package")
+
+
+def build_identity_record(
+    *,
+    bundle_manifest: dict[str, object],
+    bundle_acceptance: dict[str, object],
+    repository: dict[str, object],
+    provisioning_lock: dict[str, object],
+    compiler: dict[str, object],
+    linker: dict[str, object],
+    sources: list[dict[str, str]],
+    boot_id_sha256: str,
+    selected_cpu: int,
+    sibling: int,
+) -> dict[str, object]:
+    """Bind independently recomputed live inputs to one accepted bundle."""
+    acceptance = _require_exact_keys(
+        bundle_acceptance,
+        {
+            "bundle_id",
+            "bundle_manifest_sha256",
+            "executable_identity_sha256",
+            "executable_sha256",
+            "inventory_sha256",
+            "manifest_version",
+            "performance_claim",
+            "status",
+        },
+        "bundle acceptance",
+    )
+    if (
+        acceptance["manifest_version"]
+        != "xoas.target0-qualification-tool-acceptance.v1"
+        or acceptance["performance_claim"] is not False
+        or acceptance["status"] != "accepted"
+    ):
+        raise CampaignError("bundle acceptance status is invalid")
+    required_manifest_keys = {
+        "build",
+        "bundle_id",
+        "provisioning_lock",
+        "repository",
+        "sources",
+        "toolchain",
+    }
+    if not required_manifest_keys.issubset(bundle_manifest):
+        raise CampaignError("bundle manifest identity is incomplete")
+    if acceptance["bundle_id"] != bundle_manifest["bundle_id"]:
+        raise CampaignError("bundle identity differs")
+    if (
+        not isinstance(bundle_manifest["build"], dict)
+        or bundle_manifest["build"].get("executable_sha256")
+        != acceptance["executable_sha256"]
+    ):
+        raise CampaignError("bundle executable identity differs")
+    if bundle_manifest["repository"] != repository:
+        raise CampaignError("live repository identity differs from bundle")
+    try:
+        campaign_repository = {
+            field: repository[field]
+            for field in (
+                "actual_commit",
+                "expected_commit",
+                "tree",
+                "tree_state",
+            )
+        }
+    except KeyError as error:
+        raise CampaignError("live repository identity is incomplete") from error
+    if bundle_manifest["provisioning_lock"] != provisioning_lock:
+        raise CampaignError("live provisioning lock differs from bundle")
+    try:
+        campaign_lock = {
+            field: provisioning_lock[field]
+            for field in (
+                "configuration_sha256",
+                "file_sha256",
+                "lock_id",
+            )
+        }
+    except KeyError as error:
+        raise CampaignError("live provisioning lock is incomplete") from error
+    if bundle_manifest["sources"] != sources:
+        raise CampaignError("live source set differs from bundle")
+    if not isinstance(bundle_manifest["toolchain"], dict) or (
+        bundle_manifest["toolchain"].get("compiler") != compiler
+        or bundle_manifest["toolchain"].get("linker") != linker
+    ):
+        raise CampaignError("live toolchain differs from bundle")
+    identity = {
+        "boot_id_sha256": boot_id_sha256,
+        "bundle": {
+            "bundle_id": acceptance["bundle_id"],
+            "bundle_inventory_sha256": acceptance["inventory_sha256"],
+            "bundle_manifest_sha256": acceptance["bundle_manifest_sha256"],
+            "executable_identity_sha256": acceptance[
+                "executable_identity_sha256"
+            ],
+            "executable_sha256": acceptance["executable_sha256"],
+        },
+        "manifest_version": "xoas.target0-campaign-identity.v1",
+        "performance_claim": False,
+        "provisioning_lock": copy.deepcopy(campaign_lock),
+        "repository": copy.deepcopy(campaign_repository),
+        "selected_core": {"cpu": selected_cpu, "sibling": sibling},
+        "sources": copy.deepcopy(sources),
+        "status": "accepted",
+        "toolchain": {
+            "compiler": copy.deepcopy(compiler),
+            "linker": copy.deepcopy(linker),
+        },
+    }
+    validate_identity_record(identity)
+    return identity
 
 
 def _validate_perf_event_record(
