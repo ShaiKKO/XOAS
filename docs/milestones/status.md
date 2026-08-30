@@ -25,7 +25,22 @@ On 2026-08-30, IDR-0004's isolated quality-toolchain supplement closed the
 physical repository-quality gap. Clean `93f164c` passed Debug 50/50 twice,
 Release 50/50 twice, and sanitizer 3/3 on `wineth-ubuntu`.
 
-The named M0 document, policy, schema, corpus, and candidate-capture deliverables now exist and passed the Task 6 checks. The user approved AR-0001 Option 2, AR-0002 Option 1, and the written engineering-quality specification. `gpu-2` is development-only. The replacement Target 0 candidate is designated but not qualified. The exact development toolchain is installed and behaviorally verified, full draft-2020-12 validation of the benchmark schema/example has passed, and the local/hosted quality system is enforced on protected `main`. Qualification-plan Tasks 1–4 are implemented: the physical host has a closed pre-state, exact 26-package support closure, three versioned source-built baseline libraries, complete installed-file hashes, upstream-test and loader evidence, and a schema-valid installed lock. Qualification-tool deployment is also closed: exact implementation `a312aa2` passed Debug 38/38, Release 38/38, and sanitizer 3/3 on `gpu-2`; the replacement physical dual build and five compatibility checks passed; fresh physical and replica verifiers matched all authoritative digests. Campaign-runner implementation Tasks 1–7 are closed through exact quality subject `7b486e1`: the campaign contract/schema, dedicated privileged-PMU boundary, preflight, five-process/PMU orchestration, deterministic finalization, fresh replay verifier, source-clean CLIs, complete Debug and Release 50/50 replays, and sanitizer 3/3 passed on `gpu-2`. The prior Task 9 preflight at source `1141713c` passed, but Task 10 attempt 1 stopped during primary process 1 because the physical governor restore left EPP at `performance`; the runner rejected before PMU and bounded recovery restored exact pre-state. Replacement Task 9 at repaired source `a396f64` now independently accepts CPU 1/sibling 13; a separately authorized Task 10 attempt remains open.
+The named M0 document, policy, schema, corpus, and candidate-capture
+deliverables exist and passed the Task 6 checks. AR-0001 Option 2, AR-0002
+Option 1, and the engineering-quality specification are approved. `gpu-2` is
+development-only; the replacement Target 0 candidate is designated but not
+qualified. Qualification-plan Tasks 1–4, the exact support closure, three
+versioned baseline libraries, and qualification-tool deployment are closed.
+Campaign-runner Tasks 1–7 are closed through exact quality subject `7b486e1`.
+Attempt 1 at source `1141713c` rejected before PMU on EPP restoration, and
+bounded recovery restored exact pre-state. Replacement Task 9 at repaired
+source `a396f64` independently accepted CPU 1/sibling 13. Its separately
+authorized Task 10 attempt ran exactly once: all five primary processes and
+six restorations passed, required PMU counters ran at full scale, and
+publication failed because the target user could not traverse the root-owned
+`pmu/` parent. That root is terminal. Red `cc826f2` and repair `0a30b24`
+address only this traversal defect; complete quality, review, and integration
+remain open.
 
 The test-first source repair is now verified. Red subjects `485eb6b` and
 `c68474c` exposed the exact canonical-byte, restoration-order, and non-finite
@@ -59,12 +74,18 @@ preflight then accepted with SHA-256
 and deterministic CPU 1/sibling 13 selection SHA-256
 `718350bb2ff003000e1ed7ffd1f331fe0c52671cd56d21f3a5dde307bcead803`.
 Independent replay and separate review closed Task 9 with no finding. No host
-control, campaign process, PMU phase, qualification, or performance claim
-occurred. This proof neither authorized nor performed a controlled campaign
-reboot; the incidental administrator reboot remains non-campaign evidence. A
-separately authorized new attempt, accepted campaign one, reboot authority,
-the M0/M2 baseline numerical-admission dependency, and independent final M0
-review/acceptance remain open.
+control or PMU phase occurred during preflight. The one authorized attempt at
+that source retained five valid primary processes, 150 samples, six exact
+restorations, required cycles/instructions at 100 percent running, and terminal
+PMU `process_schema_failure` rejection SHA-256
+`0330baaba84c9cef592204e65f95391d8597f55cdd3fe8e182153ec9a6405ba1`.
+It produced no acceptance or campaign manifest, optional PMU phase, controlled
+reboot, qualification, or performance claim. The 49-file external root is
+immutable. A future attempt is not defined until the PMU traversal repair
+passes complete quality/integration and a new bundle, replica, reviewed
+preflight, immutable root, and separate authority exist. Accepted campaign
+one, reboot authority, the M0/M2 baseline numerical-admission dependency, and
+independent final M0 review/acceptance remain open.
 
 Load-bearing infrastructure boundary before the reference-target manifest can be locked:
 
@@ -74,7 +95,7 @@ Load-bearing infrastructure boundary before the reference-target manifest can be
 
 | Milestone | State | Implementing commits | Evidence | Open gate items |
 |---|---|---|---|---|
-| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines); `00afbf7` (benchmark contract); `8a7032b` (corpus); `6e6adf3` (candidate target/proposal); `3d635d3` (verified integration subject); `6904d49` (Option 2 decision); `ce1d27d` (verified development toolchain); `2c07fef` (aggregate local quality); `651b912` (authoritative hosted checks); `6516866` (protected-main evidence); `60c4eeb` (AMD qualification authority/plan); `8a247a2` (qualification process contract); `864f7fa` (capture/session controls); `b7371ae` (real-checkout capture repair); `ee57ff5` (physical pre-state and provisioning lock); `16d698d` (Task 4 execution subject); `9d44f64` (verified baseline stack); `a312aa2` (verified native qualification-tool deployment subject); `db0eb87` (campaign runner, fresh verifier, and source-clean execution); `7b486e1` (exact campaign quality evidence); `1141713` (prior replacement bundle, preflight, and rejected physical attempt source); `485eb6b`/`c68474c` (repair red tests); `c9af373` (reviewed source repair); `a396f64` (merged repair, physical restoration proof, fresh cross-host bundle verification, and independently accepted replacement preflight) | All named M0 documents/manifests exist; AR-0001 Option 2, AR-0002 Option 1, and engineering-quality design approved; physical AMD support closure and versioned baseline artifacts installed and verified; development toolchain and local/hosted/protected-main enforcement verified; prior replacement native bundle and preflight passed at `1141713`; campaign attempt 1 rejected on exact EPP restoration and bounded recovery restored pre-state; reviewed test-first repair canonicalizes retained JSON, orders sibling/governor/EPP, and classifies non-finite evidence; bounded physical restoration-only validation, fresh physical plus `gpu-2` bundle verification, and independently accepted replacement Task 9 preflight passed at `a396f64`; no new campaign, PMU/qualification/performance claim, or controlled campaign reboot | Obtain separate authority for a new campaign-one attempt; resolve the M0/M2 baseline numerical-admission dependency and deferred JITSpMM license before use; independent final M0 review/acceptance |
+| M0 — Charter, prior-art map, benchmark protocol | In progress | Foundation through `a396f64`; PMU traversal red `cc826f2`; repair `0a30b24` | M0 documents, target support, baselines, quality enforcement, campaign runner, restoration proof, bundle/replica, and reviewed preflight exist; attempt 1 is a terminal restoration rejection; attempt 2 retained five valid processes, 150 samples, six exact restorations, full-scale required counters, and a terminal PMU publication rejection; no accepted campaign, controlled reboot, qualification, or performance claim | Close repair quality/review/protected-main integration; define no future attempt until a new bundle, replica, preflight, review, root, and authority exist; resolve the M0/M2 numerical-admission dependency and deferred JITSpMM license; independent final M0 review/acceptance |
 | M1 — Core types and canonical identity | Not started | None | None | M0 gate must close first |
 | M2 — Reference semantics and honest baselines | Not started | None | None | M1 gate and target/baseline setup |
 | M3 — Contribution graph and scalar code generation | Not started | None | None | M2 gate |

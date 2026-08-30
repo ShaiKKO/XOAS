@@ -1,7 +1,7 @@
 # IDR-0003: Target 0 Qualification Campaign Runner
 
-**Status:** Accepted; implementation complete, exact-commit deployment and live
-execution pending
+**Status:** Accepted; two live attempts retained as terminal rejections; PMU
+traversal repair implemented through `0a30b24`, quality/integration pending
 
 **Written-spec approval:** Approved by the user on 2026-08-29.
 
@@ -216,11 +216,37 @@ repository, bundle, source, toolchain, lock, and boot eligibility. Independent
 replay verified the exact six-file root and deterministic decision; separate
 review reported no critical, important, or minor finding.
 
-This closes replacement preflight only. No campaign execution, host-control
-change, PMU collection, controlled campaign reboot, qualification, or
-performance claim occurred. A live attempt still requires separate authority
-and must continue in the exact accepted Task 9 root. A different root requires
-a new read-only preflight and independent review before mutation.
+This closed replacement preflight only. One separately authorized attempt then
+consumed that exact root once. All five primary processes passed schema checks
+and retained 150 samples. Six session restorations matched their pre-state.
+The required PMU command counted `4083495660` cycles and `7381631799`
+instructions, both at `100.00` percent running, but returned status 2 before it
+could publish process JSON. The immediate root-owned `pmu/` directory remained
+mode `0700`, so the unprivileged probe could not traverse to the child directory
+that the runner had temporarily opened to `1733`.
+
+The runner published terminal `process_schema_failure` in phase `pmu` with
+rejection SHA-256
+`0330baaba84c9cef592204e65f95391d8597f55cdd3fe8e182153ec9a6405ba1`.
+The 49-file root binds 48 diagnostic files; no acceptance, campaign manifest,
+optional PMU session, controlled reboot, qualification, or performance claim
+exists. Immediate live audit matched sibling, governor, EPP, boost, boot, and
+checkout pre-state. A fresh verifier returned rejection status 2. The root is
+immutable and cannot be retried.
+
+Red `cc826f2` extended the campaign fixture to require parent mode `0711` only
+while a nested PMU session runs and final mode `0700`. Repair `0a30b24` opens
+the verified direct parent and child through no-follow descriptors, grants the
+minimum temporary parent traversal plus existing child publication modes, and
+restores child then parent in nested cleanup. The focused regression and all
+14 campaign-runner tests passed on `gpu-2`. Complete exact-commit quality,
+independent repair review, and protected-main integration remain pending.
+
+The changed fixed source set invalidates the accepted bundle and preflight for
+future execution. A future live attempt is not defined or authorized here; it
+requires a fresh physical-native bundle, byte-identical `gpu-2` verification,
+a new read-only preflight, independent review, a new immutable root, and
+separate attempt authority.
 
 ## Reversal and migration
 

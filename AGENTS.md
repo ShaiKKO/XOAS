@@ -121,7 +121,8 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-implementation-plan.md` — executable M0 plan and commit boundaries.
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
-- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented, Task 5 attempt 1 is a retained restoration rejection, and Tasks 5–7 remain open.
+- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented, Task 5 attempts 1 and 2 are retained terminal rejections, and Tasks 5–7 remain open.
+- `docs/superpowers/plans/2026-08-30-target0-pmu-traversal-repair.md` — active bounded repair/evidence plan; it authorizes source, tests, documentation, quality, and integration only, never a replacement live attempt or reboot.
 - `docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md` — executed native preparation/bundle deployment plan; exact implementation `a312aa2` and the accepted non-claiming deployment receipt are verified.
 - `docs/superpowers/plans/2026-08-29-target0-qualification-campaign-runner.md` — active campaign-runner plan; implementation Tasks 1–7 passed exact-commit quality through `7b486e1`, replacement Task 8 deployment is cross-host verified at source `a396f64`, replacement Task 9 preflight is independently accepted, and Task 10 attempt 1 is retained as `restoration_failure` before PMU.
 - `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate capture and verified provisioning evidence, explicit gaps, and remaining gates; it is not measurement qualification.
@@ -883,12 +884,32 @@ source with preflight SHA-256
 and deterministic CPU 1/sibling 13 selection SHA-256
 `718350bb2ff003000e1ed7ffd1f331fe0c52671cd56d21f3a5dde307bcead803`.
 Independent replay and separate review reported no finding. No campaign, host
-control, PMU phase, qualification, or performance claim occurred. This proof
-neither authorized nor performed a controlled campaign reboot; the incidental
-administrator reboot remains non-campaign evidence. Before the replacement
-attempt, require separate live-attempt authority and continue only in the exact
-accepted Task 9 root. If another root is required, rerun and independently
-review Task 9 first. Never reuse or rewrite the rejected root.
+control, or PMU phase occurred during preflight.
+
+One separately authorized campaign-one attempt then ran exactly once in that
+accepted root at source `a396f64`. All five primary processes were valid and
+retained 150 samples; six session records proved exact restoration. Required
+`perf` counted cycles and instructions at 100 percent running, but the
+unprivileged probe could not traverse the root-owned mode-`0700` `pmu/`
+directory to its temporarily writable child. The runner published terminal
+`process_schema_failure` rejection SHA-256
+`0330baaba84c9cef592204e65f95391d8597f55cdd3fe8e182153ec9a6405ba1`.
+It produced no acceptance or campaign manifest, ran no optional PMU phase, and
+did not qualify the host or support a performance claim. Independent live
+audit matched sibling, governor, EPP, boost, boot, and checkout pre-state; the
+fresh verifier returned rejection status 2. The 49-file external root is
+immutable and must never be retried, rewritten, or deleted.
+
+Red regression `cc826f2` exposed the missing parent traversal boundary. Repair
+`0a30b24` temporarily opens only that direct parent to execute-only `0711`
+through a no-follow descriptor, keeps the child publication boundary at
+`1733`, and restores child then parent to `0700` in nested cleanup. The focused
+regression and all 14 campaign-runner tests passed on `gpu-2`; complete
+exact-commit quality and protected-main integration remain required before the
+repair is accepted. Because the fixed source set changed, the prior bundle and
+preflight are historical evidence only. Do not create a replacement bundle,
+preflight, campaign, or controlled reboot without a new reviewed execution
+slice and its separately required authority.
 The pinned JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound

@@ -267,6 +267,36 @@ important, or minor issue. No host control, campaign process, PMU collection,
 qualification decision, controlled campaign reboot, or performance claim
 occurred. The incidental administrator reboot remains non-campaign evidence.
 
+## Campaign-one attempt 2 PMU rejection
+
+One separately authorized run consumed the accepted replacement-preflight root
+exactly once at source
+`a396f642d5c2ec6ed670cc2341170ec7d9f1a886`. Five primary processes
+passed schema validation and retained 150 samples. Six session records reported
+exact restoration, and an independent live audit matched sibling, governor,
+EPP, boost, boot, and checkout to pre-state.
+
+The required PMU command counted `4083495660` cycles and `7381631799`
+instructions with both events at `100.00` percent running. It returned status 2
+without publishing PMU process or aggregate JSON. The target user could
+traverse the campaign root but not its root-owned mode-`0700` `pmu/` child, so
+the nested mode-`1733` session directory remained unreachable.
+
+The terminal rejection reason is `process_schema_failure`, phase `pmu`, with
+SHA-256
+`0330baaba84c9cef592204e65f95391d8597f55cdd3fe8e182153ec9a6405ba1`.
+It binds 48 diagnostic files in the 49-file immutable external root. No
+acceptance, campaign manifest, optional PMU phase, controlled reboot,
+qualification, or performance claim exists. A fresh verifier returned 2.
+
+Red regression `cc826f2` exposes the missing traversal boundary. Repair
+`0a30b24` temporarily grants execute-only `0711` on the verified direct PMU
+parent while the child is `1733`, then restores child and parent to `0700`
+through descriptor-scoped cleanup. The focused and complete campaign-runner
+tests pass on `gpu-2`; complete quality, independent review, and integration
+remain open. The source change invalidates the accepted bundle and preflight
+for future execution.
+
 ## Deferred comparator boundaries
 
 The pinned JITSpMM tree contains no license or copyright statement. XOAS does
@@ -283,14 +313,16 @@ The candidate remains unqualified until all applicable gates close:
 
 1. resolve the open M0/M2 dependency for independent numerical admission of
    every applicable baseline adapter;
-2. obtain separate authority and execute campaign one in the exact accepted
-   replacement-preflight root; rerun and review preflight before using any
-   different root;
+2. close complete quality, independent review, and protected-main integration
+   for the PMU traversal repair;
 3. pass non-claiming smoke, PMU, and noise characterization;
-4. obtain separate approval for the exact controlled reboot action only after
+4. before another attempt, produce and cross-verify a fresh exact-source bundle,
+   accept and independently review a new read-only preflight in a new immutable
+   root, and obtain separate live-attempt authority;
+5. obtain separate approval for the exact controlled reboot action only after
    campaign one is accepted;
-5. complete campaign two under a distinct controlled boot identity;
-6. reconcile both campaigns and complete the accepted review model.
+6. complete campaign two under a distinct controlled boot identity;
+7. reconcile both campaigns and complete the accepted review model.
 
 No final compatibility digest is computed here. M1 owns the versioned
 canonical binary identity.

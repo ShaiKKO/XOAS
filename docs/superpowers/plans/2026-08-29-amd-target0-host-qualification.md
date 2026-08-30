@@ -624,9 +624,28 @@ identity, bundle, source, toolchain, lock, boot, and selection closure with no
 finding. No Task 5 process, host control, PMU phase, qualification, or
 performance claim occurred. This proof neither authorized nor performed a
 controlled campaign reboot; the incidental administrator reboot remains
-non-campaign evidence. A new Task 5 attempt still requires separate authority
-and must continue in the exact accepted preflight root. A different root
-requires rerunning and independently reviewing the preflight first.
+non-campaign evidence. At that checkpoint, a new Task 5 attempt still required
+separate authority and the exact accepted preflight root.
+
+That authority was later granted for one exact run in the accepted root. The
+run is terminal: five primary processes passed and retained 150 samples; the
+five primary plus required-PMU sessions produced six exact restorations; and
+required `perf` counted `4083495660` cycles and `7381631799` instructions at
+`100.00` percent running. The required probe returned status 2 because its
+target user could not traverse the root-owned mode-`0700` `pmu/` parent to the
+temporarily mode-`1733` session child. The runner published PMU
+`process_schema_failure` rejection SHA-256
+`0330baaba84c9cef592204e65f95391d8597f55cdd3fe8e182153ec9a6405ba1`.
+The 49-file external root is immutable; no acceptance, campaign manifest,
+optional PMU phase, reboot, qualification, or performance claim exists.
+
+Red `cc826f2` and repair `0a30b24` address the nested traversal defect. That
+source change invalidates the attempt-2 bundle and preflight for another run.
+The checked pre-session steps and unchecked acceptance steps below are retained
+as historical gate structure; they do not define or authorize a resumable
+attempt. A future attempt requires a new reviewed execution slice, fresh
+physical-native bundle and replica, new read-only preflight and immutable root,
+independent review, and separate authority.
 
 Before each qualification process, independently recompute and retain the
 accepted executable, compiler, linker, fixed source set, provisioning lock,

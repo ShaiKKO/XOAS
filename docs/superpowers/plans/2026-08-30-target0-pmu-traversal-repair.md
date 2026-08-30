@@ -60,7 +60,7 @@ modified or retried.
 - Produces: a regression that requires the immediate PMU parent to be `0711`
   only while the session runner is active and `0700` after execution.
 
-- [ ] **Step 1: Add the live-failure regression**
+- [x] **Step 1: Add the live-failure regression**
 
 In `PmuSessionRunner.__call__()`, immediately after resolving `process_path`,
 add:
@@ -80,7 +80,7 @@ self.assertEqual(
 )
 ```
 
-- [ ] **Step 2: Run the focused test and observe RED**
+- [x] **Step 2: Run the focused test and observe RED**
 
 Run:
 
@@ -95,7 +95,7 @@ first required PMU session. The failure must occur after the five primary
 fixtures pass, reproducing the live component boundary rather than a setup
 error.
 
-- [ ] **Step 3: Commit the red regression**
+- [x] **Step 3: Commit the red regression**
 
 ```bash
 git add tests/target0/qualification_campaign_runner_test.py
@@ -121,7 +121,7 @@ git commit -m "test: expose nested PMU traversal boundary"
   `session_directory`, begin at mode `0700`, be `0711` only during the child
   session, and return to `0700` even when the runner raises or returns nonzero.
 
-- [ ] **Step 1: Implement the minimal descriptor-scoped boundary**
+- [x] **Step 1: Implement the minimal descriptor-scoped boundary**
 
 Extend `_run_measurement_session()` with:
 
@@ -150,7 +150,7 @@ result = _run_measurement_session(
 
 Do not pass a traversal directory for primary sessions.
 
-- [ ] **Step 2: Run the focused test and observe GREEN**
+- [x] **Step 2: Run the focused test and observe GREEN**
 
 Run the Task 1 command again.
 
@@ -158,7 +158,7 @@ Expected: PASS. The fake PMU child observes parent `0711`, all required and
 optional PMU sessions complete, and the final PMU parent and children are
 `0700`.
 
-- [ ] **Step 3: Run the complete campaign-runner test module**
+- [x] **Step 3: Run the complete campaign-runner test module**
 
 ```bash
 python3 tests/target0/qualification_campaign_runner_test.py
@@ -166,7 +166,7 @@ python3 tests/target0/qualification_campaign_runner_test.py
 
 Expected: all tests pass without warnings or residual files.
 
-- [ ] **Step 4: Commit the minimal repair**
+- [x] **Step 4: Commit the minimal repair**
 
 ```bash
 git add tools/target0/run_qualification_campaign.py
@@ -197,7 +197,7 @@ git commit -m "fix: open PMU traversal during sessions"
 - Produces: a non-secret durable record of a terminal
   `process_schema_failure` in phase `pmu`; no compact accepted campaign receipt.
 
-- [ ] **Step 1: Record exact non-secret evidence**
+- [x] **Step 1: Record exact non-secret evidence**
 
 Record:
 
@@ -220,7 +220,7 @@ Record:
 Do not record the private external root path, username, session identifiers,
 hostname, network coordinate, or command line.
 
-- [ ] **Step 2: Close only the rejected-attempt checklist**
+- [x] **Step 2: Close only the rejected-attempt checklist**
 
 Move replacement attempt 2 into a clearly terminal historical subsection.
 Mark the one-shot run, immediate restoration audit, terminal replay, evidence

@@ -80,7 +80,7 @@ any existing applicable comparator.
 | Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented at `864f7fa` and repository-root integration repaired at `b7371ae`; no real measurement control was changed |
 | Physical candidate and provisioning lock | [`../targets/target0-amd-ryzen9-7900x-v1.md`](../targets/target0-amd-ryzen9-7900x-v1.md), [`../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json), and closed lock/schema | Task 3 resolved exact pre-state at `ee57ff5`; Task 4 installed and verified the 26-package closure plus AOCL-BLAS, OpenBLAS, and LIBXSMM against clean subject `16d698d`, with repository evidence committed at `9d44f64`; the candidate remains unqualified |
 | Qualification-tool deployment implementation | [`../../tools/target0/prepare_qualification_bundle.py`](../../tools/target0/prepare_qualification_bundle.py), [`../../tools/target0/verify_qualification_bundle.py`](../../tools/target0/verify_qualification_bundle.py), the closed [`../../schemas/target0-qualification-tool-bundle-v1.schema.json`](../../schemas/target0-qualification-tool-bundle-v1.schema.json), accepted [`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json), and [`../adr/IDR-0002-target0-qualification-tool-deployment.md`](../adr/IDR-0002-target0-qualification-tool-deployment.md) | Exact implementation subject `a312aa2bbbb403b31ffb67cf40200da063527a4f` passed Debug 38/38, Release 38/38, and sanitizer 3/3 on `gpu-2`, establishing the deployment path. At clean source `a396f64`, the replacement physical host bundle produced byte-identical dual builds, passed 5/5 compatibility tests, and matched fresh physical and `gpu-2` verification for the manifest, inventory, executable, and normalized executable-identity digests. The current receipt binds that replacement. Deployment is closed without campaign, qualification, reboot, host-control, or performance authority. |
-| Target qualification campaign runner | [`../../schemas/target0-qualification-campaign-v1.schema.json`](../../schemas/target0-qualification-campaign-v1.schema.json), [`../../tools/target0/qualification_campaign.py`](../../tools/target0/qualification_campaign.py), [`../../tools/target0/run_qualification_campaign.py`](../../tools/target0/run_qualification_campaign.py), [`../../tools/target0/verify_qualification_campaign.py`](../../tools/target0/verify_qualification_campaign.py), and [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Implementation Tasks 1–6 plus source-clean runner/verifier execution are committed through `db0eb87`; exact clean evidence subject `7b486e1` passed complete Debug and Release quality on `gpu-2`. Replacement bundle and preflight passed at source `1141713c`; campaign-one attempt 1 was retained as `restoration_failure` before PMU after CPU 2 EPP failed to restore, and bounded recovery returned exact pre-state. Repair reds are at `485eb6b` and `c68474c`; exact reviewed repair `c9af373` passed complete Debug and Release 50/50 suites, sanitizer 3/3, and repository policy on `wineth-ubuntu`. At clean merged source `a396f64`, a bounded physical restoration-only cycle passed, the fresh native bundle passed physical plus byte-identical `gpu-2` verification, and replacement Task 9 preflight independently accepted CPU 1/sibling 13. Accepted campaign one, reboot, qualification, and performance claims remain open. |
+| Target qualification campaign runner | [`../../schemas/target0-qualification-campaign-v1.schema.json`](../../schemas/target0-qualification-campaign-v1.schema.json), [`../../tools/target0/qualification_campaign.py`](../../tools/target0/qualification_campaign.py), [`../../tools/target0/run_qualification_campaign.py`](../../tools/target0/run_qualification_campaign.py), [`../../tools/target0/verify_qualification_campaign.py`](../../tools/target0/verify_qualification_campaign.py), and [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Implementation through `db0eb87` passed exact quality at `7b486e1`. Attempt 1 is a terminal restoration rejection. Repair through `c9af373`, physical restoration proof, bundle/replica verification, and reviewed Task 9 preflight passed at `a396f64`. Attempt 2 retained five valid primary processes, 150 samples, six exact restorations, full-scale required counters, and terminal PMU publication rejection `0330baab...`. Red `cc826f2` and repair `0a30b24` address the parent traversal boundary; complete quality/review/integration remain open. Accepted campaign one, reboot, qualification, and performance claims remain open. |
 
 ## Exit-gate statement
 
@@ -324,6 +324,42 @@ control, campaign process, PMU phase, qualification, controlled campaign
 reboot, or performance claim occurred. The incidental administrator reboot
 remains non-campaign evidence.
 
+### Campaign-one attempt 2 PMU rejection
+
+At exact source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886`, one
+separately authorized run consumed the accepted replacement-preflight root
+exactly once. Five primary processes passed schema validation and retained 150
+samples. The primary and required-PMU sessions produced six canonical
+restoration records, all reporting exact restoration. Independent live audit
+also matched sibling online state, governor, EPP, boost, normalized boot
+identity, and clean checkout to pre-state.
+
+The required PMU command counted `4083495660` cycles and `7381631799`
+instructions with both events at `100.00` percent running. It returned status 2
+and produced no PMU process or aggregate JSON because the target user could
+traverse the target-user-owned campaign root but not its root-owned mode-`0700`
+`pmu/` child. Temporarily opening only the nested session directory to `1733`
+therefore did not make the probe's output path reachable.
+
+The runner published terminal `process_schema_failure` in phase `pmu` with
+rejection SHA-256
+`0330baaba84c9cef592204e65f95391d8597f55cdd3fe8e182153ec9a6405ba1`.
+The immutable external root contains 49 files; the rejection binds the other
+48 by size and digest. It contains no acceptance or campaign manifest and no
+optional PMU phase. A fresh verifier returned status 2. No retry, controlled
+reboot, qualification, benchmark, or performance claim occurred.
+
+Test-first red `cc826f2` reproduced the missing parent traversal boundary.
+Repair `0a30b24` uses no-follow directory descriptors to require a direct
+mode-`0700` parent and child, temporarily grants parent execute-only `0711`
+before child `1733`, and restores child then parent to `0700` through nested
+cleanup. The focused regression passed in 73.507 seconds and the full 14-test
+campaign-runner module passed in 90.468 seconds on `gpu-2`. Complete quality,
+independent review, and integration evidence remain open at this checkpoint.
+Because this correction changes the authenticated source set, the attempt-2
+bundle and preflight are historical evidence and cannot authorize another
+run.
+
 ### External corpus evidence
 
 Official NIST artifacts were downloaded into temporary storage, never committed, and checked:
@@ -392,7 +428,7 @@ The benchmark-result example is synthetic and explicitly non-claiming.
 
 ## Review
 
-- Head engineering self-review: performed incrementally against the exact Task 4 provisioning subject `16d698d`, installed lock, live artifact hashes, retained upstream logs, build-plan M0 requirements, and the active AMD qualification plan. The deployment review examined exact subject `a312aa2`, its source and subprocess boundaries, canonical closed receipt, native dual-build/runtime evidence, compatibility results, and fresh cross-host verifier equality. Campaign-runner review examined exact subject `db0eb87`, privilege separation, identity/statistical closure, restoration dominance, deterministic selector replay, canonical write-once finalization, fresh verification, re-bound semantic tampering, and source-clean CLI execution. Replacement-preflight replay examined its exact file set, canonical bytes, digests, eligibility, identity closure, deterministic selection, and negative claim boundary. Earlier M0 integration self-review remains bound to `3d635d3`.
+- Head engineering self-review: performed incrementally against the exact Task 4 provisioning subject `16d698d`, installed lock, live artifact hashes, retained upstream logs, build-plan M0 requirements, and the active AMD qualification plan. The deployment review examined exact subject `a312aa2`, its source and subprocess boundaries, canonical closed receipt, native dual-build/runtime evidence, compatibility results, and fresh cross-host verifier equality. Campaign-runner review examined exact subject `db0eb87`, privilege separation, identity/statistical closure, restoration dominance, deterministic selector replay, canonical write-once finalization, fresh verification, re-bound semantic tampering, and source-clean CLI execution. Replacement-preflight replay examined its exact file set, canonical bytes, digests, eligibility, identity closure, deterministic selection, and negative claim boundary. Attempt-2 review examined the immutable 49-file rejection, all 48 bound diagnostics, five primary records, six restorations, required-PMU text, live post-state, fresh-verifier rejection, and exact permission boundary. Repair review examined the direct-parent invariant, descriptor anchoring, temporary modes, nested restoration, and unchanged primary path. Earlier M0 integration self-review remains bound to `3d635d3`.
 - Independent implementation-quality review: a read-only engineering-agent review of `a8d5065..82ed387` found no critical issue, one important non-finite evidence-classification gap, and one minor restoration-order assertion gap. Red `c68474c` and repair `c9af373` resolved both; follow-up review of `82ed387..c9af373` reported no remaining critical, important, or minor finding. A separate read-only review independently replayed the replacement preflight's exact six-file root, canonical encoding, digests, eligibility, bundle/source/toolchain/lock/boot bindings, core selection, and non-claiming boundary and reported no critical, important, or minor finding. These are implementation and evidence reviews, not the independent final M0 acceptance review.
 - Architecture approval: AR-0001 Option 2 approved by the user on 2026-08-28 and integrated at `6904d49e4978f48d9ca3c5db29fac59bbc3233c6`.
 
@@ -407,9 +443,10 @@ Self-review is not represented as independent review.
 5. Corpus supports are specified but not materialized by code; no canonical support digests exist.
 6. Independent implementation-quality review of this repair is closed, but independent final M0 acceptance review remains absent. Task 6 self-review is not substituted for final acceptance.
 7. The qualification plan says Task 7 may set qualification true only when every requirement and review gate passes, while the candidate manifest defers `baseline_numerical_admission` to M2 and M1 is blocked on M0. This dependency conflict must be resolved explicitly before the Task 7 decision; it does not block Task 5 infrastructure qualification.
-8. Campaign-one attempt 1 proved a physical restoration defect: restoring EPP before the governor leaves EPP at `performance` on the `amd-pstate-epp` target. Test-first source repair through `c9af373` restores sibling, governor, then EPP, and the bounded physical restoration-only cycle at `a396f64` passed. The fresh physical-native bundle also passed byte-identical `gpu-2` verification, and the replacement read-only preflight independently accepted. A separately authorized campaign attempt remains open. The retained rejection is terminal.
+8. Campaign-one attempt 1 proved a physical restoration defect: restoring EPP before the governor leaves EPP at `performance` on the `amd-pstate-epp` target. Test-first source repair through `c9af373` restores sibling, governor, then EPP, and the bounded physical restoration-only cycle at `a396f64` passed. The fresh physical-native bundle also passed byte-identical `gpu-2` verification, and the replacement read-only preflight independently accepted. Attempt 2 later consumed that root once and is terminal; neither rejection can be retried.
 9. The normative campaign-runner design requires every retained JSON file to use canonical compact encoding. Source repair through `c9af373` makes the native probe and Bash restoration record canonical and maps noncanonical/non-finite bytes to the closed rejection classes in both consumers. The rejected live files remain immutable noncanonical failure evidence; the correction requires a new bundle and new root.
 10. The Task 8 branch had already been squash-merged and deleted under the repository branch-cleanup policy. The user approved proceeding with `gpu-2` as the second host and a clean detached checkout at exact protected-main ancestor `a396f64` rather than recreating the deleted branch. Exact commit, tree, source, and clean-state identity were unchanged; the active plan now records this implementation-neutral execution variance without relaxing future evidence gates.
+11. Campaign-one attempt 2 passed all five primary processes and exact session restoration but terminated in required PMU publication because the root-owned `pmu/` parent was not traversable by the target user. The external rejection is terminal. Red `cc826f2` and repair `0a30b24` close the fixture-level defect; complete quality, independent review, and protected-main integration remain open, and any later attempt requires a new authenticated bundle and preflight.
 
 ## Gate decision and blockers
 
@@ -422,16 +459,14 @@ M0 remains **OPEN**. Closing it requires:
 
 ## Earliest executable next slice
 
-The earliest valid slice is still within M0. The test-first repair,
-exact-commit repository-quality gates, physical restoration-only proof, and
-fresh cross-host deployment are closed through `a396f64`.
-Next:
-
-1. obtain explicit authority for one new campaign-one attempt in the exact
-   independently accepted replacement-preflight root. The retained
-   rejected root is never reused, rewritten, or retried;
-2. stop again before any controlled reboot unless campaign one is accepted and
-   separate reboot authority is granted.
+The earliest valid slice is still within M0. First close complete exact-commit
+quality, independent review, protected-main integration, and both-host source
+synchronization for the PMU traversal repair. Stop after integration. A future
+live attempt is intentionally absent until a new physical-native bundle,
+byte-identical `gpu-2` replica, read-only preflight, independent review, new
+immutable root, and separate attempt authority are established. A controlled
+reboot remains separately prohibited unless campaign one is eventually
+accepted and explicit reboot authority is granted.
 
 The reviewed engineering-quality-gates plan is now unblocked as independent development-environment work, but it cannot substitute for the measurement-host critical path or authorize M1 product code.
 

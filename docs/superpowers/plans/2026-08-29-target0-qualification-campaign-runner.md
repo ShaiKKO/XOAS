@@ -891,9 +891,8 @@ authentication input is present; no campaign acceptance/rejection marker,
 campaign manifest, process directory, PMU, qualification, or performance
 evidence exists. A separate read-only engineering review reported no critical,
 important, or minor finding. No host control changed during preflight. Task 9
-is closed; Task 10 still requires separate live-attempt authority and must
-continue in this exact accepted preflight root. Creating a different root
-requires rerunning Task 9 and replacing the documented digests.
+closed at that checkpoint. Task 10 later received one-attempt authority and
+consumed this exact root; its terminal result is recorded below.
 
 ---
 
@@ -950,9 +949,9 @@ infinity, and overflowed syntax now reach the closed process/restoration
 rejection classes. The final source subject passed complete Debug and Release
 50/50 suites, isolated sanitizer 3/3, and repository policy on
 `wineth-ubuntu`, and follow-up review reported no remaining finding. At that
-checkpoint, physical restoration proof, a new exact-commit
-bundle/replica, and a new preflight remained open. Steps 3–5 are
-acceptance-path work for a separately authorized new attempt.
+checkpoint, physical restoration proof, a new exact-commit bundle/replica, and
+a new preflight remained open. Those prerequisites later closed for historical
+attempt 2 below; they are not authority for another attempt.
 
 A bounded restoration-only control cycle later passed on the physical host at
 clean merged source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886`.
@@ -975,74 +974,50 @@ accepted with SHA-256
 `08a3253b44a2bc1c0dc89abd3463c20def73e0fc313ac468441b9ce65c31935e`
 and CPU 1/sibling 13 selection SHA-256
 `718350bb2ff003000e1ed7ffd1f331fe0c52671cd56d21f3a5dde307bcead803`.
-Every Task 10 acceptance-path step remains open; no new campaign or PMU phase
-occurred.
 
-#### Replacement attempt checklist
+#### Historical replacement attempt 2
 
-This attempt is not authorized yet. When authority is granted, the `run`
-interface must consume the exact accepted Task 9 directory and its existing
-preflight/selection records. Do not copy those records to another directory.
-If the preflight becomes stale or another directory is required, rerun Task 9,
-independently review it, and replace its documented digests before proceeding.
+- [x] **Step 1: Run the controlled phase exactly once**
 
-- [ ] **Step 1: Run the controlled phase exactly once**
+One separately authorized invocation consumed the exact accepted Task 9 root
+at source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886`. It ran once and
+was not retried.
 
-Invoke the approved `run` interface as root with the exact repository root,
-accepted Task 9 campaign directory, and external target username.
-Do not retry a failed process or rejected campaign.
+- [x] **Step 2: Verify restoration immediately**
 
-- [ ] **Step 2: Verify restoration immediately**
+Five primary sessions and the required-PMU session produced six exact
+restoration records. Independent live audit matched sibling, governor, EPP,
+boost, boot, and checkout to accepted pre-state.
 
-Before interpreting timing, independently require the sibling, governor, EPP,
-boost, boot, checkout, and identity states to equal their accepted pre-state.
-A restoration difference is the terminal campaign result and requires a
-bounded recovery decision before another preflight or attempt.
+- [x] **Step 3: Fresh-verify the terminal evidence**
 
-- [ ] **Step 3: Fresh-verify the finalized evidence**
+Five primary records and 150 samples validated. Required `perf` counted
+`4083495660` cycles and `7381631799` instructions at `100.00` percent running,
+then returned 2 without PMU process JSON because the target user could not
+traverse the root-owned mode-`0700` `pmu/` parent. The fresh verifier returned
+2 against terminal phase-`pmu` `process_schema_failure`.
 
-Run:
+- [x] **Step 4: Bind terminal non-secret evidence**
 
-```bash
-/usr/bin/python3 tools/target0/verify_qualification_campaign.py \
-  --campaign-directory "$xoasCampaignRoot" \
-  --campaign-schema schemas/target0-qualification-campaign-v1.schema.json \
-  --process-schema schemas/target0-host-qualification-v1.schema.json \
-  --bundle-schema schemas/target0-qualification-tool-bundle-v1.schema.json
-```
+Rejection SHA-256
+`0330baaba84c9cef592204e65f95391d8597f55cdd3fe8e182153ec9a6405ba1`
+binds 48 diagnostic files in the 49-file immutable external root. No compact
+accepted campaign receipt, campaign manifest, or acceptance record was
+created.
 
-Require five valid primary processes, 150 retained primary samples, required
-unit-scaled cycles/instructions, explicit optional-event outcomes, exact
-restoration, exact identity, accepted MAD/p99 thresholds, and matching
-inventory/manifest/acceptance digests.
+- [x] **Step 5: Stop before reboot and further execution**
 
-- [ ] **Step 4: Bind compact repository evidence**
+No optional PMU phase, controlled reboot, campaign two, qualification, or
+performance claim occurred. The rejected root is never retried, rewritten, or
+deleted.
 
-Copy canonical external `campaign.json` to `campaign-01.json`, write its exact
-SHA-256 sidecar, validate the schema, and update the target state to
-`campaign_01_passed_campaign_02_required` only if fresh verification accepts.
-Keep `target0_measurement_qualified`, `performance_claim`, and the M0 gate false
-or open.
-
-- [ ] **Step 5: Run complete quality and commit campaign one**
-
-On `gpu-2` run the complete Debug, Release, sanitizer, repository-policy, and
-Target 0 verification suite at the exact evidence commit.
-Then stage only the campaign receipt, digest, target manifest, target document,
-acceptance record, status ledger, and controlling-plan checkbox updates.
-
-```bash
-git commit -m "bench: record Target 0 qualification campaign one"
-git push
-```
-
-- [ ] **Step 6: Stop at the reboot boundary**
-
-Report the exact campaign-one commit, raw-evidence inventory digest, selected
-core and sibling, process/PMU/restoration results, complete verification,
-physical pre/post state, and clean/dirty states.
-Do not execute `systemctl reboot`, campaign two, qualification, or M0 closure
-without the separate Task 6 approval.
+Red `cc826f2` and repair `0a30b24` address the direct-parent traversal defect.
+The changed authenticated source set invalidates the attempt-2 bundle and
+preflight for future use. This plan defines no future live attempt. Before one
+can be proposed, complete repair quality/review/integration, build and
+cross-verify a fresh physical-native bundle, accept and independently review a
+new read-only preflight in a new immutable root, and obtain separate attempt
+authority. Controlled reboot authority remains separate.
 
 ---
 
