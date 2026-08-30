@@ -36,12 +36,27 @@ classes in both runner and fresh verifier. Complete Debug and Release 50/50
 suites, isolated sanitizer 3/3, and repository policy passed on
 `wineth-ubuntu`; follow-up independent review reported no remaining critical,
 important, or minor finding. This closes
-source and fixture quality only. The next slice is physical restoration
-verification plus a new exact-commit native bundle/replica and read-only
-preflight. A separately authorized new attempt, accepted campaign one, reboot
-authority, the M0/M2 baseline numerical-admission dependency, and independent
-final M0 review/acceptance remain open. The incidental administrator reboot is
-not campaign evidence.
+source and fixture quality only.
+
+At clean merged source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886`,
+one bounded restoration-only physical session passed around `/usr/bin/true`.
+The controller returned 0, the canonical record reported exact restoration,
+and an independent live audit matched sibling, governor, EPP, and boost. The
+restoration-record SHA-256 is
+`5b6e2cefbac4c8c96f5228139978f776d55aff0dcffb9dc9fb19812cb50236e7`.
+A fresh physical-native bundle at the same source passed preparation and fresh
+physical verification. Its bundle-manifest, inventory, executable, and
+normalized executable-identity SHA-256 values are
+`15d58e20bbab593bd902782b917b79ba98a03cf1e79c784fbff2c450d23a99a0`,
+`44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf`,
+`db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`,
+and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
+IDR-0002's byte-identical `gpu-2` replica and independent verification remain
+open, so no replacement preflight, campaign, PMU phase, reboot, qualification,
+or performance claim occurred. A separately authorized new attempt, accepted
+campaign one, reboot authority, the M0/M2 baseline numerical-admission
+dependency, and independent final M0 review/acceptance remain open. The
+incidental administrator reboot is not campaign evidence.
 
 Load-bearing infrastructure boundary before the reference-target manifest can be locked:
 
@@ -51,7 +66,7 @@ Load-bearing infrastructure boundary before the reference-target manifest can be
 
 | Milestone | State | Implementing commits | Evidence | Open gate items |
 |---|---|---|---|---|
-| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines); `00afbf7` (benchmark contract); `8a7032b` (corpus); `6e6adf3` (candidate target/proposal); `3d635d3` (verified integration subject); `6904d49` (Option 2 decision); `ce1d27d` (verified development toolchain); `2c07fef` (aggregate local quality); `651b912` (authoritative hosted checks); `6516866` (protected-main evidence); `60c4eeb` (AMD qualification authority/plan); `8a247a2` (qualification process contract); `864f7fa` (capture/session controls); `b7371ae` (real-checkout capture repair); `ee57ff5` (physical pre-state and provisioning lock); `16d698d` (Task 4 execution subject); `9d44f64` (verified baseline stack); `a312aa2` (verified native qualification-tool deployment subject); `db0eb87` (campaign runner, fresh verifier, and source-clean execution); `7b486e1` (exact campaign quality evidence); `1141713` (replacement bundle and rejected physical attempt source); `485eb6b`/`c68474c` (repair red tests); `c9af373` (reviewed source repair) | All named M0 documents/manifests exist; AR-0001 Option 2, AR-0002 Option 1, and engineering-quality design approved; physical AMD support closure and versioned baseline artifacts installed and verified; development toolchain and local/hosted/protected-main enforcement verified; replacement native bundle and preflight passed; campaign attempt 1 rejected on exact EPP restoration and bounded recovery restored pre-state; reviewed test-first repair canonicalizes retained JSON, orders sibling/governor/EPP, and classifies non-finite evidence; exact repair passed full `wineth-ubuntu` quality; no PMU/reboot/qualification/performance claim | Physically verify repaired governor/EPP restoration; deploy and cross-verify a new exact-commit bundle/replica; pass a new read-only preflight before any separately authorized new campaign attempt; resolve the M0/M2 baseline numerical-admission dependency and deferred JITSpMM license before use; independent final M0 review/acceptance |
+| M0 — Charter, prior-art map, benchmark protocol | In progress | `60044e8` (foundation/charter); `30616bc` (prior art/baselines); `00afbf7` (benchmark contract); `8a7032b` (corpus); `6e6adf3` (candidate target/proposal); `3d635d3` (verified integration subject); `6904d49` (Option 2 decision); `ce1d27d` (verified development toolchain); `2c07fef` (aggregate local quality); `651b912` (authoritative hosted checks); `6516866` (protected-main evidence); `60c4eeb` (AMD qualification authority/plan); `8a247a2` (qualification process contract); `864f7fa` (capture/session controls); `b7371ae` (real-checkout capture repair); `ee57ff5` (physical pre-state and provisioning lock); `16d698d` (Task 4 execution subject); `9d44f64` (verified baseline stack); `a312aa2` (verified native qualification-tool deployment subject); `db0eb87` (campaign runner, fresh verifier, and source-clean execution); `7b486e1` (exact campaign quality evidence); `1141713` (replacement bundle and rejected physical attempt source); `485eb6b`/`c68474c` (repair red tests); `c9af373` (reviewed source repair); `a396f64` (merged repair used for physical restoration proof and fresh physical bundle) | All named M0 documents/manifests exist; AR-0001 Option 2, AR-0002 Option 1, and engineering-quality design approved; physical AMD support closure and versioned baseline artifacts installed and verified; development toolchain and local/hosted/protected-main enforcement verified; replacement native bundle and preflight passed; campaign attempt 1 rejected on exact EPP restoration and bounded recovery restored pre-state; reviewed test-first repair canonicalizes retained JSON, orders sibling/governor/EPP, and classifies non-finite evidence; bounded physical restoration-only validation and fresh physical bundle verification passed at `a396f64`; no PMU/reboot/qualification/performance claim | Copy the accepted physical bundle byte-for-byte to `gpu-2` and independently verify it there; pass a new read-only preflight before any separately authorized new campaign attempt; resolve the M0/M2 baseline numerical-admission dependency and deferred JITSpMM license before use; independent final M0 review/acceptance |
 | M1 — Core types and canonical identity | Not started | None | None | M0 gate must close first |
 | M2 — Reference semantics and honest baselines | Not started | None | None | M1 gate and target/baseline setup |
 | M3 — Contribution graph and scalar code generation | Not started | None | None | M2 gate |

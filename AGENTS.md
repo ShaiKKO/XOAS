@@ -867,9 +867,15 @@ process/restoration JSON; and classifies noncanonical and non-finite retained
 records through the closed rejection paths. That subject passed complete Debug
 and Release 50/50 suites plus the isolated 3/3 sanitizer gate on
 `wineth-ubuntu`; this supplemental quality evidence does not qualify the
-measurement host. Before a new attempt, require physical
-restoration verification, a new native bundle/replica, a new read-only preflight,
-and separate live-attempt authority. Never reuse or rewrite the rejected root.
+measurement host. At clean merged source `a396f64`, one bounded physical
+restoration-only session returned 0 and independently matched sibling,
+governor, EPP, and boost to its canonical pre-state. A fresh physical-native
+bundle at the same source passed preparation and fresh physical verification.
+IDR-0002's byte-identical `gpu-2` replica and independent verification remain
+open, so no replacement preflight, campaign, PMU phase, reboot, qualification,
+or performance claim occurred. Before a new attempt, require that replica, a
+new read-only preflight, and separate live-attempt authority. Never reuse or
+rewrite the rejected root.
 The pinned JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound

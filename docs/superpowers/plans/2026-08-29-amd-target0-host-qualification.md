@@ -596,6 +596,23 @@ This is source/fixture evidence only: physical restoration verification, a new
 native bundle and replica, a new preflight, and separate authority remain
 prerequisites for another Task 5 attempt.
 
+One bounded restoration-only session subsequently passed on the physical host
+at clean merged source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886`.
+The controller returned 0 around `/usr/bin/true`; an independent live audit
+matched sibling, governor, EPP, and boost to the canonical restored record.
+Its SHA-256 is
+`5b6e2cefbac4c8c96f5228139978f776d55aff0dcffb9dc9fb19812cb50236e7`.
+A fresh physical-native bundle at the same source was accepted by preparation
+and fresh physical verification. Bundle-manifest, inventory, executable, and
+normalized executable-identity SHA-256 values are
+`15d58e20bbab593bd902782b917b79ba98a03cf1e79c784fbff2c450d23a99a0`,
+`44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf`,
+`db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`,
+and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
+The IDR-0002 byte-identical `gpu-2` replica and fresh verifier remain open;
+therefore no new preflight, Task 5 process, PMU phase, reboot, qualification,
+or performance claim occurred.
+
 Before each qualification process, independently recompute and retain the
 accepted executable, compiler, linker, fixed source set, provisioning lock,
 checkout commit/tree/clean state, and boot identities. Reject the complete
