@@ -1100,8 +1100,15 @@ def _load_campaign_json(
         raise CampaignError("campaign JSON evidence is unreadable") from error
     if not isinstance(record, dict):
         raise CampaignError("campaign JSON evidence is not an object")
-    if canonical and _canonical_campaign_json(record) != content:
-        raise CampaignError("campaign JSON evidence is not canonical")
+    if canonical:
+        try:
+            canonical_content = _canonical_campaign_json(record)
+        except (TypeError, ValueError) as error:
+            raise CampaignError(
+                "campaign JSON evidence is not canonical"
+            ) from error
+        if canonical_content != content:
+            raise CampaignError("campaign JSON evidence is not canonical")
     return record
 
 

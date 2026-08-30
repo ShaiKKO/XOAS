@@ -410,11 +410,13 @@ def _load_canonical_json_object(
         record = json.loads(content.decode("utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         raise CampaignError("retained JSON input is unreadable") from error
-    if (
-        not isinstance(record, dict)
-        or not callable(canonicalizer)
-        or canonicalizer(record) != content
-    ):
+    if not isinstance(record, dict) or not callable(canonicalizer):
+        raise CampaignError("retained JSON input is not canonical")
+    try:
+        canonical_content = canonicalizer(record)
+    except (TypeError, ValueError) as error:
+        raise CampaignError("retained JSON input is not canonical") from error
+    if canonical_content != content:
         raise CampaignError("retained JSON input is not canonical")
     return record
 
