@@ -146,11 +146,25 @@ subsequently passed both complete Debug and Release quality aggregates and
 explicit 50/50 CTest replays, the isolated 3/3 sanitizer gate, repository
 policy, and final source-clean checkout assertion on `gpu-2`.
 
-This evidence closes implementation and exact-commit quality only. A fresh
-native physical bundle and matching `gpu-2` replica, physical preflight,
-campaign one, and the separately authorized reboot boundary remain open. No
-live measurement session, campaign, qualification decision, or reboot has
-occurred.
+This evidence closes implementation and exact-commit quality only.
+
+Subsequent exact source `1141713c3448eaaa392e09ace8924ebcaf0e38bd`
+produced a fresh physical-native bundle, a matching `gpu-2` replica, and an
+independently accepted physical preflight. Campaign-one attempt 1 then stopped
+during primary process 1 with closed reason `restoration_failure`: the probe
+returned 0, sibling/governor/boost restored, and EPP remained `performance`
+instead of pre-state `balance_performance`. The controller returned 70 and the
+runner published no acceptance. Bounded recovery restored only EPP, after
+which the complete live identity and stable host projection matched preflight.
+The immutable rejection SHA-256 is
+`e6458e2dac1097fa5649371c0815403708c7985da0b80d2ebf5c8b049efc5868`.
+No PMU phase, reboot, qualification decision, or performance claim occurred.
+
+Before another campaign attempt, the implementation must repair and physically
+verify the governor/EPP restoration order and resolve the normative-design
+requirement for canonical JSON against the regular JSON currently emitted by
+the native probe and Bash restoration record. Any source correction requires a
+new exact-commit bundle, replica verification, preflight, and attempt root.
 
 ## Reversal and migration
 
