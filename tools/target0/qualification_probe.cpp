@@ -289,8 +289,7 @@ std::string serializeRecord(const Options &options,
               initialStatus.voluntaryContextSwitches
        << "},\"process_id\":" << ::getpid()
        << ",\"requested_cpu\":" << options.requestedCpu
-       << ",\"retained_rounds\":" << options.retainedRounds
-       << ",\"samples\":[";
+       << ",\"retained_rounds\":" << options.retainedRounds << ",\"samples\":[";
   for (std::size_t index = 0; index < samples.size(); ++index) {
     const Sample &sampleRecord = samples[index];
     if (index != 0) {
