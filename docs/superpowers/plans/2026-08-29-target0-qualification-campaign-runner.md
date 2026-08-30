@@ -992,5 +992,5 @@ This plan is complete only when:
 - raw evidence, inventory, manifest, acceptance/rejection, and compact Git
   receipt are retained as applicable;
 - no credential or access field is present;
-- no reboot or campaign two has occurred;
+- no controlled campaign reboot or campaign two has occurred;
 - Target 0 and M0 remain open until the separately approved later gates close.

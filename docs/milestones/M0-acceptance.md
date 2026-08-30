@@ -223,9 +223,9 @@ compiler/linker identities, dual-build result, compatibility result, and
 external-private two-host retention classification. The failed earlier
 `bc800ff` physical build attempt remains retained as non-claiming evidence.
 
-No campaign, real measurement-session control, benchmark, reboot,
-qualification, or performance claim occurred. Deployment compatibility timing
-is not benchmark evidence.
+No campaign, real measurement-session control, benchmark, controlled campaign
+reboot, qualification, or performance claim occurred. Deployment compatibility
+timing is not benchmark evidence.
 
 ### Campaign-runner implementation verification
 
@@ -276,8 +276,8 @@ A bounded recovery wrote only CPU 2 EPP back to the retained pre-state.
 Independent post-recovery capture matched sibling online 1, governor
 `powersave`, EPP `balance_performance`, boost 1, boot, checkout, toolchain,
 source, bundle, thermal, and stable host identities. The immutable rejected
-root remains external and will not be retried or rewritten. No reboot,
-qualification, or performance claim occurred.
+root remains external and will not be retried or rewritten. No controlled
+campaign reboot, qualification, or performance claim occurred.
 
 ### Physical restoration-only proof and fresh bundle candidate
 
@@ -300,8 +300,10 @@ normalized executable-identity SHA-256 values are
 and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
 The authoritative deployment contract still requires a byte-identical
 `gpu-2` replica and an independent verifier there. Neither that replica nor a
-replacement preflight exists. No campaign, PMU phase, reboot, qualification,
-or performance claim occurred.
+replacement preflight exists. No campaign, PMU phase, qualification, or
+performance claim occurred. This proof neither authorized nor performed a
+controlled campaign reboot; the incidental administrator reboot remains
+non-campaign evidence.
 
 ### External corpus evidence
 

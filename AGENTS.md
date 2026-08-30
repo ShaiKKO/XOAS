@@ -858,9 +858,10 @@ accepted CPU 2/sibling 14. Campaign-one attempt 1 stopped during primary
 process 1 with retained `restoration_failure`: sibling, governor, and boost
 restored, but EPP remained `performance` instead of `balance_performance`.
 Bounded one-field recovery restored exact pre-state and independent live
-identity replay passed. No PMU phase, accepted campaign receipt, reboot,
-qualification, or performance claim occurred. The test-first source repair is
-verified: red subjects `485eb6b` and `c68474c` exposed the restoration-order,
+identity replay passed. No PMU phase, accepted campaign receipt, controlled
+campaign reboot, qualification, or performance claim occurred. The test-first
+source repair is verified: red subjects `485eb6b` and `c68474c` exposed the
+restoration-order,
 canonical-byte, and non-finite classification defects. Exact repair through
 `c9af373` restores the sibling, governor, then EPP; emits canonical
 process/restoration JSON; and classifies noncanonical and non-finite retained
@@ -872,8 +873,10 @@ restoration-only session returned 0 and independently matched sibling,
 governor, EPP, and boost to its canonical pre-state. A fresh physical-native
 bundle at the same source passed preparation and fresh physical verification.
 IDR-0002's byte-identical `gpu-2` replica and independent verification remain
-open, so no replacement preflight, campaign, PMU phase, reboot, qualification,
-or performance claim occurred. Before a new attempt, require that replica, a
+open, so no replacement preflight, campaign, PMU phase, qualification, or
+performance claim occurred. This proof neither authorized nor performed a
+controlled campaign reboot; the incidental administrator reboot remains
+non-campaign evidence. Before a new attempt, require that replica, a
 new read-only preflight, and separate live-attempt authority. Never reuse or
 rewrite the rejected root.
 The pinned JITSpMM revision has no license statement;

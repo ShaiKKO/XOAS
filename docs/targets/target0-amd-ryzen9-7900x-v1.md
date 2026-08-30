@@ -244,7 +244,9 @@ This closes physical restoration validation and the physical-native half of
 fresh deployment only. IDR-0002 still requires the complete bundle to be
 copied byte-for-byte to `gpu-2` and independently verified in a clean checkout
 at the same source. No such replica, replacement preflight, new campaign, PMU
-collection, reboot, qualification decision, or performance claim exists.
+collection, qualification decision, or performance claim exists. This proof
+neither authorized nor performed a controlled campaign reboot; the incidental
+administrator reboot remains non-campaign evidence.
 
 ## Deferred comparator boundaries
 

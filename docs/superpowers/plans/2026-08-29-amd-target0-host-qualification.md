@@ -610,8 +610,10 @@ normalized executable-identity SHA-256 values are
 `db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`,
 and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
 The IDR-0002 byte-identical `gpu-2` replica and fresh verifier remain open;
-therefore no new preflight, Task 5 process, PMU phase, reboot, qualification,
-or performance claim occurred.
+therefore no new preflight, Task 5 process, PMU phase, qualification, or
+performance claim occurred. This proof neither authorized nor performed a
+controlled campaign reboot; the incidental administrator reboot remains
+non-campaign evidence.
 
 Before each qualification process, independently recompute and retain the
 accepted executable, compiler, linker, fixed source set, provisioning lock,

@@ -158,7 +158,8 @@ runner published no acceptance. Bounded recovery restored only EPP, after
 which the complete live identity and stable host projection matched preflight.
 The immutable rejection SHA-256 is
 `e6458e2dac1097fa5649371c0815403708c7985da0b80d2ebf5c8b049efc5868`.
-No PMU phase, reboot, qualification decision, or performance claim occurred.
+No PMU phase, controlled campaign reboot, qualification decision, or
+performance claim occurred.
 
 The source correction was implemented test-first. Red subject `485eb6b` added
 exact-byte and restoration-order regressions that failed against the prior

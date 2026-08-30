@@ -97,7 +97,9 @@ An implementation plan does not change architecture authority. Its execution mus
 No qualified Target 0 manifest exists. The historical `gpu-2` candidate
 manifest cannot satisfy plan or runtime compatibility. The physical AMD
 candidate now has a repository manifest plus an installed, artifact-verified
-support/baseline lock, but no controlled qualification campaign has run.
+support/baseline lock. Campaign-one attempt 1 ran only through primary process
+1 and was retained as `restoration_failure`; no controlled qualification
+campaign has completed or been accepted.
 
 Performance results do not become architectural authority. They may motivate a proposal, support a gate decision, or falsify a claim.
 
