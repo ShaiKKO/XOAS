@@ -1,0 +1,2535 @@
+{
+  "manifest_version": "xoas.target-candidate.v1",
+  "manifest_id": "target0-amd-ryzen9-7900x-v1-20260829t180112z",
+  "captured_at_utc": "2026-08-29T18:01:12Z",
+  "status": "candidate_unqualified",
+  "roles": [
+    "target0_measurement_candidate"
+  ],
+  "capture_scope": "closed_non_secret_read_only_host_and_provisioning_prestate",
+  "compatibility_identity_status": "canonical_binary_identity_deferred_to_M1",
+  "performance_claim": false,
+  "target0_measurement_qualified": false,
+  "capture_provenance": {
+    "capture_sha256": "019376b74df12d12129dca2618d215dfcd32ad51cdb0ca06b51b19d0977c0106",
+    "capture_tool_commit": "b7371ae1bbc74f4c6482b8ca4422ba9b058cfabd",
+    "capture_tool_sha256": "b94327e0865ac266a2b040f8887d510aa4138558d92d87c6ab8243d5df08ae7f",
+    "repository_commit": "60c4eeb2ae91c728486079f170dc7a553699657f",
+    "repository_tree_state": "clean"
+  },
+  "host": {
+    "boot_id_sha256": "3bba7d5411d8d3d1bb89570516512aaa0e038e74eb67c76aa42ab334654141b9",
+    "clocksource": {
+      "available": [
+        "tsc",
+        "hpet",
+        "acpi_pm"
+      ],
+      "current": "tsc"
+    },
+    "cpu": {
+      "family": 25,
+      "isa_flags": [
+        "3dnowprefetch",
+        "abm",
+        "adx",
+        "aes",
+        "amd_lbr_pmc_freeze",
+        "amd_lbr_v2",
+        "aperfmperf",
+        "apic",
+        "arat",
+        "avic",
+        "avx",
+        "avx2",
+        "avx512_bf16",
+        "avx512_bitalg",
+        "avx512_vbmi2",
+        "avx512_vnni",
+        "avx512_vpopcntdq",
+        "avx512bw",
+        "avx512cd",
+        "avx512dq",
+        "avx512f",
+        "avx512ifma",
+        "avx512vbmi",
+        "avx512vl",
+        "bmi1",
+        "bmi2",
+        "bpext",
+        "cat_l3",
+        "cdp_l3",
+        "clflush",
+        "clflushopt",
+        "clwb",
+        "clzero",
+        "cmov",
+        "cmp_legacy",
+        "constant_tsc",
+        "cpb",
+        "cppc",
+        "cpuid",
+        "cpuid_fault",
+        "cqm",
+        "cqm_llc",
+        "cqm_mbm_local",
+        "cqm_mbm_total",
+        "cqm_occup_llc",
+        "cr8_legacy",
+        "cx16",
+        "cx8",
+        "de",
+        "decodeassists",
+        "erms",
+        "extapic",
+        "extd_apicid",
+        "f16c",
+        "flush_l1d",
+        "flushbyasid",
+        "fma",
+        "fpu",
+        "fsgsbase",
+        "fsrm",
+        "fxsr",
+        "fxsr_opt",
+        "gfni",
+        "ht",
+        "hw_pstate",
+        "ibpb",
+        "ibrs",
+        "ibrs_enhanced",
+        "ibs",
+        "invpcid",
+        "irperf",
+        "lahf_lm",
+        "lbrv",
+        "lm",
+        "mba",
+        "mca",
+        "mce",
+        "misalignsse",
+        "mmx",
+        "mmxext",
+        "monitor",
+        "movbe",
+        "msr",
+        "mtrr",
+        "mwaitx",
+        "nonstop_tsc",
+        "nopl",
+        "npt",
+        "nrip_save",
+        "nx",
+        "ospke",
+        "osvw",
+        "overflow_recov",
+        "pae",
+        "pat",
+        "pausefilter",
+        "pclmulqdq",
+        "pdpe1gb",
+        "perfctr_core",
+        "perfctr_llc",
+        "perfctr_nb",
+        "perfmon_v2",
+        "pfthreshold",
+        "pge",
+        "pku",
+        "pni",
+        "popcnt",
+        "pse",
+        "pse36",
+        "rapl",
+        "rdpid",
+        "rdpru",
+        "rdrand",
+        "rdseed",
+        "rdt_a",
+        "rdtscp",
+        "rep_good",
+        "sep",
+        "sha_ni",
+        "skinit",
+        "smap",
+        "smca",
+        "smep",
+        "ssbd",
+        "sse",
+        "sse2",
+        "sse4_1",
+        "sse4_2",
+        "sse4a",
+        "ssse3",
+        "stibp",
+        "succor",
+        "svm",
+        "svm_lock",
+        "syscall",
+        "tce",
+        "topoext",
+        "tsc",
+        "tsc_scale",
+        "umip",
+        "user_shstk",
+        "v_spec_ctrl",
+        "vaes",
+        "vgif",
+        "vmcb_clean",
+        "vme",
+        "vmmcall",
+        "vnmi",
+        "vpclmulqdq",
+        "wbnoinvd",
+        "wdt",
+        "x2avic",
+        "xgetbv1",
+        "xsave",
+        "xsavec",
+        "xsaveerptr",
+        "xsaveopt",
+        "xsaves",
+        "xtopology"
+      ],
+      "microcode": "0xa60120c",
+      "model": 97,
+      "model_name": "AMD Ryzen 9 7900X 12-Core Processor",
+      "stepping": 2,
+      "vendor_id": "AuthenticAMD"
+    },
+    "frequency": {
+      "boost": 1,
+      "cpus": [
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 0,
+          "current_khz": 4176829,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 211
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 1,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 216
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 2,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 216
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 3,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 206
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 4,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 201
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 5,
+          "current_khz": 4982440,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 196
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 6,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 181
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 7,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 186
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 8,
+          "current_khz": 4925120,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 191
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 9,
+          "current_khz": 4113323,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 176
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 10,
+          "current_khz": 4964148,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 171
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 11,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 166
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 12,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 211
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 13,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 216
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 14,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 216
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 15,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 206
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 16,
+          "current_khz": 4961367,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 201
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 17,
+          "current_khz": 4965663,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 196
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 18,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 181
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 19,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 186
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 20,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 191
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 21,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 176
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 22,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 171
+        },
+        {
+          "available_energy_preferences": [
+            "default",
+            "performance",
+            "balance_performance",
+            "balance_power",
+            "power"
+          ],
+          "available_governors": [
+            "performance",
+            "powersave"
+          ],
+          "cpu": 23,
+          "current_khz": 3007258,
+          "driver": "amd-pstate-epp",
+          "energy_performance_preference": "balance_performance",
+          "governor": "powersave",
+          "maximum_khz": 5737986,
+          "minimum_khz": 414795,
+          "preferred_core_ranking": 166
+        }
+      ]
+    },
+    "interrupts": {
+      "per_cpu_totals": {
+        "0": 239970,
+        "1": 399719,
+        "10": 111816,
+        "11": 89734,
+        "12": 88704,
+        "13": 150354,
+        "14": 177586,
+        "15": 98006,
+        "16": 71779,
+        "17": 85450,
+        "18": 94811,
+        "19": 98835,
+        "2": 339497,
+        "20": 107093,
+        "21": 93200,
+        "22": 87439,
+        "23": 82013,
+        "3": 186934,
+        "4": 135050,
+        "5": 104756,
+        "6": 122649,
+        "7": 123971,
+        "8": 169262,
+        "9": 1615921
+      }
+    },
+    "kernel_controls": {
+      "isolcpus_configured": false,
+      "nohz_full_configured": false,
+      "rcu_nocbs_configured": false
+    },
+    "load": {
+      "load_average": [
+        0.14,
+        0.09,
+        0.07
+      ]
+    },
+    "memory": {
+      "huge_page_size_kib": 2048,
+      "huge_pages_free": 0,
+      "huge_pages_total": 0,
+      "page_size_bytes": 4096,
+      "total_kib": 31452924,
+      "transparent_hugepage": "always [madvise] never"
+    },
+    "os": {
+      "architecture": "x86_64",
+      "id": "ubuntu",
+      "kernel_release": "7.0.0-30-generic",
+      "kernel_version": "#30-Ubuntu SMP PREEMPT_DYNAMIC Fri Jul 31 18:22:54 UTC 2026",
+      "libc": "glibc 2.43",
+      "version_codename": "resolute",
+      "version_id": "26.04"
+    },
+    "packages": [
+      {
+        "name": "build-essential",
+        "version": "12.12ubuntu2.26.04.2"
+      },
+      {
+        "name": "gfortran",
+        "version": "absent"
+      },
+      {
+        "name": "doxygen",
+        "version": "absent"
+      },
+      {
+        "name": "graphviz",
+        "version": "absent"
+      },
+      {
+        "name": "shellcheck",
+        "version": "absent"
+      },
+      {
+        "name": "hwloc",
+        "version": "absent"
+      },
+      {
+        "name": "lm-sensors",
+        "version": ""
+      },
+      {
+        "name": "libnuma-dev",
+        "version": "absent"
+      },
+      {
+        "name": "pkg-config",
+        "version": "2.5.1-4"
+      }
+    ],
+    "perf": {
+      "cycles_available": true,
+      "event_paranoid": 4,
+      "instructions_available": true,
+      "nmi_watchdog": 1
+    },
+    "powercap": {
+      "zones": []
+    },
+    "thermal": {
+      "sensors": [
+        {
+          "millidegrees_c": 60000,
+          "sensor": "temp1_input"
+        },
+        {
+          "millidegrees_c": 65375,
+          "sensor": "temp3_input"
+        },
+        {
+          "millidegrees_c": 54000,
+          "sensor": "temp4_input"
+        }
+      ]
+    },
+    "tools": [
+      {
+        "available": true,
+        "identity": "Ubuntu clang version 21.1.8 (6ubuntu1)",
+        "name": "clang++-21"
+      },
+      {
+        "available": true,
+        "identity": "cmake version 4.2.3",
+        "name": "cmake"
+      },
+      {
+        "available": true,
+        "identity": "1.13.2",
+        "name": "ninja"
+      },
+      {
+        "available": true,
+        "identity": "Python 3.14.4",
+        "name": "python3"
+      },
+      {
+        "available": true,
+        "identity": "git version 2.53.0",
+        "name": "git"
+      },
+      {
+        "available": true,
+        "identity": "perf version 7.0.12",
+        "name": "perf"
+      }
+    ],
+    "topology": {
+      "cpus": [
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                0,
+                12
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                0,
+                12
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                0,
+                12
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 0,
+          "cpu": 0,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 211,
+          "siblings": [
+            0,
+            12
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                1,
+                13
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                1,
+                13
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                1,
+                13
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 1,
+          "cpu": 1,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 216,
+          "siblings": [
+            1,
+            13
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                2,
+                14
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                2,
+                14
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                2,
+                14
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 2,
+          "cpu": 2,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 216,
+          "siblings": [
+            2,
+            14
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                3,
+                15
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                3,
+                15
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                3,
+                15
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 3,
+          "cpu": 3,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 206,
+          "siblings": [
+            3,
+            15
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                4,
+                16
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                4,
+                16
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                4,
+                16
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 4,
+          "cpu": 4,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 201,
+          "siblings": [
+            4,
+            16
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                5,
+                17
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                5,
+                17
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                5,
+                17
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 5,
+          "cpu": 5,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 196,
+          "siblings": [
+            5,
+            17
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                6,
+                18
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                6,
+                18
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                6,
+                18
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 8,
+          "cpu": 6,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 181,
+          "siblings": [
+            6,
+            18
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                7,
+                19
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                7,
+                19
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                7,
+                19
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 9,
+          "cpu": 7,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 186,
+          "siblings": [
+            7,
+            19
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                8,
+                20
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                8,
+                20
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                8,
+                20
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 10,
+          "cpu": 8,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 191,
+          "siblings": [
+            8,
+            20
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                9,
+                21
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                9,
+                21
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                9,
+                21
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 11,
+          "cpu": 9,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 176,
+          "siblings": [
+            9,
+            21
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                10,
+                22
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                10,
+                22
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                10,
+                22
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 12,
+          "cpu": 10,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 171,
+          "siblings": [
+            10,
+            22
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                11,
+                23
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                11,
+                23
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                11,
+                23
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 13,
+          "cpu": 11,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 166,
+          "siblings": [
+            11,
+            23
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                0,
+                12
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                0,
+                12
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                0,
+                12
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 0,
+          "cpu": 12,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 211,
+          "siblings": [
+            0,
+            12
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                1,
+                13
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                1,
+                13
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                1,
+                13
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 1,
+          "cpu": 13,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 216,
+          "siblings": [
+            1,
+            13
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                2,
+                14
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                2,
+                14
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                2,
+                14
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 2,
+          "cpu": 14,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 216,
+          "siblings": [
+            2,
+            14
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                3,
+                15
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                3,
+                15
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                3,
+                15
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 3,
+          "cpu": 15,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 206,
+          "siblings": [
+            3,
+            15
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                4,
+                16
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                4,
+                16
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                4,
+                16
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 4,
+          "cpu": 16,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 201,
+          "siblings": [
+            4,
+            16
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                5,
+                17
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                5,
+                17
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                5,
+                17
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 5,
+          "cpu": 17,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 196,
+          "siblings": [
+            5,
+            17
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                6,
+                18
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                6,
+                18
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                6,
+                18
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 8,
+          "cpu": 18,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 181,
+          "siblings": [
+            6,
+            18
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                7,
+                19
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                7,
+                19
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                7,
+                19
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 9,
+          "cpu": 19,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 186,
+          "siblings": [
+            7,
+            19
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                8,
+                20
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                8,
+                20
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                8,
+                20
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 10,
+          "cpu": 20,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 191,
+          "siblings": [
+            8,
+            20
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                9,
+                21
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                9,
+                21
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                9,
+                21
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 11,
+          "cpu": 21,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 176,
+          "siblings": [
+            9,
+            21
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                10,
+                22
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                10,
+                22
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                10,
+                22
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 12,
+          "cpu": 22,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 171,
+          "siblings": [
+            10,
+            22
+          ]
+        },
+        {
+          "caches": [
+            {
+              "index": 0,
+              "level": 1,
+              "shared_cpus": [
+                11,
+                23
+              ],
+              "size": "32K",
+              "type": "Data"
+            },
+            {
+              "index": 1,
+              "level": 1,
+              "shared_cpus": [
+                11,
+                23
+              ],
+              "size": "32K",
+              "type": "Instruction"
+            },
+            {
+              "index": 2,
+              "level": 2,
+              "shared_cpus": [
+                11,
+                23
+              ],
+              "size": "1024K",
+              "type": "Unified"
+            },
+            {
+              "index": 3,
+              "level": 3,
+              "shared_cpus": [
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23
+              ],
+              "size": "32768K",
+              "type": "Unified"
+            }
+          ],
+          "core_id": 13,
+          "cpu": 23,
+          "numa_node": 0,
+          "package_id": 0,
+          "preferred_core_ranking": 166,
+          "siblings": [
+            11,
+            23
+          ]
+        }
+      ],
+      "logical_cpu_count": 24,
+      "numa_node_count": 1,
+      "physical_core_count": 12,
+      "smt_active": true,
+      "socket_count": 1
+    },
+    "virtualization": {
+      "kind": "none"
+    }
+  },
+  "provisioning": {
+    "state": "installed_verified",
+    "toolchain_lock": "toolchains/target0-amd-ryzen9-7900x-v1.lock.json",
+    "install_prefix": "/opt/xoas/target0-v1",
+    "install_prefix_collision_absent": true,
+    "package_holds": [],
+    "package_holds_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "package_prestate_count": 1502,
+    "package_prestate_sha256": "c84618dd993eb7daf56218d4e0b631385cab4409814f8e576498bac33e387c09",
+    "apt_install_simulation_sha256": "1fdb67a6407584d214e7e571f22752b686bfd738f9e6e39a6f93f661251d29bf",
+    "provisioning_subject": "16d698dd80cabee0a5b6b5046914edde4535464a",
+    "verified_at_utc": "2026-08-29T20:24:11Z",
+    "package_poststate_count": 1528,
+    "package_poststate_sha256": "160ebb0a03a71da3aabd3318c1f2bda7df96a3f7bfc53fbb758940dcd616ee07",
+    "installed_package_closure_count": 26,
+    "installed_file_count": 288,
+    "installed_file_manifest_sha256": "3dbfbc787ea6bb108e374da5d95c6adc3b8307bd419e0187eccfdcce3bc166ce",
+    "configuration_sha256": "810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3",
+    "external_evidence_bundle_sha256": "6cb7936cd8399158dfec83be898dced8319027c881260f05dfe6fb157b931dd4"
+  },
+  "baseline_state": {
+    "aocl_blas": "installed_verified_not_numerically_admitted",
+    "openblas": "installed_verified_not_numerically_admitted",
+    "libxsmm": "installed_verified_not_numerically_admitted",
+    "one_mkl": "not_installed_pending_M2_applicability_review",
+    "jitspmm": "source_identity_pinned_adapter_deferred_M2_license_missing"
+  },
+  "qualification": {
+    "decision_records": [
+      "docs/architecture/proposals/AR-0001-target-0-host-qualification.md",
+      "docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md"
+    ],
+    "tool_deployment": {
+      "state": "passed",
+      "evidence_path": "benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json",
+      "evidence_sha256": "0d62ab0c143fa224d31e4cde925e4c30a5a512c5cd391c4d8cd030b6608572ff",
+      "bundle_id": "target0-qualification-tools-a312aa2bbbb403b3",
+      "bundle_manifest_sha256": "0d62ab0c143fa224d31e4cde925e4c30a5a512c5cd391c4d8cd030b6608572ff",
+      "inventory_sha256": "4ead541d5c43be871833509a561fb4c170ec83d0f297343f8dd6e78058407b20",
+      "executable_sha256": "2b2352baf105ccb2b2ef3a1bb89046fc7a8259224f0c928747f473d11e215b8f",
+      "executable_identity_sha256": "a976d18ae90df3d008749683592f9cc7663b7e94d667d5e3eb78654344b2ad25",
+      "implementation_commit": "a312aa2bbbb403b31ffb67cf40200da063527a4f",
+      "implementation_tree": "b7279b22e40c848da7aecd7f3e4197a6857aa85f",
+      "provisioning_configuration_sha256": "810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3",
+      "source_count": 11,
+      "compiler_sha256": "412bbe8c60571a1eb06f48fde89635033621caeb01a9b4ee76d46711bae8e932",
+      "linker_sha256": "6a65863a9eba1af6b6e8969f8e96a5ad4df0e8b705f98491a28b1790ce35718c",
+      "dual_build_identical": true,
+      "compatibility_test_count": 5,
+      "compatibility_tests_passed": true,
+      "physical_verification": "passed",
+      "development_replica_verification": "passed",
+      "replica_digest_match": true,
+      "external_storage": {
+        "physical": "external_private_evidence_root",
+        "development": "external_private_evidence_root"
+      },
+      "physical_boot_id_sha256": "e30d0884ab780b4d7fc18787fc7f4bf55132119a9762d34f0ef489211c2b3dea",
+      "campaign_executed": false,
+      "qualification_claim": false,
+      "reboot_executed": false,
+      "host_control_mutation": false,
+      "performance_claim": false
+    },
+    "required_gates": [
+      {
+        "id": "closed_host_capture",
+        "state": "passed",
+        "evidence": "The read-only capture passed its closed validator and matched the locked physical-host boundary."
+      },
+      {
+        "id": "toolchain_lock_schema",
+        "state": "passed",
+        "evidence": "Draft 2020-12 meta-validation and full instance validation passed on the development host."
+      },
+      {
+        "id": "support_package_installation",
+        "state": "passed",
+        "evidence": "Exact 26-package closure installed with zero upgrades/removals and all dpkg file checks passed."
+      },
+      {
+        "id": "source_baseline_builds",
+        "state": "passed",
+        "evidence": "AOCL-BLAS, OpenBLAS, and corrected-prefix LIBXSMM upstream suites and deterministic smoke probes passed."
+      },
+      {
+        "id": "baseline_artifact_hashes",
+        "state": "passed",
+        "evidence": "All 288 installed regular files, 11 symlinks, compiler identities, symbols, loader traces, and pkg-config prefixes were retained and indexed."
+      },
+      {
+        "id": "qualification_tool_deployment",
+        "state": "passed",
+        "evidence": "benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json"
+      },
+      {
+        "id": "baseline_numerical_admission",
+        "state": "pending",
+        "evidence": "M2 must test each adapter against the independent oracle and active numerical mode."
+      },
+      {
+        "id": "real_session_restoration",
+        "state": "pending",
+        "evidence": "Task 5 must prove exact physical-host governor, EPP, sibling, and boost restoration."
+      },
+      {
+        "id": "qualification_smoke",
+        "state": "pending",
+        "evidence": "Task 5 must retain non-claiming process, PMU, and environment evidence."
+      },
+      {
+        "id": "noise_characterization",
+        "state": "pending",
+        "evidence": "Task 5 must satisfy the locked timer and process-variability rules."
+      },
+      {
+        "id": "campaign_one",
+        "state": "pending",
+        "evidence": "Task 5 must complete and review the first qualification campaign."
+      },
+      {
+        "id": "separate_reboot_approval",
+        "state": "pending",
+        "evidence": "The mid-provisioning administrative reboot was not a controlled campaign and does not satisfy the separate-reboot approval gate."
+      },
+      {
+        "id": "campaign_two",
+        "state": "pending",
+        "evidence": "Task 6 must complete a second campaign under a distinct boot identity."
+      },
+      {
+        "id": "cross_campaign_consistency",
+        "state": "pending",
+        "evidence": "Task 6 must reconcile CPU, OS, compiler, baseline, and control evidence across both boots."
+      },
+      {
+        "id": "independent_review_or_explicit_model_acceptance",
+        "state": "pending",
+        "evidence": "Task 7 must record the accepted review model and exact reviewed commit."
+      },
+      {
+        "id": "jitspmm_license",
+        "state": "blocked_deferred_M2",
+        "evidence": "The pinned source contains no license statement; no build or use is authorized."
+      }
+    ],
+    "campaigns": [],
+    "review_state": "pending",
+    "gate_decision": "open"
+  }
+}

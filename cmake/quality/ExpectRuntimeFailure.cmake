@@ -29,7 +29,7 @@ execute_process(
   COMMAND
     "${XOAS_CXX_COMPILER}" -std=c++23 -O0 -g
     -fsanitize=address,undefined -fno-omit-frame-pointer
-    -fno-sanitize-recover=all -fuse-ld=/usr/bin/ld.lld-21
+    -fno-sanitize-recover=all --ld-path=/usr/bin/ld.lld-21
     "${runtimeCopyPath}" -o "${runtimeBinaryPath}"
   RESULT_VARIABLE compileStatus
   OUTPUT_VARIABLE compileOutput

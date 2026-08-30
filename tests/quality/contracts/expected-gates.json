@@ -131,6 +131,7 @@
         "tests/quality/fixtures/policy/markdown-missing.md.in",
         "tests/quality/fixtures/policy/markdown-traversal.md.in",
         "tests/quality/fixtures/policy/secret-negative.txt.in",
+        "tests/quality/fixtures/policy/server-coordinate-negative.txt.in",
         "tests/quality/fixtures/policy/unfinished-marker-negative.txt.in",
         "tests/quality/fixtures/vendor/nonconforming.cpp"
       ],
@@ -149,6 +150,7 @@
         "xoas-json-schema",
         "xoas-markdown-link",
         "xoas-secret-pattern",
+        "xoas-server-coordinate",
         "xoas-shellcheck",
         "xoas-source-classification",
         "xoas-tracked-artifact",

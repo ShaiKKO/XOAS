@@ -76,3 +76,5 @@ add_custom_target(
   VERBATIM)
 
 add_subdirectory(tests/quality)
+add_subdirectory(tools/target0)
+add_subdirectory(tests/target0)

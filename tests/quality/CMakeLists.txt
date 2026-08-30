@@ -311,6 +311,10 @@ endfunction()
 xoasAddPolicyFixtureTest(
   secret-negative secret-negative.txt.in xoas-secret-pattern)
 xoasAddPolicyFixtureTest(
+  server-coordinate-negative
+  server-coordinate-negative.txt.in
+  xoas-server-coordinate)
+xoasAddPolicyFixtureTest(
   unfinished-marker-negative
   unfinished-marker-negative.txt.in
   xoas-unfinished-marker)

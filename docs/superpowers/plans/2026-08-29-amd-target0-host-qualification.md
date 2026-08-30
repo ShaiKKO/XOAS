@@ -74,7 +74,10 @@ and [`docs/experiments/baseline-matrix.md`](../../experiments/baseline-matrix.md
 - Create: `tools/target0/qualification_probe.cpp`
 - Create: `tests/target0/CMakeLists.txt`
 - Create: `tests/target0/qualification_probe_test.py`
+- Modify: `AGENTS.md`
 - Modify: `CMakeLists.txt`
+- Modify: `cmake/quality/RepositoryPolicy.cmake`
+- Modify: `docs/milestones/M0-acceptance.md`
 
 **Interfaces:**
 
@@ -91,7 +94,7 @@ and [`docs/experiments/baseline-matrix.md`](../../experiments/baseline-matrix.md
   in the retained campaign evidence. This keeps provenance independent of the
   executable it authenticates and avoids an undeclared C++ hashing dependency.
 
-- [ ] **Step 1: Add failing CLI and schema tests**
+- [x] **Step 1: Add failing CLI and schema tests**
 
 `qualification_probe_test.py` must assert:
 
@@ -121,7 +124,7 @@ ctest --preset dev-debug -R target0-qualification-probe --output-on-failure
 Expected before implementation: the target or test is absent and the command
 fails.
 
-- [ ] **Step 2: Define the closed process-result schema**
+- [x] **Step 2: Define the closed process-result schema**
 
 Use draft 2020-12 and `additionalProperties: false` for every closed object.
 Require exact manifest version, non-claiming boolean, CPU request, affinity
@@ -133,7 +136,12 @@ Each raw sample requires `round`, `elapsed_ns`, start/end CPU, checksum, and
 voluntary/involuntary context-switch deltas. Reject nonpositive durations,
 duplicate rounds, missing samples, and a claiming record.
 
-- [ ] **Step 3: Implement the deterministic CPU probe**
+Classify this schema as runtime-validated in repository policy. Its real
+10,000-timer-sample instance remains a build-tree test artifact and is
+validated by `target0-qualification-probe`; do not commit a synthetic timing
+record merely to satisfy the repository schema inventory.
+
+- [x] **Step 3: Implement the deterministic CPU probe**
 
 Use `clock_gettime(CLOCK_MONOTONIC_RAW)` and validate that
 `std::chrono::steady_clock::is_steady` is true. Pin with
@@ -154,7 +162,7 @@ Consume and serialize the checksum after timing. Measure 10,000 back-to-back
 `CLOCK_MONOTONIC_RAW` deltas before warm-up. Use professional `///` Doxygen
 blocks and rationale-only implementation comments.
 
-- [ ] **Step 4: Prove deterministic and negative behavior**
+- [x] **Step 4: Prove deterministic and negative behavior**
 
 Run twice with the same seed and compare every field except timestamps,
 elapsed samples, process ID, and context-switch counts. Require equal checksums
@@ -169,10 +177,10 @@ python3 -m jsonschema \
   schemas/target0-host-qualification-v1.schema.json
 ```
 
-- [ ] **Step 5: Commit the probe contract**
+- [x] **Step 5: Commit the probe contract**
 
 ```bash
-git add CMakeLists.txt tests/target0/CMakeLists.txt schemas/target0-host-qualification-v1.schema.json tools/target0/CMakeLists.txt tools/target0/qualification_probe.cpp tests/target0/qualification_probe_test.py
+git add AGENTS.md CMakeLists.txt cmake/quality/RepositoryPolicy.cmake docs/milestones/M0-acceptance.md tests/target0/CMakeLists.txt schemas/target0-host-qualification-v1.schema.json tools/target0/CMakeLists.txt tools/target0/qualification_probe.cpp tests/target0/qualification_probe_test.py docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md
 git diff --cached --check
 git commit -m "test: add Target 0 qualification probe"
 ```
@@ -187,6 +195,9 @@ git commit -m "test: add Target 0 qualification probe"
 - Create: `tools/target0/measurement_session.sh`
 - Create: `tests/target0/capture_host_test.py`
 - Create: `tests/target0/measurement_session_test.py`
+- Modify: `AGENTS.md`
+- Modify: `docs/milestones/M0-acceptance.md`
+- Modify: `docs/milestones/status.md`
 - Modify: `tools/target0/CMakeLists.txt`
 - Modify: `tests/target0/CMakeLists.txt`
 
@@ -196,12 +207,13 @@ git commit -m "test: add Target 0 qualification probe"
   closed non-secret host record.
 - `capture_host.py select-core --capture PATH --interrupt-window-seconds 60`
   emits the selected physical CPU and SMT sibling.
-- `measurement_session.sh --cpu UINT --sibling UINT --target-user NAME --
-  COMMAND...` applies reversible controls, executes one unprivileged command,
-  restores pre-state, and emits a restoration record beside the command's
-  result.
+- `measurement_session.sh --cpu UINT --sibling UINT --target-user NAME
+  --restoration-record PATH -- COMMAND...` applies reversible controls,
+  executes one unprivileged command, restores pre-state, and emits a closed
+  restoration record at the explicit non-replacing evidence path. Keeping the
+  path explicit prevents command output from mixing with restoration evidence.
 
-- [ ] **Step 1: Write fixture-driven capture tests**
+- [x] **Step 1: Write fixture-driven capture tests**
 
 Build a fake sysfs/proc fixture with two physical cores and siblings. Assert
 that capture rejects missing CPU topology, mismatched siblings, virtualization,
@@ -212,7 +224,7 @@ fields. Assert that the core selector sorts by:
 2. lowest interrupt-count delta during the exact 60-second window;
 3. lowest physical CPU number.
 
-- [ ] **Step 2: Implement closed non-secret capture**
+- [x] **Step 2: Implement closed non-secret capture**
 
 Capture CPU vendor/family/model/stepping/model name/microcode/ISA; CPU, socket,
 NUMA, SMT, L1/L2/L3, and sibling topology; memory/page state; OS/kernel/libc;
@@ -225,7 +237,7 @@ Never serialize hostname, network devices/addresses, login identity, home
 directory, access command, environment, or full kernel command line. Preserve
 only the approved non-secret kernel-control flags as named booleans.
 
-- [ ] **Step 3: Write session-controller negative tests**
+- [x] **Step 3: Write session-controller negative tests**
 
 Use a temporary fake sysfs tree and assert exact restoration after success,
 command failure, `TERM`, and an injected write failure. Require a hard failure
@@ -233,7 +245,7 @@ when CPU/sibling are not a pair, the sibling is already unexpectedly offline,
 the governor lacks `performance`, EPP lacks `performance`, the target user is
 root, or the command is empty.
 
-- [ ] **Step 4: Implement the reversible session controller**
+- [x] **Step 4: Implement the reversible session controller**
 
 The root portion must:
 
@@ -250,7 +262,7 @@ The root portion must:
 
 Do not modify persistent files or global IRQ affinity.
 
-- [ ] **Step 5: Run script, Python, and policy checks**
+- [x] **Step 5: Run script, Python, and policy checks**
 
 ```bash
 python3 tests/target0/capture_host_test.py
@@ -261,13 +273,15 @@ ctest --preset dev-debug -R target0-host-tools --output-on-failure
 git diff --check
 ```
 
-- [ ] **Step 6: Commit the host tools**
+- [x] **Step 6: Commit the host tools**
 
 ```bash
-git add tools/target0/capture_host.py tools/target0/measurement_session.sh tests/target0/capture_host_test.py tests/target0/measurement_session_test.py tools/target0/CMakeLists.txt tests/target0/CMakeLists.txt
+git add AGENTS.md docs/milestones/M0-acceptance.md docs/milestones/status.md docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md tools/target0/capture_host.py tools/target0/measurement_session.sh tests/target0/capture_host_test.py tests/target0/measurement_session_test.py tools/target0/CMakeLists.txt tests/target0/CMakeLists.txt
 git diff --cached --check
 git commit -m "tool: add reversible Target 0 host controls"
 ```
+
+Implemented at `864f7fa17aa576831aaa2e54fa16cfe34817baa2`.
 
 ---
 
@@ -279,14 +293,19 @@ git commit -m "tool: add reversible Target 0 host controls"
 - Create: `toolchains/target0-amd-ryzen9-7900x-v1.lock.json`
 - Create: `docs/targets/target0-amd-ryzen9-7900x-v1.md`
 - Create: `benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`
+- Modify: `AGENTS.md`
+- Modify: `cmake/quality/RepositoryPolicy.cmake`
 - Modify: `docs/architecture/README.md`
+- Modify: `docs/milestones/M0-acceptance.md`
+- Modify: `docs/milestones/status.md`
+- Modify: `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md`
 
 **Interfaces:**
 
 - The lock is the only provisioning input for Task 4.
 - The target manifest remains `candidate_unqualified` until Task 7.
 
-- [ ] **Step 1: Verify the exact repository and host boundary**
+- [x] **Step 1: Verify the exact repository and host boundary**
 
 Locally require a clean reviewed commit. On the authenticated physical host,
 require bare metal, Ubuntu 26.04 `resolute`, x86-64, Ryzen 9 7900X family
@@ -294,7 +313,7 @@ require bare metal, Ubuntu 26.04 `resolute`, x86-64, Ryzen 9 7900X family
 passwordless non-interactive sudo, and working privileged cycles/instructions.
 Stop on any mismatch.
 
-- [ ] **Step 2: Capture collision-free pre-state**
+- [x] **Step 2: Capture collision-free pre-state**
 
 Require `/opt/xoas/target0-v1` to be absent. Record package holds and the exact
 `dpkg-query -W` pre-state in the target record. Require the host checkout to be
@@ -302,7 +321,7 @@ clean at the approved planning commit; create a normal `$HOME/XOAS` clone only
 if no checkout exists, after proving `$HOME` is a non-root directory below
 `/home`.
 
-- [ ] **Step 3: Define the closed toolchain lock schema**
+- [x] **Step 3: Define the closed toolchain lock schema**
 
 Require OS/architecture, repository commit, APT package name/candidate/origin,
 existing executable hashes, fixed source repository/tag/commit/license,
@@ -311,7 +330,7 @@ validation probes, rollback/quarantine path, and qualification booleans.
 Forbid access and credential fields. Use `additionalProperties: false` at every
 closed object.
 
-- [ ] **Step 4: Refresh APT metadata and resolve support packages**
+- [x] **Step 4: Refresh APT metadata and resolve support packages**
 
 Resolve exact candidates after `sudo apt-get update` for:
 
@@ -331,7 +350,7 @@ Record candidates before installation and prove one simulated install using
 `apt-get --simulate install name=version...`. Do not install baseline library
 packages; their source builds are isolated in Task 4.
 
-- [ ] **Step 5: Freeze source and license identities**
+- [x] **Step 5: Freeze source and license identities**
 
 Use `git ls-remote` to require every global-constraint commit. Clone into a
 temporary root, checkout detached at the exact commit, verify the tag resolves
@@ -342,21 +361,29 @@ Record oneMKL as `not_installed_pending_M2_applicability_review`; record
 JITSpMM as `source_identity_pinned_adapter_deferred_M2`. Neither status removes
 an admitted baseline or asserts performance inapplicability.
 
-- [ ] **Step 6: Write candidate manifest and review record**
+The pinned JITSpMM revision contains no license or copyright statement. The
+lock records the missing identity explicitly, forbids source use, and defers
+the license/adapter boundary to M2 without removing the comparator from
+admission.
+
+- [x] **Step 6: Write candidate manifest and review record**
 
 Set `target0_measurement_qualified=false`, `performance_claim=false`, and name
 every remaining campaign, baseline, restoration, review, and reboot gate. Do
 not compute the final compatibility digest; M1 owns canonical binary identity.
 
-- [ ] **Step 7: Validate and commit the lock**
+- [x] **Step 7: Validate and commit the lock**
 
 ```bash
 python3 -m jsonschema -i toolchains/target0-amd-ryzen9-7900x-v1.lock.json schemas/target0-toolchain-lock-v1.schema.json
 python3 -m json.tool benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json >/dev/null
+cmake --build --preset dev-debug --target repository-policy docs-check
 git diff --check
-git add schemas/target0-toolchain-lock-v1.schema.json toolchains/target0-amd-ryzen9-7900x-v1.lock.json docs/targets/target0-amd-ryzen9-7900x-v1.md benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json docs/architecture/README.md
+git add AGENTS.md cmake/quality/RepositoryPolicy.cmake docs/architecture/README.md docs/milestones/M0-acceptance.md docs/milestones/status.md docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md schemas/target0-toolchain-lock-v1.schema.json toolchains/target0-amd-ryzen9-7900x-v1.lock.json docs/targets/target0-amd-ryzen9-7900x-v1.md benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json
 git commit -m "ops: lock Target 0 provisioning intent"
 ```
+
+Implemented at `ee57ff5e4af01fecb11fffd985e376d636560434`.
 
 ---
 
@@ -368,20 +395,20 @@ git commit -m "ops: lock Target 0 provisioning intent"
 - Modify: `docs/targets/target0-amd-ryzen9-7900x-v1.md`
 - Modify: `benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`
 
-- [ ] **Step 1: Reconfirm lock and collision preconditions**
+- [x] **Step 1: Reconfirm lock and collision preconditions**
 
 Require the host checkout at the exact Task 3 commit, a clean tree, unchanged
 APT candidates, unchanged host CPU/OS identity, and absent
 `/opt/xoas/target0-v1`. Create `/opt/xoas/target0-v1` root-owned and mode 0755
 only after every check passes.
 
-- [ ] **Step 2: Install exact support-package versions**
+- [x] **Step 2: Install exact support-package versions**
 
 Install only the name/version pairs recorded in the lock. Re-query the full
 installed dependency closure and record version, architecture, origin, and
 package-file status. Do not change compiler alternatives or hold the kernel.
 
-- [ ] **Step 3: Build single-thread AOCL-BLAS 5.3.2**
+- [x] **Step 3: Build single-thread AOCL-BLAS 5.3.2**
 
 Clone `amd/blis`, detach at
 `25cad99a6840855ade0a49871197f48ee0e1d317`, and configure the public source
@@ -410,7 +437,12 @@ Require Zen-family dispatch and one effective thread. Record source/configure
 logs, compiler hashes, library hashes, `ldd`, exported CBLAS symbols, and test
 results.
 
-- [ ] **Step 4: Build single-thread OpenBLAS 0.3.34**
+The installed build passed the upstream suite. The standalone smoke compile
+used GNU C17 and a narrow `-Wno-unused-function` exception for an upstream
+public-header static-inline warning. This exception applies only to the probe,
+not XOAS source or repository quality policy.
+
+- [x] **Step 4: Build single-thread OpenBLAS 0.3.34**
 
 Detach at `e0166008be8e466242aa76b2ff75ce3f0fbf574a` and configure an LP64,
 shared/static, `DYNAMIC_ARCH=ON`, `USE_THREAD=OFF`, `NUM_THREADS=1` build with
@@ -442,7 +474,7 @@ Run upstream tests and the same row-major SGEMM smoke. Require
 `OPENBLAS_NUM_THREADS=1`, one effective thread, recorded runtime core name,
 library hashes, `ldd`, and exported symbols.
 
-- [ ] **Step 5: Build LIBXSMM 2.1.0**
+- [x] **Step 5: Build LIBXSMM 2.1.0**
 
 Detach at `7944bf36cf847c846b3fa0eb194789295e00b624` and use the upstream
 reference GNU Make build with Release optimization, shared libraries, GCC
@@ -461,6 +493,7 @@ make -j12 \
   FC= \
   FORTRAN=0 \
   STATIC=0 \
+  PREFIX=/opt/xoas/target0-v1/libxsmm-2.1.0 \
   tests
 sudo make \
   CC=/usr/bin/gcc \
@@ -476,7 +509,13 @@ Run upstream tests and a fixed FP32 GEMM dispatch smoke with
 `LIBXSMM_VERBOSE=2`. Record detected/JIT target, initialization state, one
 effective thread, generated-code availability, library hashes, and `ldd`.
 
-- [ ] **Step 6: Validate coexistence and record installed closure**
+The initial invocation exposed that LIBXSMM generates pkg-config metadata
+during the test build. Without `PREFIX`, the installed metadata retained the
+temporary source path. The user approved adding the installation prefix to the
+build/test command. A clean corrected build and full test run passed, and the
+rejected logs remain retained as failed evidence.
+
+- [x] **Step 6: Validate coexistence and record installed closure**
 
 Compile one loader probe per library with explicit include/library/RPATH so no
 ambient BLAS can be selected. Use `LD_DEBUG=libs` once per probe and record the
@@ -486,7 +525,7 @@ Update the lock to `installed_verified`, list every installed file hash, and
 record a configuration digest computed over the lock with its digest field
 omitted.
 
-- [ ] **Step 7: Record reversible rollback without executing it**
+- [x] **Step 7: Record reversible rollback without executing it**
 
 Rollback quarantines the complete prefix using:
 
@@ -496,10 +535,12 @@ sudo mv /opt/xoas/target0-v1 \
   "/opt/xoas/target0-v1.quarantine-$xoasRollbackTimestamp"
 ```
 
-Record the actual quarantine path. Package removal is outside this plan and
-requires a separate administrator review.
+If rollback is executed later, record the actual quarantine path. Because this
+step records the rollback without executing it, Task 4 records the template and
+the fact that no actual quarantine path exists. Package removal is outside this
+plan and requires a separate administrator review.
 
-- [ ] **Step 8: Validate and commit provisioning evidence**
+- [x] **Step 8: Validate and commit provisioning evidence**
 
 ```bash
 python3 -m jsonschema -i toolchains/target0-amd-ryzen9-7900x-v1.lock.json schemas/target0-toolchain-lock-v1.schema.json
@@ -507,6 +548,13 @@ git diff --check
 git add toolchains/target0-amd-ryzen9-7900x-v1.lock.json docs/targets/target0-amd-ryzen9-7900x-v1.md benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json
 git commit -m "ops: verify Target 0 baseline stack"
 ```
+
+Implemented at `9d44f6431ebdaea60c796292e9da071f0f49522b`. The physical-host
+installed-lock and live 288-file digest check passed. The repository-policy
+diagnostic passed with only the documented temporary SC2329 exclusion required
+by the host's newer ShellCheck; no exclusion was committed.
+Evidence was bound to the repository at `9b28162152bfd4c0329a2d5de59f23c65f832a85`,
+which passed the pinned `gpu-2` Debug and Release quality aggregates.
 
 ---
 
@@ -518,6 +566,19 @@ git commit -m "ops: verify Target 0 baseline stack"
 - Create: `benchmarks/evidence/target0-amd-ryzen9-7900x-v1/campaign-01.sha256`
 - Modify: `benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`
 - Modify: `docs/targets/target0-amd-ryzen9-7900x-v1.md`
+
+Task 5 has not started. Before core selection or any campaign process, require
+an accepted qualification-tool bundle built natively from the clean physical
+checkout at the exact pushed campaign commit. Copy the complete bundle
+byte-for-byte to `gpu-2`, run the fresh-process verifier on both replicas, and
+require identical inventory and normalized executable-identity digests.
+
+Before each qualification process, independently recompute and retain the
+accepted executable, compiler, linker, fixed source set, provisioning lock,
+checkout commit/tree/clean state, and boot identities. Reject the complete
+campaign if any identity differs from the accepted bundle or changes between
+processes. Compatibility-test durations retained by the deployment bundle are
+not warmup, retained, PMU, noise, campaign, or benchmark samples.
 
 - [ ] **Step 1: Select the measurement core deterministically**
 
@@ -532,10 +593,9 @@ no unexpected user sessions, no thermal alarm, TSC clocksource, unchanged boot
 identity within the campaign, unchanged target/toolchain identity, and a clean
 XOAS checkout at the exact campaign commit.
 
-Before any process runs, independently recompute and retain the probe
-executable SHA-256, compiler executable SHA-256 and version identity, XOAS
-commit/tree state, and boot ID digest. Bind every process record to those
-values in the campaign evidence; reject the campaign if any value changes.
+Before any process runs, enforce the accepted-bundle prerequisite above. Bind
+every process record to the independently recomputed identities in the
+campaign evidence; reject the campaign if any value changes.
 
 - [ ] **Step 3: Execute five fresh qualification processes**
 
