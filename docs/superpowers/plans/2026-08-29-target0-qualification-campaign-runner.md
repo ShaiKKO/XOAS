@@ -694,7 +694,7 @@ Document only commands that exist and pass.
 Keep Task 5 open and state that no live session, campaign, qualification, or
 reboot has occurred.
 
-- [ ] **Step 2: Run complete local pre-push verification on `gpu-2`**
+- [x] **Step 2: Run complete local pre-push verification on `gpu-2`**
 
 At the exact clean task-branch subject run:
 
@@ -714,14 +714,14 @@ git status --short --branch
 Expected: every command exits zero; CTest reports zero failures; the checkout
 contains only the exact reviewed documentation updates before their commit.
 
-The exact `cf149ae` Debug `quality` aggregate and explicit 50/50 Debug CTest
-replay passed on `gpu-2`, including the isolated 3/3 sanitizer gate. The
-`db0eb87` tree also passed repository policy and all 19 Target 0 tests. Complete
-Debug, Release, sanitizer, and final exact documentation-subject verification
-remain open. No physical host checkout, bundle replacement, live preflight,
-campaign, or reboot has occurred.
+Exact clean subject `7b486e1fe6ef56e414c65ba0cf09ebc9bbc77dc6`
+passed both complete Debug and Release `quality` aggregates and explicit 50/50
+CTest replays on `gpu-2`, the isolated 3/3 sanitizer gate, repository policy,
+`git diff --check`, absence of source-tree Python bytecode, and a final clean
+checkout assertion. No physical host checkout, bundle replacement, live
+preflight, campaign, or reboot occurred.
 
-- [ ] **Step 3: Commit documentation and push the exact subject**
+- [x] **Step 3: Commit documentation and push the exact subject**
 
 ```bash
 git add AGENTS.md \

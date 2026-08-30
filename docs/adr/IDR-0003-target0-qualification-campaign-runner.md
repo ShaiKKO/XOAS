@@ -141,11 +141,16 @@ repository policy and all 19 Target 0 tests on `gpu-2`, including the real
 fixture five-process/PMU orchestration, fresh-process replay, re-bound tamper
 rejection, and absence of source-tree Python bytecode after CLI inspection.
 
-This evidence closes implementation and focused replay verification only. The
-complete exact-commit Debug/Release/sanitizer gate, a fresh native physical
-bundle and matching `gpu-2` replica, physical preflight, campaign one, and the
-separately authorized reboot boundary remain open. No live measurement session,
-campaign, qualification decision, or reboot has occurred.
+Exact clean subject `7b486e1fe6ef56e414c65ba0cf09ebc9bbc77dc6`
+subsequently passed both complete Debug and Release quality aggregates and
+explicit 50/50 CTest replays, the isolated 3/3 sanitizer gate, repository
+policy, and final source-clean checkout assertion on `gpu-2`.
+
+This evidence closes implementation and exact-commit quality only. A fresh
+native physical bundle and matching `gpu-2` replica, physical preflight,
+campaign one, and the separately authorized reboot boundary remain open. No
+live measurement session, campaign, qualification decision, or reboot has
+occurred.
 
 ## Reversal and migration
 

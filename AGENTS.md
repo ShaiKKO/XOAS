@@ -122,7 +122,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/status.md` — canonical frontier ledger.
 - `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented and Tasks 5–7 remain open.
 - `docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md` — executed native preparation/bundle deployment plan; exact implementation `a312aa2` and the accepted non-claiming deployment receipt are verified.
-- `docs/superpowers/plans/2026-08-29-target0-qualification-campaign-runner.md` — active campaign-runner plan; implementation Tasks 1–6 and the source-clean execution fix are committed through `db0eb87`, while exact-commit quality, replacement bundle, preflight, and campaign one remain open.
+- `docs/superpowers/plans/2026-08-29-target0-qualification-campaign-runner.md` — active campaign-runner plan; implementation Tasks 1–7 passed exact-commit quality through `7b486e1`, while replacement bundle, preflight, and campaign one remain open.
 - `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate capture and verified provisioning evidence, explicit gaps, and remaining gates; it is not measurement qualification.
 - `toolchains/target0-amd-ryzen9-7900x-v1.lock.json` — exact installed support-package closure, source/build commands, artifact hashes, validation evidence, and rollback boundary for the physical candidate.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, the historical unqualified `gpu-2` capture, and the explicitly unqualified physical AMD candidate manifest. The directory contains no executable benchmark harness or measured performance result.
@@ -841,11 +841,12 @@ repository-bound while full bundles remain external private evidence. Baseline
 numerical admission remains open. The repository-owned campaign contract,
 dedicated privileged-PMU session mode, read-only preflight, five-process/PMU
 orchestration, deterministic finalization, fresh replay verifier, and
-source-clean CLI execution are implemented through `db0eb87`. Protected-main
-ancestry was synchronized at content-neutral commit `f90c27d` before the
-source-clean execution fix; complete exact-commit quality, a replacement
-native bundle, physical preflight, controlled campaign one, and qualification
-remain open. No live campaign session or reboot has occurred. The pinned
+source-clean CLI execution are implemented through `db0eb87`. Exact clean
+subject `7b486e1` passed the complete Debug and Release quality aggregates and
+explicit 50/50 CTest replays, isolated 3/3 sanitizer gate, repository policy,
+and source-clean checkout assertion on `gpu-2`. A replacement native bundle,
+physical preflight, controlled campaign one, and qualification remain open. No
+live campaign session or reboot has occurred. The pinned
 JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound

@@ -24,6 +24,10 @@
 (`fix: keep campaign execution source clean`), building on core implementation
 `cf149ae25bbea5b55577791b8511ae9d2489445e`.
 
+**Campaign-runner exact quality subject:**
+`7b486e1fe6ef56e414c65ba0cf09ebc9bbc77dc6`
+(`docs: bind Target 0 campaign runner evidence`).
+
 **Protected-main ancestry synchronization:**
 `f90c27d57586e1314568929c86bb1826500af730`; its tree is byte-identical to
 core implementation subject `cf149ae` and precedes source-clean execution fix
@@ -39,7 +43,7 @@ SHA-256 `0d62ab0c143fa224d31e4cde925e4c30a5a512c5cd391c4d8cd030b6608572ff`
 `a51a7f943689116bac69062c3f8a8e620740bcae`.
 
 **Subject tree state:** The campaign branch was clean and pushed at
-`db0eb8797b54f26eb9a86417af9e0eb626f9669f` before this documentation update;
+`7b486e1fe6ef56e414c65ba0cf09ebc9bbc77dc6` before this documentation update;
 local `main` and `origin/main` matched protected merge `a51a7f9`. The active
 campaign branch was the only remaining task branch.
 
@@ -76,7 +80,7 @@ any existing applicable comparator.
 | Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented at `864f7fa` and repository-root integration repaired at `b7371ae`; no real measurement control was changed |
 | Physical candidate and provisioning lock | [`../targets/target0-amd-ryzen9-7900x-v1.md`](../targets/target0-amd-ryzen9-7900x-v1.md), [`../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json), and closed lock/schema | Task 3 resolved exact pre-state at `ee57ff5`; Task 4 installed and verified the 26-package closure plus AOCL-BLAS, OpenBLAS, and LIBXSMM against clean subject `16d698d`, with repository evidence committed at `9d44f64`; the candidate remains unqualified |
 | Qualification-tool deployment implementation | [`../../tools/target0/prepare_qualification_bundle.py`](../../tools/target0/prepare_qualification_bundle.py), [`../../tools/target0/verify_qualification_bundle.py`](../../tools/target0/verify_qualification_bundle.py), the closed [`../../schemas/target0-qualification-tool-bundle-v1.schema.json`](../../schemas/target0-qualification-tool-bundle-v1.schema.json), accepted [`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json), and [`../adr/IDR-0002-target0-qualification-tool-deployment.md`](../adr/IDR-0002-target0-qualification-tool-deployment.md) | Exact implementation subject `a312aa2bbbb403b31ffb67cf40200da063527a4f` passed Debug 38/38, Release 38/38, and sanitizer 3/3 on `gpu-2`; the physical host produced byte-identical dual builds and passed 5/5 compatibility tests; fresh physical and `gpu-2` verification matched the accepted bundle, inventory, executable, and normalized executable-identity digests. Deployment is closed without campaign, qualification, reboot, host-control, or performance authority. |
-| Target qualification campaign runner | [`../../schemas/target0-qualification-campaign-v1.schema.json`](../../schemas/target0-qualification-campaign-v1.schema.json), [`../../tools/target0/qualification_campaign.py`](../../tools/target0/qualification_campaign.py), [`../../tools/target0/run_qualification_campaign.py`](../../tools/target0/run_qualification_campaign.py), [`../../tools/target0/verify_qualification_campaign.py`](../../tools/target0/verify_qualification_campaign.py), and [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Implementation Tasks 1–6 plus source-clean runner/verifier execution are committed through exact subject `db0eb8797b54f26eb9a86417af9e0eb626f9669f`. Repository policy and all 19 Target 0 tests passed on `gpu-2`, including five-process/PMU orchestration, fresh re-bound tamper rejection, and read-only CLI cleanliness. Complete exact-commit quality, a replacement native bundle, physical preflight, and campaign one remain open. No live control, campaign, reboot, qualification, or performance claim occurred. |
+| Target qualification campaign runner | [`../../schemas/target0-qualification-campaign-v1.schema.json`](../../schemas/target0-qualification-campaign-v1.schema.json), [`../../tools/target0/qualification_campaign.py`](../../tools/target0/qualification_campaign.py), [`../../tools/target0/run_qualification_campaign.py`](../../tools/target0/run_qualification_campaign.py), [`../../tools/target0/verify_qualification_campaign.py`](../../tools/target0/verify_qualification_campaign.py), and [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Implementation Tasks 1–6 plus source-clean runner/verifier execution are committed through `db0eb87`; exact clean evidence subject `7b486e1` passed complete Debug and Release quality aggregates and explicit 50/50 CTest replays, sanitizer 3/3, repository policy, and source-clean checkout verification on `gpu-2`. A replacement native bundle, physical preflight, and campaign one remain open. No live control, campaign, reboot, qualification, or performance claim occurred. |
 
 ## Exit-gate statement
 
@@ -229,12 +233,13 @@ after outer digests are deliberately rebound.
 
 The same subject passed the complete Debug `quality` aggregate and an explicit
 50/50 Debug CTest replay; the aggregate included repository policy,
-formatting, Doxygen, Clang-Tidy, and the isolated 3/3 ASan/UBSan gate. The
-current tree additionally passed repository policy and all 19 Target 0 tests
-with source-clean CLI regressions. Complete Debug, Release, sanitizer, and final
-exact documentation-subject verification remain part of the open Task 7
-boundary. Protected-main ancestry synchronization `f90c27d` changed no bytes
-relative to the earlier `cf149ae` tree. No physical checkout, live preflight, measurement control,
+formatting, Doxygen, Clang-Tidy, and the isolated 3/3 ASan/UBSan gate. Exact
+clean evidence subject `7b486e1fe6ef56e414c65ba0cf09ebc9bbc77dc6`
+passed both complete Debug and Release quality aggregates and explicit 50/50
+CTest replays, the isolated 3/3 sanitizer gate, repository policy, and final
+source-clean checkout verification. Task 7 is closed. Protected-main ancestry
+synchronization `f90c27d` changed no bytes relative to the earlier `cf149ae`
+tree. No physical checkout, live preflight, measurement control,
 campaign, counter collection, reboot, or qualification decision occurred.
 
 ### External corpus evidence

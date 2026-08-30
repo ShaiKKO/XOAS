@@ -576,10 +576,9 @@ require identical inventory and normalized executable-identity digests.
 The repository-owned execution mechanism is controlled by the accepted
 [`IDR-0003`](../../adr/IDR-0003-target0-qualification-campaign-runner.md) and
 its [active implementation plan](2026-08-29-target0-qualification-campaign-runner.md).
-Implementation Tasks 1–6 plus source-clean CLI execution are committed through
-`db0eb87`; complete exact-commit quality, replacement native bundle deployment,
-and read-only physical preflight remain prerequisites. No live campaign session
-has run.
+Implementation Tasks 1–7 passed complete exact-commit quality at `7b486e1`;
+replacement native bundle deployment and read-only physical preflight remain
+prerequisites. No live campaign session has run.
 
 Before each qualification process, independently recompute and retain the
 accepted executable, compiler, linker, fixed source set, provisioning lock,
