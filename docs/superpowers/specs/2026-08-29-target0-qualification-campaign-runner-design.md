@@ -180,6 +180,19 @@ The retained preflight records contain only aggregate session eligibility.
 They do not contain usernames, session identifiers, terminals, hosts,
 addresses, or command lines.
 
+Thermal eligibility enumerates every `tempN_input` below `/sys/class/hwmon`,
+plus corresponding `label`, `max`, `crit`, `emergency`, `crit_alarm`,
+`emergency_alarm`, and `fault` files when exposed.
+It rejects any nonzero available alarm or fault and any input at or above an
+available critical or emergency threshold.
+A sensor that exposes an input without a threshold is retained explicitly as
+`threshold_unavailable`; the runner does not invent a threshold.
+At least one temperature input must be observable.
+
+Interactive-session eligibility requires every observed interactive session
+to belong to the supplied non-root target user.
+Only total, expected, root, and unexpected aggregate counts are retained.
+
 ## Exact identity snapshot
 
 The identity snapshot is recomputed before every primary process and before
@@ -354,6 +367,10 @@ qualification bundle, or ancestor of those paths.
 An accepted root has this logical layout:
 
 ```text
+inputs/bundle.json
+inputs/bundle-inventory.json
+inputs/bundle-acceptance.json
+inputs/xoas-target0-qualification-probe
 preflight.json
 core-selection.json
 process-01/identity-before.json
@@ -378,6 +395,12 @@ The campaign manifest binds the inventory SHA-256 and every process/PMU
 summary.
 The acceptance record binds the manifest, inventory, expected commit, boot,
 and selected CPU identities.
+
+Preflight copies the accepted bundle manifest, inventory, acceptance record,
+and exact executable bytes into `inputs/` using exclusive creation.
+The campaign invokes only that retained executable copy.
+This makes offline verification independent of a mutable external bundle path
+while preserving the original accepted bundle identity.
 
 The canonical `campaign.json` is the compact repository receipt copied to
 `benchmarks/evidence/target0-amd-ryzen9-7900x-v1/campaign-01.json`.

@@ -411,6 +411,12 @@ Tests must cover explicit exclusivity, one-minute load `0.499` acceptance and
 TSC, bare metal, cycles/instructions availability, exact 60-second selector
 input, and unsafe/existing output roots.
 
+Thermal fixtures must cover nonzero `crit_alarm`, nonzero `fault`, input at an
+available critical threshold, input below a threshold, and a retained
+`threshold_unavailable` sensor.
+Session fixtures retain only aggregate counts and reject any non-target or root
+interactive session.
+
 Inject a zero-duration observation clock only at the core-selector boundary;
 do not mock the identity or evidence validators.
 
@@ -420,6 +426,9 @@ The parser must require every design option.
 Create the output root only after repository and path safety validation.
 Write canonical preflight and selection records using exclusive create, flush,
 hard-link publication, temporary unlink, and directory fsync.
+Copy the verified bundle manifest, inventory, acceptance record, and executable
+bytes into `inputs/` with exclusive creation, then invoke only that retained
+executable during later process work.
 On failure after safe creation, write one closed rejection record.
 
 Run:
@@ -572,7 +581,8 @@ Accept a complete fixture attempt and require bytewise path ordering,
 write-once output, canonical JSON, exact manifest/inventory binding, and one
 accepted digest record.
 After acceptance, independently mutate a raw process byte, add a file, remove a
-file, alter a statistic, alter the inventory, and alter acceptance.
+file, alter the retained executable, alter the retained bundle record, alter a
+statistic, alter the inventory, and alter acceptance.
 Every mutation must fail fresh verification.
 
 - [ ] **Step 2: Implement deterministic finalization**
