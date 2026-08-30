@@ -12,6 +12,13 @@ cpu=""
 sibling=""
 targetUser=""
 restorationRecord=""
+executionMode="probe"
+executionModeSeen=0
+perfOutput=""
+perfOutputSeen=0
+perfEvents=""
+perfEventsSeen=0
+perfPath=""
 commandArguments=()
 childPid=""
 commandExitStatus="null"
@@ -93,6 +100,17 @@ readSelectedCpuInterrupts() {
 
 validateStateToken() {
   [[ $1 =~ ^[A-Za-z0-9_-]+$ ]]
+}
+
+validatePerfEvents() {
+  case $1 in
+  cycles,instructions | branches | branch-misses | cache-references | cache-misses | msr/aperf/ | msr/mperf/ | msr/tsc/ | power/energy-pkg/)
+    return 0
+    ;;
+  *)
+    return 1
+    ;;
+  esac
 }
 
 # ShellCheck cannot trace this helper through the EXIT trap call graph.
@@ -254,6 +272,27 @@ while (($# > 0)); do
     restorationRecord=$2
     shift 2
     ;;
+  --execution-mode)
+    (($# >= 2)) || failUsage '--execution-mode requires a value'
+    ((!executionModeSeen)) || failUsage '--execution-mode may appear only once'
+    executionMode=$2
+    executionModeSeen=1
+    shift 2
+    ;;
+  --perf-output)
+    (($# >= 2)) || failUsage '--perf-output requires a value'
+    ((!perfOutputSeen)) || failUsage '--perf-output may appear only once'
+    perfOutput=$2
+    perfOutputSeen=1
+    shift 2
+    ;;
+  --perf-events)
+    (($# >= 2)) || failUsage '--perf-events requires a value'
+    ((!perfEventsSeen)) || failUsage '--perf-events may appear only once'
+    perfEvents=$2
+    perfEventsSeen=1
+    shift 2
+    ;;
   --)
     shift
     commandArguments=("$@")
@@ -274,7 +313,25 @@ done
   failUsage 'target user has an invalid name'
 [[ -n $restorationRecord ]] || failUsage 'restoration record path is required'
 ((${#commandArguments[@]} > 0)) || failUsage 'command must not be empty'
-[[ ! -e $restorationRecord ]] || failUsage 'restoration record already exists'
+[[ ! -e $restorationRecord && ! -L $restorationRecord ]] ||
+  failUsage 'restoration record already exists or is a symbolic link'
+case $executionMode in
+probe)
+  [[ -z $perfOutput && -z $perfEvents ]] ||
+    failUsage 'probe mode does not accept perf options'
+  ;;
+privileged-perf)
+  [[ -n $perfOutput ]] || failUsage 'perf output path is required'
+  [[ $perfOutput != "$restorationRecord" ]] ||
+    failUsage 'perf output and restoration record must differ'
+  [[ ! -e $perfOutput && ! -L $perfOutput ]] ||
+    failUsage 'perf output already exists or is a symbolic link'
+  validatePerfEvents "$perfEvents" || failUsage 'perf event set is invalid'
+  ;;
+*)
+  failUsage 'execution mode is invalid'
+  ;;
+esac
 
 testing=${XOAS_TARGET0_TESTING:-0}
 if [[ $testing == "1" ]]; then
@@ -283,6 +340,11 @@ if [[ $testing == "1" ]]; then
   procfsRoot=${XOAS_TARGET0_PROCFS_ROOT:-}
   [[ -n $sysfsRoot && -n $procfsRoot ]] ||
     failUsage 'test mode requires explicit fixture roots'
+  if [[ $executionMode == "privileged-perf" ]]; then
+    perfPath=${XOAS_TARGET0_PERF_PATH:-}
+    [[ $perfPath == /* && -f $perfPath && -x $perfPath && ! -L $perfPath ]] ||
+      failUsage 'test mode requires an executable perf fixture'
+  fi
 else
   ((EUID == 0)) || failUsage 'measurement session must run as root'
   sysfsRoot=/sys
@@ -290,6 +352,11 @@ else
   targetUid=$(id -u "$targetUser" 2>/dev/null) ||
     failUsage 'target user does not exist'
   ((targetUid != 0)) || failUsage 'target user resolves to root'
+  if [[ $executionMode == "privileged-perf" ]]; then
+    perfPath=/usr/bin/perf
+    [[ -f $perfPath && -x $perfPath && ! -L $perfPath ]] ||
+      failUsage 'fixed perf executable is unavailable'
+  fi
 fi
 
 cpuRoot="$sysfsRoot/devices/system/cpu/cpu$cpu"
@@ -379,7 +446,20 @@ if [[ $appliedSiblingOnline != "0" ]]; then
   exit "$ApplyFailureExit"
 fi
 
-if [[ $testing == "1" ]]; then
+if [[ $executionMode == "privileged-perf" ]]; then
+  if [[ $testing == "1" ]]; then
+    "$perfPath" stat --no-big-num -x ';' --output "$perfOutput" \
+      --event "$perfEvents" -- \
+      env -i HOME=/nonexistent LANG=C.UTF-8 PATH=/usr/bin:/usr/sbin \
+      "${commandArguments[@]}" &
+  else
+    "$perfPath" stat --no-big-num -x ';' --output "$perfOutput" \
+      --event "$perfEvents" -- \
+      runuser --user "$targetUser" -- \
+      env -i HOME=/nonexistent LANG=C.UTF-8 PATH=/usr/bin:/usr/sbin \
+      "${commandArguments[@]}" &
+  fi
+elif [[ $testing == "1" ]]; then
   env -i HOME=/nonexistent LANG=C.UTF-8 PATH=/usr/bin:/usr/sbin \
     "${commandArguments[@]}" &
 else
