@@ -201,10 +201,12 @@ respectively,
 `44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf`,
 `db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`,
 and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
-IDR-0002 still requires that complete bundle to be copied byte-for-byte to
-`gpu-2` and independently verified there. That cross-host replica is not
-complete, so this evidence does not authorize preflight, campaign execution,
-PMU collection, reboot, qualification, or a performance claim.
+The complete bundle was subsequently copied byte-for-byte to `gpu-2`. A fresh
+verifier in a clean checkout at the same exact source accepted it with matching
+manifest, inventory, executable, and normalized executable-identity digests.
+This closes replacement deployment only; no preflight, campaign execution, PMU
+collection, controlled campaign reboot, qualification, or performance claim
+occurred.
 
 ## Reversal and migration
 

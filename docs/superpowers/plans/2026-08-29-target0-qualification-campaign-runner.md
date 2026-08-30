@@ -764,14 +764,22 @@ covered by a quality check.
 
 - [x] **Step 1: Advance both host checkouts to the exact pushed commit**
 
-On each host require:
+On each host with a live Task 8 branch require:
 
 ```bash
 test "$(git rev-parse HEAD)" = "$(git rev-parse origin/task/m0-target0-qualification-campaign)"
 test -z "$(git status --porcelain=v1 --untracked-files=all)"
 ```
 
-Do not proceed on a detached, dirty, divergent, or unpushed subject.
+Do not proceed on a dirty, divergent, or unpushed subject. For the completed
+`a396f64` replacement only, the Task 8 branch had already been squash-merged
+into protected `main` and deleted under the approved cleanup policy before the
+`gpu-2` replica check. The user approved proceeding with a clean detached
+checkout at that exact protected-main commit. The verifier additionally proved
+the exact commit, tree, source set, and clean state. This recorded
+implementation-neutral variance does not admit an arbitrary detached source;
+future executions remain branch-bound unless a separate explicit approval
+records equivalent identity evidence.
 
 - [x] **Step 2: Prepare a new physical bundle**
 
@@ -826,13 +834,13 @@ receipt.
 - Produces: accepted `preflight.json` and `core-selection.json` without host
   mutation.
 
-- [x] **Step 1: Prove the physical checkout and bundle are unchanged**
+- [ ] **Step 1: Prove the replacement physical checkout and bundle are unchanged**
 
 Re-run the clean checkout and fresh bundle verifier commands.
 Confirm the one-minute load is below `0.5`, the development user is the only
 expected interactive user, and the exclusive-use window remains valid.
 
-- [x] **Step 2: Run the read-only preflight**
+- [ ] **Step 2: Run the replacement read-only preflight**
 
 Set one new nonexisting campaign-root name below `/var/tmp` and run the exact
 `preflight` interface from the approved spec with campaign ID
@@ -841,14 +849,14 @@ Set one new nonexisting campaign-root name below `/var/tmp` and run the exact
 Expected: the runner observes exactly 60 seconds of interrupts, selects the
 core deterministically, and writes only preflight and selection records.
 
-- [x] **Step 3: Independently review preflight before mutation**
+- [ ] **Step 3: Independently review the replacement preflight before mutation**
 
 Recompute every digest and inspect load, session eligibility, thermal state,
 boot identity, core/sibling topology, preferred-core rank, interrupt delta,
 bundle identity, source set, compiler, linker, lock, and clean checkout.
 Reject the attempt rather than overriding a failed precondition.
 
-Task 8 replacement bundle source
+Historical attempt-1 Task 8 bundle source
 `1141713c3448eaaa392e09ace8924ebcaf0e38bd` passed physical dual build,
 5/5 compatibility checks, matching physical/`gpu-2` fresh verification, and
 repository receipt integration. Task 9 accepted preflight SHA-256
@@ -856,6 +864,12 @@ repository receipt integration. Task 9 accepted preflight SHA-256
 and deterministic CPU 2/sibling 14 selection SHA-256
 `200b5f84aab4d32e097982f27b1e89b0cd7b5b4e3b4ccd54363645c197a36ed1`.
 No host control changed during preflight.
+
+That preflight is terminal evidence for the rejected attempt and does not
+authorize reuse with repaired source. Current replacement Task 8 bundle source
+`a396f642d5c2ec6ed670cc2341170ec7d9f1a886` passed physical and `gpu-2`
+verification, but replacement Task 9 has not run. It has no preflight root,
+preflight digest, or core-selection digest.
 
 ---
 
@@ -911,9 +925,9 @@ infinity, and overflowed syntax now reach the closed process/restoration
 rejection classes. The final source subject passed complete Debug and Release
 50/50 suites, isolated sanitizer 3/3, and repository policy on
 `wineth-ubuntu`, and follow-up review reported no remaining finding. Physical
-restoration proof, a new exact-commit bundle/replica, and a new preflight remain
-open. Steps 3–5 are acceptance-path work for a separately authorized new
-attempt.
+At that checkpoint, physical restoration proof, a new exact-commit
+bundle/replica, and a new preflight remained open. Steps 3–5 are
+acceptance-path work for a separately authorized new attempt.
 
 A bounded restoration-only control cycle later passed on the physical host at
 clean merged source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886`.
@@ -928,10 +942,11 @@ normalized executable-identity SHA-256 values
 `44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf`,
 `db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`,
 and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
-The byte-identical `gpu-2` replica required by IDR-0002 has not been produced
-or independently verified. Task 9 replacement preflight and every Task 10
-acceptance-path step therefore remain blocked; no new campaign or PMU phase
-occurred.
+The complete bundle was copied byte-for-byte to `gpu-2`. A fresh verifier from
+a clean checkout at the same exact source accepted matching manifest,
+inventory, executable, and normalized executable-identity digests. Task 8
+replacement deployment is closed. Task 9 replacement preflight and every Task
+10 acceptance-path step remain open; no new campaign or PMU phase occurred.
 
 - [ ] **Step 3: Fresh-verify the finalized evidence**
 

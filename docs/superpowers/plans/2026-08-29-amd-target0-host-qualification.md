@@ -592,9 +592,9 @@ EPP and enforces canonical process/restoration JSON at production and ingestion
 boundaries with closed rejection classes. Complete Debug and Release 50/50
 suites, isolated sanitizer 3/3, and repository policy passed on
 `wineth-ubuntu`; follow-up independent review reported no remaining finding.
-This is source/fixture evidence only: physical restoration verification, a new
-native bundle and replica, a new preflight, and separate authority remain
-prerequisites for another Task 5 attempt.
+This was source/fixture evidence only: at that checkpoint, physical restoration
+verification, a new native bundle and replica, a new preflight, and separate
+authority remained prerequisites for another Task 5 attempt.
 
 One bounded restoration-only session subsequently passed on the physical host
 at clean merged source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886`.
@@ -609,9 +609,11 @@ normalized executable-identity SHA-256 values are
 `44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf`,
 `db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`,
 and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
-The IDR-0002 byte-identical `gpu-2` replica and fresh verifier remain open;
-therefore no new preflight, Task 5 process, PMU phase, qualification, or
-performance claim occurred. This proof neither authorized nor performed a
+The complete bundle was copied byte-for-byte to `gpu-2`, where a fresh verifier
+at the same exact source accepted matching manifest, inventory, executable,
+and normalized executable-identity digests. Fresh cross-host deployment is
+therefore closed. No new preflight, Task 5 process, PMU phase, qualification,
+or performance claim occurred. This proof neither authorized nor performed a
 controlled campaign reboot; the incidental administrator reboot remains
 non-campaign evidence.
 

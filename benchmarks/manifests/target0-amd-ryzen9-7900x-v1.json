@@ -2417,14 +2417,14 @@
     "tool_deployment": {
       "state": "passed",
       "evidence_path": "benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json",
-      "evidence_sha256": "a088761f907901b23643231a94c8fcf1e23a645c9647f7fa59f1127937792793",
-      "bundle_id": "target0-qualification-tools-1141713c3448eaaa",
-      "bundle_manifest_sha256": "a088761f907901b23643231a94c8fcf1e23a645c9647f7fa59f1127937792793",
-      "inventory_sha256": "fcb7055acaabfa155bf3d610ea3fba8f6956c41cd7c41586e887d18a277ea6ad",
-      "executable_sha256": "2b2352baf105ccb2b2ef3a1bb89046fc7a8259224f0c928747f473d11e215b8f",
-      "executable_identity_sha256": "1a1b06e0f8e2f875167f72ae5407cd84eca16a827e74f05b1882461b0651f92a",
-      "implementation_commit": "1141713c3448eaaa392e09ace8924ebcaf0e38bd",
-      "implementation_tree": "c8f17838c6bb54ae278fd4d1e06b0f64d21493ad",
+      "evidence_sha256": "15d58e20bbab593bd902782b917b79ba98a03cf1e79c784fbff2c450d23a99a0",
+      "bundle_id": "target0-qualification-tools-a396f642d5c2ec6e",
+      "bundle_manifest_sha256": "15d58e20bbab593bd902782b917b79ba98a03cf1e79c784fbff2c450d23a99a0",
+      "inventory_sha256": "44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf",
+      "executable_sha256": "db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015",
+      "executable_identity_sha256": "753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3",
+      "implementation_commit": "a396f642d5c2ec6ed670cc2341170ec7d9f1a886",
+      "implementation_tree": "7388f3a2b72ccac2352560c48d2e7eb310712330",
       "provisioning_configuration_sha256": "810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3",
       "source_count": 18,
       "compiler_sha256": "412bbe8c60571a1eb06f48fde89635033621caeb01a9b4ee76d46711bae8e932",
@@ -2484,8 +2484,8 @@
       },
       {
         "id": "real_session_restoration",
-        "state": "pending",
-        "evidence": "Task 5 must prove exact physical-host governor, EPP, sibling, and boost restoration."
+        "state": "passed",
+        "evidence": "Bounded restoration-only proof at source a396f64 passed; canonical record SHA-256 5b6e2cefbac4c8c96f5228139978f776d55aff0dcffb9dc9fb19812cb50236e7."
       },
       {
         "id": "qualification_smoke",

@@ -195,7 +195,22 @@ ASan/UBSan gates on `gpu-2`. A clean physical checkout at that subject produced
 an accepted native bundle after two byte-identical builds and five passing
 compatibility checks. Fresh physical and `gpu-2` verifiers returned matching
 manifest, inventory, executable, and normalized executable-identity digests.
-The compact non-secret receipt is retained in
+The initial compact non-secret receipt was integrated by protected-main PR #4
+at `a51a7f943689116bac69062c3f8a8e620740bcae`, with receipt SHA-256
+`0d62ab0c143fa224d31e4cde925e4c30a5a512c5cd391c4d8cd030b6608572ff`;
+it remains recoverable from that Git history. The linked receipt path at HEAD
+is intentionally the current replacement receipt rather than the historical
+`a312aa2` instance.
+
+Replacement bundle `target0-qualification-tools-a396f642d5c2ec6e` later
+repeated the same accepted flow at exact clean source
+`a396f642d5c2ec6ed670cc2341170ec7d9f1a886`. Its physical bundle passed
+dual-build and 5/5 compatibility verification, was copied byte-for-byte to
+`gpu-2`, and passed a fresh verifier there with identical manifest, inventory,
+executable, and normalized executable-identity SHA-256 values. The repository
+receipt now binds this replacement bundle. No preflight, campaign, PMU,
+qualification, reboot, or performance authority followed from deployment.
+The current receipt is
 [`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json).
 
 This closes deployment compatibility only. It is not campaign, benchmark,
