@@ -1,0 +1,305 @@
+{
+  "acceptance": {
+    "all_mad_at_most_0_010": true,
+    "all_p99_at_most_1_02": true,
+    "all_restored": true,
+    "process_count": 5,
+    "required_pmu_accepted": true,
+    "retained_sample_count": 150,
+    "status": "passed",
+    "strict_mad_process_count": 4
+  },
+  "bundle": {
+    "bundle_id": "target0-qualification-tools-example",
+    "bundle_inventory_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "bundle_manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "executable_identity_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+    "executable_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "campaign_id": "target0-amd-ryzen9-7900x-v1-campaign-01",
+  "campaign_number": 1,
+  "completed_at_utc": "2026-08-29T20:10:00Z",
+  "controlled_reboot_preceded_campaign": false,
+  "created_at_utc": "2026-08-29T20:00:00Z",
+  "evidence_inventory_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+  "external_retention": "external_private_evidence_root",
+  "manifest_version": "xoas.target0-qualification-campaign.v1",
+  "performance_claim": false,
+  "pmu": {
+    "optional": [
+      {
+        "event": "branches",
+        "evidence_sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+        "record": {
+          "event": "branches",
+          "running_percentage": "100.00",
+          "status": "supported",
+          "value": 70000000
+        },
+        "restored": true,
+        "status": "supported"
+      },
+      {
+        "event": "branch-misses",
+        "evidence_sha256": "7777777777777777777777777777777777777777777777777777777777777777",
+        "record": {
+          "event": "branch-misses",
+          "running_percentage": "100.00",
+          "status": "supported",
+          "value": 70000
+        },
+        "restored": true,
+        "status": "supported"
+      },
+      {
+        "event": "cache-references",
+        "evidence_sha256": "8888888888888888888888888888888888888888888888888888888888888888",
+        "record": {
+          "event": "cache-references",
+          "running_percentage": "100.00",
+          "status": "supported",
+          "value": 8000000
+        },
+        "restored": true,
+        "status": "supported"
+      },
+      {
+        "event": "cache-misses",
+        "evidence_sha256": "9999999999999999999999999999999999999999999999999999999999999999",
+        "record": {
+          "event": "cache-misses",
+          "running_percentage": "100.00",
+          "status": "supported",
+          "value": 80000
+        },
+        "restored": true,
+        "status": "supported"
+      },
+      {
+        "event": "msr/aperf/",
+        "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "record": {
+          "event": "msr/aperf/",
+          "running_percentage": "100.00",
+          "status": "supported",
+          "value": 120000000
+        },
+        "restored": true,
+        "status": "supported"
+      },
+      {
+        "event": "msr/mperf/",
+        "evidence_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "record": {
+          "event": "msr/mperf/",
+          "running_percentage": "100.00",
+          "status": "supported",
+          "value": 100000000
+        },
+        "restored": true,
+        "status": "supported"
+      },
+      {
+        "event": "msr/tsc/",
+        "evidence_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "record": {
+          "event": "msr/tsc/",
+          "running_percentage": "100.00",
+          "status": "supported",
+          "value": 110000000
+        },
+        "restored": true,
+        "status": "supported"
+      },
+      {
+        "event": "power/energy-pkg/",
+        "evidence_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "record": {
+          "event": "power/energy-pkg/",
+          "running_percentage": null,
+          "status": "unsupported",
+          "value": null
+        },
+        "restored": true,
+        "status": "unsupported"
+      }
+    ],
+    "required": {
+      "events": [
+        {
+          "event": "cycles",
+          "running_percentage": "100.00",
+          "status": "supported",
+          "value": 100000000
+        },
+        {
+          "event": "instructions",
+          "running_percentage": "100.00",
+          "status": "supported",
+          "value": 200000000
+        }
+      ],
+      "evidence_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "restored": true,
+      "status": "passed"
+    }
+  },
+  "preflight": {
+    "bare_metal": true,
+    "clocksource": "tsc",
+    "exclusive_use_confirmed": true,
+    "interactive_sessions": {
+      "expected": 3,
+      "root": 0,
+      "total": 3,
+      "unexpected": 0
+    },
+    "load_average_1m": 0.14,
+    "required_pmu_available": true,
+    "thermal": {
+      "alarm_count": 0,
+      "fault_count": 0,
+      "sensor_count": 12,
+      "threshold_unavailable_count": 4,
+      "threshold_violation_count": 0
+    }
+  },
+  "processes": [
+    {
+      "accepted": true,
+      "evidence": {
+        "host_after_sha256": "1515151515151515151515151515151515151515151515151515151515151515",
+        "host_before_sha256": "1313131313131313131313131313131313131313131313131313131313131313",
+        "identity_sha256": "1212121212121212121212121212121212121212121212121212121212121212",
+        "process_sha256": "1414141414141414141414141414141414141414141414141414141414141414",
+        "restoration_sha256": "1616161616161616161616161616161616161616161616161616161616161616"
+      },
+      "process_index": 1,
+      "restored": true,
+      "seed": 10496712320762949769,
+      "statistics": {
+        "mad_ns": { "denominator": 1, "numerator": 400000 },
+        "mad_ratio": "0.004000000000",
+        "maximum_ns": 102000000,
+        "median_ns": { "denominator": 1, "numerator": 100000000 },
+        "minimum_ns": 98000000,
+        "p99_ns": 102000000,
+        "p99_ratio": "1.020000000000",
+        "sample_count": 30
+      }
+    },
+    {
+      "accepted": true,
+      "evidence": {
+        "host_after_sha256": "2525252525252525252525252525252525252525252525252525252525252525",
+        "host_before_sha256": "2323232323232323232323232323232323232323232323232323232323232323",
+        "identity_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "process_sha256": "2424242424242424242424242424242424242424242424242424242424242424",
+        "restoration_sha256": "2626262626262626262626262626262626262626262626262626262626262626"
+      },
+      "process_index": 2,
+      "restored": true,
+      "seed": 15578231379703057787,
+      "statistics": {
+        "mad_ns": { "denominator": 1, "numerator": 400000 },
+        "mad_ratio": "0.004000000000",
+        "maximum_ns": 102000000,
+        "median_ns": { "denominator": 1, "numerator": 100000000 },
+        "minimum_ns": 98000000,
+        "p99_ns": 102000000,
+        "p99_ratio": "1.020000000000",
+        "sample_count": 30
+      }
+    },
+    {
+      "accepted": true,
+      "evidence": {
+        "host_after_sha256": "3535353535353535353535353535353535353535353535353535353535353535",
+        "host_before_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "identity_sha256": "3232323232323232323232323232323232323232323232323232323232323232",
+        "process_sha256": "3434343434343434343434343434343434343434343434343434343434343434",
+        "restoration_sha256": "3636363636363636363636363636363636363636363636363636363636363636"
+      },
+      "process_index": 3,
+      "restored": true,
+      "seed": 2440463755441917544,
+      "statistics": {
+        "mad_ns": { "denominator": 1, "numerator": 400000 },
+        "mad_ratio": "0.004000000000",
+        "maximum_ns": 102000000,
+        "median_ns": { "denominator": 1, "numerator": 100000000 },
+        "minimum_ns": 98000000,
+        "p99_ns": 102000000,
+        "p99_ratio": "1.020000000000",
+        "sample_count": 30
+      }
+    },
+    {
+      "accepted": true,
+      "evidence": {
+        "host_after_sha256": "4545454545454545454545454545454545454545454545454545454545454545",
+        "host_before_sha256": "4343434343434343434343434343434343434343434343434343434343434343",
+        "identity_sha256": "4242424242424242424242424242424242424242424242424242424242424242",
+        "process_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+        "restoration_sha256": "4646464646464646464646464646464646464646464646464646464646464646"
+      },
+      "process_index": 4,
+      "restored": true,
+      "seed": 13670500528938400852,
+      "statistics": {
+        "mad_ns": { "denominator": 1, "numerator": 400000 },
+        "mad_ratio": "0.004000000000",
+        "maximum_ns": 102000000,
+        "median_ns": { "denominator": 1, "numerator": 100000000 },
+        "minimum_ns": 98000000,
+        "p99_ns": 102000000,
+        "p99_ratio": "1.020000000000",
+        "sample_count": 30
+      }
+    },
+    {
+      "accepted": true,
+      "evidence": {
+        "host_after_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+        "host_before_sha256": "5353535353535353535353535353535353535353535353535353535353535353",
+        "identity_sha256": "5252525252525252525252525252525252525252525252525252525252525252",
+        "process_sha256": "5454545454545454545454545454545454545454545454545454545454545454",
+        "restoration_sha256": "5656565656565656565656565656565656565656565656565656565656565656"
+      },
+      "process_index": 5,
+      "restored": true,
+      "seed": 17926648042410400536,
+      "statistics": {
+        "mad_ns": { "denominator": 1, "numerator": 900000 },
+        "mad_ratio": "0.009000000000",
+        "maximum_ns": 102000000,
+        "median_ns": { "denominator": 1, "numerator": 100000000 },
+        "minimum_ns": 98000000,
+        "p99_ns": 102000000,
+        "p99_ratio": "1.020000000000",
+        "sample_count": 30
+      }
+    }
+  ],
+  "provisioning_lock": {
+    "configuration_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "file_sha256": "abababababababababababababababababababababababababababababababab",
+    "lock_id": "target0-amd-ryzen9-7900x-v1"
+  },
+  "qualification_claim": false,
+  "repository": {
+    "actual_commit": "1111111111111111111111111111111111111111",
+    "expected_commit": "1111111111111111111111111111111111111111",
+    "tree": "2222222222222222222222222222222222222222",
+    "tree_state": "clean"
+  },
+  "selected_core": {
+    "cpu": 4,
+    "interrupt_delta": 3,
+    "preferred_core_ranking": 10,
+    "sibling": 16,
+    "window_seconds": 60
+  },
+  "status": "passed",
+  "target_id": "target0-amd-ryzen9-7900x-v1"
+}

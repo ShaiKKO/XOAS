@@ -331,6 +331,9 @@ schema_instances = {
         "tests/quality/contracts/expected-gates.json"
     ],
     "schemas/target0-host-qualification-v1.schema.json": [],
+    "schemas/target0-qualification-campaign-v1.schema.json": [
+        "tests/target0/fixtures/qualification-campaign-v1.example.json"
+    ],
     "schemas/target0-qualification-tool-bundle-v1.schema.json": [
         deployment_receipt_path,
         "tests/target0/fixtures/qualification-tool-bundle-v1.example.json"

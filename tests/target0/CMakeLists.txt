@@ -20,6 +20,31 @@ add_test(
     "${CMAKE_CURRENT_SOURCE_DIR}/measurement_session_test.py")
 
 add_test(
+  NAME target0-qualification-campaign-statistics
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_test.py"
+    -k QualificationCampaignStatisticsTest)
+add_test(
+  NAME target0-qualification-campaign-pmu
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_test.py"
+    -k QualificationCampaignPerfTest)
+add_test(
+  NAME target0-qualification-campaign-records
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_test.py"
+    -k QualificationCampaignRecordTest)
+add_test(
+  NAME target0-qualification-campaign-schema
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_test.py"
+    -k QualificationCampaignSchemaTest)
+
+add_test(
   NAME target0-qualification-bundle-schema
   COMMAND
     "${Python3_EXECUTABLE}"
@@ -80,6 +105,10 @@ add_test(
 set_tests_properties(
   target0-host-tools-capture
   target0-host-tools-session
+  target0-qualification-campaign-pmu
+  target0-qualification-campaign-records
+  target0-qualification-campaign-schema
+  target0-qualification-campaign-statistics
   target0-qualification-bundle-build
   target0-qualification-bundle-finalization
   target0-qualification-bundle-inspection
