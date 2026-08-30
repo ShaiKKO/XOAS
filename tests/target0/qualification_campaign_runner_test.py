@@ -8,6 +8,8 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -238,6 +240,293 @@ class PreflightCommandRunner:
         return self.host_runner(command, working_directory)
 
 
+def make_primary_process_record(cpu: int, seed: int) -> dict[str, object]:
+    """Return one complete literal primary-process output fixture."""
+    samples = [
+        {
+            "checksum": f"{round_index + 1:016x}",
+            "elapsed_ns": 100_000_000,
+            "involuntary_context_switches": 0,
+            "observed_cpu_end": cpu,
+            "observed_cpu_start": cpu,
+            "round": round_index,
+            "voluntary_context_switches": 0,
+        }
+        for round_index in range(30)
+    ]
+    return {
+        "affinity_cpus": [cpu],
+        "checksum": f"{sum(range(1, 31)):016x}",
+        "failure_reasons": [],
+        "iterations": 16_777_216,
+        "manifest_version": "xoas.target0-qualification-process.v1",
+        "max_observed_threads": 1,
+        "performance_claim": False,
+        "process_context_switches": {
+            "involuntary_delta": 0,
+            "voluntary_delta": 0,
+        },
+        "process_id": 100,
+        "requested_cpu": cpu,
+        "retained_rounds": 30,
+        "samples": samples,
+        "seed": seed,
+        "status": "passed",
+        "timer_clock": "CLOCK_MONOTONIC_RAW",
+        "timer_overhead_ns": [10] * 10_000,
+        "warmup_checksum": "0123456789abcdef",
+        "warmup_rounds": 5,
+    }
+
+
+def assert_bounded_session_command(command: tuple[str, ...]) -> None:
+    """Require the fixed TERM-restoring controller timeout boundary."""
+    if command[:7] != (
+        "/usr/bin/timeout",
+        "--foreground",
+        "--kill-after=5s",
+        "--preserve-status",
+        "--signal=TERM",
+        "20s",
+        "/usr/bin/bash",
+    ):
+        raise AssertionError("measurement session is not bounded")
+
+
+class PrimarySessionRunner:
+    """Materialize probe and restoration fixtures from the real command array."""
+
+    def __init__(
+        self,
+        *,
+        mutation: str | None = None,
+        mutation_process: int = 1,
+        source_root: Path | None = None,
+    ) -> None:
+        """Start with an optional one-session failure injection."""
+        self.calls: list[tuple[str, ...]] = []
+        self.mutation = mutation
+        self.mutation_process = mutation_process
+        self.source_root = source_root
+
+    def __call__(
+        self,
+        command: tuple[str, ...],
+        working_directory: Path | None = None,
+        *,
+        environment: dict[str, str] | None = None,
+        timeout: int = 30,
+    ) -> SimpleNamespace:
+        """Write exact child outputs and report one restored zero-status run."""
+        del environment
+        if timeout != 35:
+            raise AssertionError("primary controller timeout is not bounded")
+        assert_bounded_session_command(command)
+        self.calls.append(command)
+        if working_directory is None:
+            raise AssertionError("primary session working directory is missing")
+        separator = command.index("--")
+        restoration_path = Path(
+            command[command.index("--restoration-record") + 1]
+        )
+        cpu = int(command[command.index("--cpu") + 1])
+        sibling = int(command[command.index("--sibling") + 1])
+        child = command[separator + 1 :]
+        seed = int(child[child.index("--seed") + 1])
+        process_path = Path(child[child.index("--output") + 1])
+        if stat.S_IMODE(process_path.parent.stat().st_mode) != 0o1733:
+            raise AssertionError("primary child output boundary is not writable")
+        process_record = make_primary_process_record(cpu, seed)
+        inject = len(self.calls) == self.mutation_process
+        if inject and self.mutation == "invalid_schema":
+            process_record["unknown"] = False
+        elif inject and self.mutation == "duration_low":
+            process_record["samples"][0]["elapsed_ns"] = 19_000_000
+        elif inject and self.mutation == "duration_high":
+            process_record["samples"][0]["elapsed_ns"] = 201_000_000
+        elif inject and self.mutation == "migration":
+            process_record["samples"][0]["observed_cpu_end"] = cpu + 1
+        elif inject and self.mutation == "thread":
+            process_record["max_observed_threads"] = 2
+            process_record["status"] = "failed"
+            process_record["failure_reasons"] = ["thread_count_changed"]
+        elif inject and self.mutation == "checksum":
+            process_record["checksum"] = "0000000000000000"
+        process_path.write_text(
+            json.dumps(process_record, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        state = {
+            "boost": 1,
+            "energy_performance_preference": "balance_performance",
+            "governor": "powersave",
+            "selected_cpu_interrupts": 100,
+            "sibling_online": 1,
+        }
+        post_state = dict(state)
+        post_state["selected_cpu_interrupts"] = 101
+        return_status = (
+            9 if inject and self.mutation == "process_execution" else 0
+        )
+        restoration = {
+            "boost_unchanged": True,
+            "command_exit_status": return_status,
+            "cpu": cpu,
+            "failure_reasons": [],
+            "manifest_version": (
+                "xoas.target0-measurement-session-restoration.v1"
+            ),
+            "performance_claim": False,
+            "post_state": post_state,
+            "pre_state": state,
+            "restored": True,
+            "sibling": sibling,
+            "status": "restored",
+        }
+        if inject and self.mutation == "restoration":
+            restoration["boost_unchanged"] = False
+            restoration["failure_reasons"] = ["restoration_failed"]
+            restoration["restored"] = False
+            restoration["status"] = "restoration_failed"
+            return_status = 70
+        if inject and self.mutation in {"thermal_alarm", "thermal_threshold"}:
+            if self.source_root is None:
+                raise AssertionError("thermal mutation source root is missing")
+            if self.mutation == "thermal_alarm":
+                write_text(
+                    self.source_root,
+                    "sys/class/hwmon/hwmon0/temp1_crit_alarm",
+                    "1\n",
+                )
+            else:
+                write_text(
+                    self.source_root,
+                    "sys/class/hwmon/hwmon0/temp1_crit",
+                    "45500\n",
+                )
+        restoration_path.write_text(
+            json.dumps(
+                restoration,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        return SimpleNamespace(returncode=return_status, stdout="", stderr="")
+
+
+class PmuSessionRunner:
+    """Materialize supported or unsupported perf-session fixture evidence."""
+
+    def __init__(
+        self,
+        unsupported_events: set[str] | None = None,
+        *,
+        running_percentages: dict[str, str] | None = None,
+        unsupported_exit_statuses: dict[str, int] | None = None,
+    ) -> None:
+        """Select unsupported events and explicit supported-event scaling."""
+        self.unsupported_events = (
+            set() if unsupported_events is None else set(unsupported_events)
+        )
+        self.running_percentages = (
+            {} if running_percentages is None else dict(running_percentages)
+        )
+        self.unsupported_exit_statuses = (
+            {}
+            if unsupported_exit_statuses is None
+            else dict(unsupported_exit_statuses)
+        )
+        self.calls: list[tuple[str, ...]] = []
+
+    def __call__(
+        self,
+        command: tuple[str, ...],
+        working_directory: Path | None = None,
+        *,
+        environment: dict[str, str] | None = None,
+        timeout: int = 30,
+    ) -> SimpleNamespace:
+        """Write raw perf, process, and restoration records for one session."""
+        del environment
+        if timeout != 35:
+            raise AssertionError("PMU controller timeout is not bounded")
+        if working_directory is None:
+            raise AssertionError("PMU session working directory is missing")
+        assert_bounded_session_command(command)
+        self.calls.append(command)
+        events = command[command.index("--perf-events") + 1]
+        perf_output = Path(command[command.index("--perf-output") + 1])
+        separator = command.index("--")
+        cpu = int(command[command.index("--cpu") + 1])
+        sibling = int(command[command.index("--sibling") + 1])
+        restoration_path = Path(
+            command[command.index("--restoration-record") + 1]
+        )
+        child = command[separator + 1 :]
+        seed = int(child[child.index("--seed") + 1])
+        process_path = Path(child[child.index("--output") + 1])
+        if stat.S_IMODE(process_path.parent.stat().st_mode) != 0o1733:
+            raise AssertionError("PMU child output boundary is not writable")
+        process_path.write_text(
+            json.dumps(make_primary_process_record(cpu, seed), indent=2) + "\n",
+            encoding="utf-8",
+        )
+        requested_events = events.split(",")
+        unsupported = any(
+            event in self.unsupported_events for event in requested_events
+        )
+        if unsupported:
+            raw_lines = [
+                f"<not supported>;;{event};0;;;"
+                for event in requested_events
+            ]
+            command_status = self.unsupported_exit_statuses.get(
+                requested_events[0],
+                129,
+            )
+        else:
+            raw_lines = [
+                f"{1000 + index};;{event};0;"
+                f"{self.running_percentages.get(event, '100.00')};;"
+                for index, event in enumerate(requested_events)
+            ]
+            command_status = 0
+        perf_output.write_text("\n".join(raw_lines) + "\n", encoding="utf-8")
+        state = {
+            "boost": 1,
+            "energy_performance_preference": "balance_performance",
+            "governor": "powersave",
+            "selected_cpu_interrupts": 100,
+            "sibling_online": 1,
+        }
+        post_state = dict(state)
+        post_state["selected_cpu_interrupts"] = 101
+        restoration_path.write_text(
+            json.dumps(
+                {
+                    "boost_unchanged": True,
+                    "command_exit_status": command_status,
+                    "cpu": cpu,
+                    "failure_reasons": [],
+                    "manifest_version": (
+                        "xoas.target0-measurement-session-restoration.v1"
+                    ),
+                    "performance_claim": False,
+                    "post_state": post_state,
+                    "pre_state": state,
+                    "restored": True,
+                    "sibling": sibling,
+                    "status": "restored",
+                },
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        return SimpleNamespace(returncode=command_status, stdout="", stderr="")
+
+
 def make_identity_repository(
     root: Path,
     source_paths: list[str],
@@ -251,15 +540,15 @@ def make_identity_repository(
     for relative_path in source_paths:
         path = repository / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
-        if relative_path == "schemas/target0-toolchain-lock-v1.schema.json":
-            path.write_bytes(
-                (
-                    REPOSITORY_ROOT
-                    / "schemas/target0-toolchain-lock-v1.schema.json"
-                ).read_bytes()
-            )
+        if relative_path.startswith("schemas/"):
+            path.write_bytes((REPOSITORY_ROOT / relative_path).read_bytes())
         else:
             path.write_text(f"fixture:{relative_path}\n", encoding="utf-8")
+    repository_lock = (
+        repository / "toolchains/target0-amd-ryzen9-7900x-v1.lock.json"
+    )
+    repository_lock.parent.mkdir(parents=True, exist_ok=True)
+    repository_lock.write_bytes(TOOLCHAIN_LOCK_PATH.read_bytes())
     run_git(repository, "add", ".")
     run_git(repository, "commit", "--quiet", "-m", "identity fixture")
     run_git(
@@ -949,6 +1238,73 @@ class QualificationCampaignPreflightTest(unittest.TestCase):
         self.assertEqual(options.campaign_number, 1)
         self.assertTrue(options.exclusive_use_confirmed)
 
+        with self.assertRaises(SystemExit):
+            runner.parse_arguments(["run"])
+        run_options = runner.parse_arguments(
+            [
+                "run",
+                "--repository-root",
+                "/fixture/XOAS",
+                "--campaign-directory",
+                "/var/tmp/xoas-target0-qualification-campaign.fixture",
+                "--target-user",
+                "target-user",
+            ]
+        )
+        self.assertEqual(run_options.command, "run")
+        self.assertEqual(run_options.target_user, "target-user")
+
+        with self.assertRaises(RuntimeError):
+            runner.validate_run_authority(
+                target_user="target-user",
+                effective_uid=1000,
+                user_lookup=lambda name: SimpleNamespace(pw_uid=1000),
+            )
+        with self.assertRaises(RuntimeError):
+            runner.validate_run_authority(
+                target_user="root-alias",
+                effective_uid=0,
+                user_lookup=lambda name: SimpleNamespace(pw_uid=0),
+            )
+        runner.validate_run_authority(
+            target_user="target-user",
+            effective_uid=0,
+            user_lookup=lambda name: SimpleNamespace(pw_uid=1000),
+        )
+
+        observed_commands: list[tuple[str, ...]] = []
+
+        def observe_command(
+            command: tuple[str, ...],
+            working_directory: Path | None = None,
+            *,
+            environment: dict[str, str] | None = None,
+            timeout: int = 30,
+        ) -> SimpleNamespace:
+            """Retain the exact root-side Git command without executing it."""
+            del working_directory, environment, timeout
+            observed_commands.append(command)
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+        runner.run_campaign_command(
+            ("/usr/bin/git", "status", "--porcelain"),
+            REPOSITORY_ROOT,
+            repository_root=REPOSITORY_ROOT,
+            delegate=observe_command,
+        )
+        self.assertEqual(
+            observed_commands,
+            [
+                (
+                    "/usr/bin/git",
+                    "-c",
+                    f"safe.directory={REPOSITORY_ROOT}",
+                    "status",
+                    "--porcelain",
+                )
+            ],
+        )
+
     def test_preflight_rejects_incomplete_session_aggregates_normally(
         self,
     ) -> None:
@@ -1241,8 +1597,421 @@ class QualificationCampaignPreflightTest(unittest.TestCase):
                 (rejection_root / "rejection.json").read_text(encoding="utf-8")
             )
             self.assertEqual(rejection["reason_code"], "load_failure")
+            self.assertEqual(rejection["phase"], "preflight")
             self.assertFalse((rejection_root / "preflight.json").exists())
             self.assertFalse((rejection_root / "core-selection.json").exists())
+
+
+class QualificationCampaignPrimaryProcessTest(unittest.TestCase):
+    """Verify five ordered primary sessions through the real operator loop."""
+
+    def test_five_primary_processes_are_ordered_unique_and_complete(self) -> None:
+        """The loop must construct and validate exactly five fresh sessions."""
+        runner = load_runner_module()
+        preparation = load_preparation_module()
+        capture_test = load_module(
+            CAPTURE_TEST_PATH,
+            "xoas_capture_test_support_for_primary",
+        )
+        example = json.loads(BUNDLE_EXAMPLE_PATH.read_text(encoding="utf-8"))
+        lock_bytes = TOOLCHAIN_LOCK_PATH.read_bytes()
+        lock = json.loads(lock_bytes.decode("utf-8"))
+        identity_runner = IdentityCommandRunner(lock)
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            fixture_root = Path(temporary_directory)
+            source_root = fixture_root / "host"
+            source_root.mkdir()
+            capture_test.make_host_fixture(source_root)
+            toolchain_lock = fixture_root / "toolchain-lock.json"
+            toolchain_lock.write_bytes(lock_bytes)
+            repository, expected_commit = make_identity_repository(
+                fixture_root,
+                [source["path"] for source in example["sources"]],
+            )
+            repository_identity = preparation.validate_repository(
+                repository,
+                expected_commit,
+                identity_runner,
+            )
+            provisioning_lock = preparation.validate_toolchain_lock(
+                toolchain_lock,
+                repository / "schemas/target0-toolchain-lock-v1.schema.json",
+            )
+            manifest = copy.deepcopy(example)
+            manifest["repository"] = repository_identity
+            manifest["provisioning_lock"] = provisioning_lock
+            manifest["sources"] = preparation.collect_source_records(repository)
+            manifest["toolchain"] = {
+                "compiler": preparation.validate_compiler(
+                    lock,
+                    identity_runner,
+                ),
+                "linker": preparation.validate_linker(lock, identity_runner),
+            }
+            bundle_root = fixture_root / "bundle"
+            bundle_root.mkdir()
+            finalize_identity_bundle(bundle_root, manifest, preparation)
+            allowed_root = fixture_root / "evidence"
+            allowed_root.mkdir()
+            install_prefix = fixture_root / "install"
+            home_directory = fixture_root / "home"
+            install_prefix.mkdir()
+            home_directory.mkdir()
+            campaign_root = (
+                allowed_root / "xoas-target0-qualification-campaign.primary"
+            )
+            options = runner.parse_arguments(
+                [
+                    "preflight",
+                    "--repository-root",
+                    str(repository),
+                    "--expected-commit",
+                    expected_commit,
+                    "--bundle-directory",
+                    str(bundle_root),
+                    "--bundle-schema",
+                    str(BUNDLE_SCHEMA_PATH),
+                    "--campaign-schema",
+                    str(
+                        REPOSITORY_ROOT
+                        / "schemas/target0-qualification-campaign-v1.schema.json"
+                    ),
+                    "--process-schema",
+                    str(
+                        REPOSITORY_ROOT
+                        / "schemas/target0-host-qualification-v1.schema.json"
+                    ),
+                    "--toolchain-lock",
+                    str(toolchain_lock),
+                    "--campaign-id",
+                    "target0-campaign-01",
+                    "--campaign-number",
+                    "1",
+                    "--target-user",
+                    "target-user",
+                    "--output-directory",
+                    str(campaign_root),
+                    "--exclusive-use-confirmed",
+                ]
+            )
+            command_runner = PreflightCommandRunner(
+                identity_runner,
+                capture_test.FakeCommandRunner(),
+                expected_commit,
+            )
+
+            def finish_core_observation(seconds: int) -> None:
+                self.assertEqual(seconds, 60)
+                write_text(
+                    source_root,
+                    "proc/interrupts",
+                    (
+                        "           CPU0 CPU1 CPU2 CPU3\n"
+                        "  0: 15 22 30 40 IO-APIC timer\n"
+                    ),
+                )
+
+            timestamps = iter((0, 60_000_000_000))
+            runner.execute_preflight(
+                options,
+                source_root=source_root,
+                allowed_root=allowed_root,
+                install_prefix=install_prefix,
+                home_directory=home_directory,
+                command_runner=command_runner,
+                sleep=finish_core_observation,
+                monotonic_ns=lambda: next(timestamps),
+                captured_at_utc="2026-08-29T00:00:00Z",
+            )
+            preflight_template = fixture_root / "preflight-template"
+            shutil.copytree(campaign_root, preflight_template)
+            session_runner = PrimarySessionRunner()
+            pmu_runner = PmuSessionRunner(
+                {
+                    "branches",
+                    "branch-misses",
+                    "cache-references",
+                    "cache-misses",
+                    "msr/aperf/",
+                    "msr/mperf/",
+                    "msr/tsc/",
+                    "power/energy-pkg/",
+                },
+                unsupported_exit_statuses={"branches": 0},
+            )
+
+            def dispatch_session(
+                command: tuple[str, ...],
+                working_directory: Path | None = None,
+                *,
+                environment: dict[str, str] | None = None,
+                timeout: int = 30,
+            ) -> SimpleNamespace:
+                """Route the exact public run loop to its two session fixtures."""
+                selected = (
+                    pmu_runner
+                    if "--execution-mode" in command
+                    else session_runner
+                )
+                return selected(
+                    command,
+                    working_directory,
+                    environment=environment,
+                    timeout=timeout,
+                )
+
+            run_options = runner.parse_arguments(
+                [
+                    "run",
+                    "--repository-root",
+                    str(repository),
+                    "--campaign-directory",
+                    str(campaign_root),
+                    "--target-user",
+                    "target-user",
+                ]
+            )
+            outcome = runner.execute_run(
+                run_options,
+                source_root=source_root,
+                command_runner=command_runner,
+                session_runner=dispatch_session,
+                captured_at_utc=lambda: "2026-08-29T00:02:00Z",
+                effective_uid=0,
+                user_lookup=lambda name: SimpleNamespace(pw_uid=1000),
+            )
+            processes = outcome["processes"]
+            pmu = outcome["pmu"]
+
+            self.assertEqual(
+                [record["process_index"] for record in processes],
+                [1, 2, 3, 4, 5],
+            )
+            self.assertEqual(len({record["seed"] for record in processes}), 5)
+            self.assertTrue(
+                all(
+                    record["statistics"]["sample_count"] == 30
+                    for record in processes
+                )
+            )
+            self.assertEqual(len(session_runner.calls), 5)
+            self.assertTrue(
+                all(
+                    stat.S_IMODE(
+                        (campaign_root / f"process-{index:02d}").stat().st_mode
+                    )
+                    == 0o700
+                    for index in range(1, 6)
+                )
+            )
+            retained_probe = str(
+                campaign_root / "inputs/xoas-target0-qualification-probe"
+            )
+            self.assertTrue(
+                all(retained_probe in command for command in session_runner.calls)
+            )
+            self.assertEqual(
+                [
+                    command[command.index("--perf-events") + 1]
+                    for command in pmu_runner.calls
+                ],
+                [
+                    "cycles,instructions",
+                    "branches",
+                    "branch-misses",
+                    "cache-references",
+                    "cache-misses",
+                    "msr/aperf/",
+                    "msr/mperf/",
+                    "msr/tsc/",
+                    "power/energy-pkg/",
+                ],
+            )
+            self.assertEqual(pmu["required"]["status"], "passed")
+            self.assertEqual(len(pmu["optional"]), 8)
+            self.assertTrue(
+                all(
+                    outcome["status"] == "unsupported"
+                    for outcome in pmu["optional"]
+                )
+            )
+            self.assertTrue(
+                all(
+                    stat.S_IMODE(path.stat().st_mode) == 0o700
+                    for path in (campaign_root / "pmu").iterdir()
+                )
+            )
+            self.assertFalse((campaign_root / "rejection.json").exists())
+            self.assertFalse((campaign_root / "acceptance.json").exists())
+            primary_template = fixture_root / "primary-template"
+            shutil.copytree(campaign_root, primary_template)
+            shutil.rmtree(primary_template / "pmu")
+
+            failure_cases = (
+                ("process_execution", "process_execution_failure"),
+                ("invalid_schema", "process_schema_failure"),
+                ("duration_low", "sample_bound_or_migration_failure"),
+                ("duration_high", "sample_bound_or_migration_failure"),
+                ("migration", "sample_bound_or_migration_failure"),
+                ("thread", "sample_bound_or_migration_failure"),
+                ("checksum", "sample_bound_or_migration_failure"),
+                ("thermal_alarm", "thermal_precondition_failure"),
+                ("thermal_threshold", "thermal_precondition_failure"),
+                ("restoration", "restoration_failure"),
+            )
+            for mutation, expected_code in failure_cases:
+                with self.subTest(mutation=mutation):
+                    (source_root / "sys/class/hwmon/hwmon0/temp1_crit_alarm").unlink(
+                        missing_ok=True
+                    )
+                    (source_root / "sys/class/hwmon/hwmon0/temp1_crit").unlink(
+                        missing_ok=True
+                    )
+                    attempt = (
+                        allowed_root
+                        / f"xoas-target0-qualification-campaign.{mutation}"
+                    )
+                    shutil.copytree(preflight_template, attempt)
+                    failing_session = PrimarySessionRunner(
+                        mutation=mutation,
+                        source_root=source_root,
+                    )
+                    with self.assertRaises(runner.CampaignPhaseError) as caught:
+                        runner.execute_primary_processes(
+                            campaign_root=attempt,
+                            repository_root=repository,
+                            target_user="target-user",
+                            source_root=source_root,
+                            command_runner=command_runner,
+                            session_runner=failing_session,
+                            captured_at_utc=lambda: "2026-08-29T00:04:00Z",
+                        )
+                    self.assertEqual(caught.exception.code, expected_code)
+                    self.assertEqual(len(failing_session.calls), 1)
+                    self.assertFalse((attempt / "acceptance.json").exists())
+                    rejection = json.loads(
+                        (attempt / "rejection.json").read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(rejection["reason_code"], expected_code)
+                    self.assertEqual(rejection["phase"], "primary")
+                    expected_status = {
+                        "process_execution": 9,
+                        "restoration": 70,
+                    }.get(mutation, 0)
+                    self.assertEqual(
+                        rejection["command_exit_status"],
+                        expected_status,
+                    )
+                    self.assertTrue((attempt / "process-01/host-before.json").is_file())
+
+            source_to_drift = repository / manifest["sources"][0]["path"]
+            source_bytes = source_to_drift.read_bytes()
+            remote_validation_count = 0
+
+            def drift_on_second_process(command: tuple[str, ...]) -> None:
+                nonlocal remote_validation_count
+                if command == (
+                    "/usr/bin/git",
+                    "remote",
+                    "get-url",
+                    "origin",
+                ):
+                    remote_validation_count += 1
+                    if remote_validation_count == 2:
+                        source_to_drift.write_bytes(source_bytes + b"drift")
+
+            drift_identity_runner = IdentityCommandRunner(
+                lock,
+                after_command=drift_on_second_process,
+            )
+            drift_command_runner = PreflightCommandRunner(
+                drift_identity_runner,
+                capture_test.FakeCommandRunner(),
+                expected_commit,
+            )
+            drift_attempt = (
+                allowed_root / "xoas-target0-qualification-campaign.identity-drift"
+            )
+            shutil.copytree(preflight_template, drift_attempt)
+            drift_session = PrimarySessionRunner()
+            with self.assertRaises(runner.CampaignPhaseError) as caught:
+                runner.execute_primary_processes(
+                    campaign_root=drift_attempt,
+                    repository_root=repository,
+                    target_user="target-user",
+                    source_root=source_root,
+                    command_runner=drift_command_runner,
+                    session_runner=drift_session,
+                    captured_at_utc=lambda: "2026-08-29T00:05:00Z",
+                )
+            source_to_drift.write_bytes(source_bytes)
+            self.assertEqual(caught.exception.code, "per_process_identity_drift")
+            self.assertEqual(len(drift_session.calls), 1)
+            self.assertTrue((drift_attempt / "process-01/process.json").is_file())
+            self.assertFalse((drift_attempt / "acceptance.json").exists())
+            drift_rejection = json.loads(
+                (drift_attempt / "rejection.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(drift_rejection["phase"], "primary")
+
+            required_pmu_attempt = (
+                allowed_root / "xoas-target0-qualification-campaign.required-pmu"
+            )
+            shutil.copytree(primary_template, required_pmu_attempt)
+            with self.assertRaises(runner.CampaignPhaseError) as caught:
+                runner.execute_pmu_sessions(
+                    campaign_root=required_pmu_attempt,
+                    repository_root=repository,
+                    target_user="target-user",
+                    source_root=source_root,
+                    command_runner=command_runner,
+                    session_runner=PmuSessionRunner({"cycles"}),
+                    captured_at_utc=lambda: "2026-08-29T00:06:00Z",
+                )
+            self.assertEqual(caught.exception.code, "required_pmu_failure")
+            self.assertFalse((required_pmu_attempt / "acceptance.json").exists())
+            required_rejection = json.loads(
+                (required_pmu_attempt / "rejection.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(
+                required_rejection["reason_code"],
+                "required_pmu_failure",
+            )
+            self.assertEqual(required_rejection["phase"], "pmu")
+            self.assertEqual(required_rejection["command_exit_status"], 129)
+
+            scaled_pmu_attempt = (
+                allowed_root / "xoas-target0-qualification-campaign.scaled-pmu"
+            )
+            shutil.copytree(primary_template, scaled_pmu_attempt)
+            scaled_runner = PmuSessionRunner(
+                running_percentages={"cycles": "99.99"}
+            )
+            with self.assertRaises(runner.CampaignPhaseError) as caught:
+                runner.execute_pmu_sessions(
+                    campaign_root=scaled_pmu_attempt,
+                    repository_root=repository,
+                    target_user="target-user",
+                    source_root=source_root,
+                    command_runner=command_runner,
+                    session_runner=scaled_runner,
+                    captured_at_utc=lambda: "2026-08-29T00:07:00Z",
+                )
+            self.assertEqual(caught.exception.code, "required_pmu_failure")
+            self.assertEqual(len(scaled_runner.calls), 1)
+            scaled_rejection = json.loads(
+                (scaled_pmu_attempt / "rejection.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(
+                scaled_rejection["reason_code"],
+                "required_pmu_failure",
+            )
+            self.assertEqual(scaled_rejection["phase"], "pmu")
+            self.assertEqual(scaled_rejection["command_exit_status"], 0)
 
 
 if __name__ == "__main__":

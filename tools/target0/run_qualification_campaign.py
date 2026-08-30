@@ -6,10 +6,12 @@ from __future__ import annotations
 import argparse
 from collections.abc import Callable, Sequence
 import datetime
+import functools
 import hashlib
 import json
 import os
 from pathlib import Path
+import pwd
 import re
 import stat
 import sys
@@ -22,6 +24,7 @@ from capture_host import (
     build_capture,
     read_interrupt_totals,
     select_core,
+    validate_capture,
 )
 from prepare_qualification_bundle import (
     PreparationError,
@@ -36,19 +39,33 @@ from prepare_qualification_bundle import (
 )
 from qualification_campaign import (
     CampaignError,
+    OPTIONAL_PERF_EVENTS,
+    ProcessValidationError,
+    REQUIRED_PERF_EVENTS,
     build_identity_record,
     build_raw_inventory,
+    derive_process_seed,
+    parse_perf_stat,
+    validate_pmu_record,
+    validate_process_record,
+    validate_restoration_record,
 )
 
 
-_PREFLIGHT_REJECTION_CODES = frozenset(
+_CAMPAIGN_REJECTION_CODES = frozenset(
     {
         "bundle_verification_failure",
         "core_selection_failure",
         "evidence_inventory_failure",
         "exclusive_use_failure",
         "load_failure",
+        "per_process_identity_drift",
         "preflight_identity_mismatch",
+        "process_execution_failure",
+        "process_schema_failure",
+        "required_pmu_failure",
+        "restoration_failure",
+        "sample_bound_or_migration_failure",
         "thermal_precondition_failure",
         "unexpected_internal_failure",
         "unexpected_session_failure",
@@ -70,12 +87,24 @@ class CommandRunner(Protocol):
         """Return the command status and captured output."""
 
 
+class UserRecord(Protocol):
+    """Expose the resolved numeric identity needed by the run boundary."""
+
+    pw_uid: int
+
+
 class CampaignPhaseError(CampaignError):
     """Expose one closed operator-visible campaign rejection code."""
 
-    def __init__(self, code: str) -> None:
-        """Retain only the approved code without arbitrary diagnostics."""
+    def __init__(
+        self,
+        code: str,
+        *,
+        command_status: int | None = None,
+    ) -> None:
+        """Retain only approved structured evidence without diagnostics."""
         self.code = code
+        self.command_status = command_status
         super().__init__(code)
 
 
@@ -110,6 +139,10 @@ def parse_arguments(arguments: Sequence[str] | None = None) -> argparse.Namespac
         action="store_true",
         required=True,
     )
+    run = subparsers.add_parser("run")
+    run.add_argument("--repository-root", required=True, type=Path)
+    run.add_argument("--campaign-directory", required=True, type=Path)
+    run.add_argument("--target-user", required=True)
     return parser.parse_args(arguments)
 
 
@@ -139,20 +172,25 @@ def _publish_new_json(path: Path, record: dict[str, object]) -> None:
     _publish_new_bytes(path, canonical_json_bytes(record), 0o600)
 
 
-def _write_preflight_rejection(
+def _write_rejection(
     campaign_root: Path,
     reason_code: str,
+    *,
+    phase: str,
+    command_status: int | None = None,
 ) -> None:
     """Publish one closed rejection after retaining all prior diagnostics."""
-    if reason_code not in _PREFLIGHT_REJECTION_CODES:
+    if reason_code not in _CAMPAIGN_REJECTION_CODES:
         reason_code = "unexpected_internal_failure"
+    if phase not in {"preflight", "primary", "pmu"}:
+        phase = "preflight"
     inventory = build_raw_inventory(campaign_root)
     rejection = {
-        "command_exit_status": None,
+        "command_exit_status": command_status,
         "diagnostics": inventory["files"],
         "manifest_version": "xoas.target0-campaign-rejection.v1",
         "performance_claim": False,
-        "phase": "preflight",
+        "phase": phase,
         "reason_code": reason_code,
         "status": "rejected",
     }
@@ -301,12 +339,18 @@ def execute_preflight(
         _publish_new_json(campaign_root / "preflight.json", record)
         return record
     except CampaignPhaseError as error:
-        _write_preflight_rejection(campaign_root, error.code)
+        _write_rejection(
+            campaign_root,
+            error.code,
+            phase="preflight",
+            command_status=error.command_status,
+        )
         raise
     except Exception as error:
-        _write_preflight_rejection(
+        _write_rejection(
             campaign_root,
             "unexpected_internal_failure",
+            phase="preflight",
         )
         raise CampaignPhaseError("unexpected_internal_failure") from error
 
@@ -386,6 +430,862 @@ def _load_digest_bound_json_object(
     if digest.hexdigest() != expected_sha256 or not isinstance(record, dict):
         raise CampaignError("digest-bound JSON input differs")
     return record
+
+
+def _load_regular_json_object(path: Path) -> dict[str, object]:
+    """Load one retained regular JSON object without requiring canonical bytes."""
+    try:
+        content = _read_regular_bytes(path)
+        record = json.loads(content.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise CampaignError("retained JSON record is unreadable") from error
+    if not isinstance(record, dict):
+        raise CampaignError("retained JSON record is not an object")
+    return record
+
+
+def _retained_bundle_identity(
+    campaign_root: Path,
+    preflight: dict[str, object],
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Authenticate retained bundle inputs against the preflight record."""
+    expected_paths = {
+        "bundle_acceptance": "inputs/bundle-acceptance.json",
+        "bundle_inventory": "inputs/bundle-inventory.json",
+        "bundle_manifest": "inputs/bundle.json",
+        "executable": "inputs/xoas-target0-qualification-probe",
+    }
+    inputs = preflight.get("inputs")
+    if not isinstance(inputs, dict) or set(inputs) != set(expected_paths):
+        raise CampaignError("retained preflight input set differs")
+    contents: dict[str, bytes] = {}
+    for name, relative_path in expected_paths.items():
+        record = inputs[name]
+        if not isinstance(record, dict) or set(record) != {
+            "path",
+            "sha256",
+            "size_bytes",
+        }:
+            raise CampaignError("retained preflight input shape differs")
+        if record["path"] != relative_path:
+            raise CampaignError("retained preflight input path differs")
+        content = _read_regular_bytes(campaign_root / relative_path)
+        if (
+            record["size_bytes"] != len(content)
+            or record["sha256"] != hashlib.sha256(content).hexdigest()
+        ):
+            raise CampaignError("retained preflight input bytes differ")
+        contents[name] = content
+    try:
+        manifest = json.loads(contents["bundle_manifest"].decode("utf-8"))
+        acceptance = json.loads(contents["bundle_acceptance"].decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise CampaignError("retained bundle identity is unreadable") from error
+    if not isinstance(manifest, dict) or not isinstance(acceptance, dict):
+        raise CampaignError("retained bundle identity is not an object")
+    if canonical_json_bytes(manifest) != contents["bundle_manifest"]:
+        raise CampaignError("retained bundle manifest is not canonical")
+    if canonical_json_bytes(acceptance) != contents["bundle_acceptance"]:
+        raise CampaignError("retained bundle acceptance is not canonical")
+    if acceptance.get("bundle_manifest_sha256") != hashlib.sha256(
+        contents["bundle_manifest"]
+    ).hexdigest():
+        raise CampaignError("retained bundle manifest digest differs")
+    if acceptance.get("inventory_sha256") != hashlib.sha256(
+        contents["bundle_inventory"]
+    ).hexdigest():
+        raise CampaignError("retained bundle inventory digest differs")
+    if acceptance.get("executable_sha256") != hashlib.sha256(
+        contents["executable"]
+    ).hexdigest():
+        raise CampaignError("retained executable digest differs")
+    return manifest, acceptance
+
+
+def collect_retained_live_identity(
+    *,
+    campaign_root: Path,
+    repository_root: Path,
+    expected_commit: str,
+    selected_cpu: int,
+    sibling: int,
+    boot_id_sha256: str,
+    command_runner: CommandRunner,
+) -> dict[str, object]:
+    """Recompute live identity using only retained accepted campaign inputs."""
+    try:
+        preflight = _load_canonical_json_object(
+            campaign_root / "preflight.json",
+            canonicalizer=canonical_json_bytes,
+        )
+        manifest, acceptance = _retained_bundle_identity(
+            campaign_root,
+            preflight,
+        )
+        repository = validate_repository(
+            repository_root,
+            expected_commit,
+            command_runner,
+        )
+        toolchain_lock = (
+            repository_root
+            / "toolchains/target0-amd-ryzen9-7900x-v1.lock.json"
+        )
+        provisioning_lock = validate_toolchain_lock(
+            toolchain_lock,
+            repository_root / "schemas/target0-toolchain-lock-v1.schema.json",
+        )
+        lock = _load_digest_bound_json_object(
+            toolchain_lock,
+            str(provisioning_lock["file_sha256"]),
+        )
+        compiler = validate_compiler(lock, command_runner)
+        linker = validate_linker(lock, command_runner)
+        identity = build_identity_record(
+            bundle_manifest=manifest,
+            bundle_acceptance=acceptance,
+            repository=repository,
+            provisioning_lock=provisioning_lock,
+            compiler=compiler,
+            linker=linker,
+            sources=collect_source_records(repository_root),
+            boot_id_sha256=boot_id_sha256,
+            selected_cpu=selected_cpu,
+            sibling=sibling,
+        )
+        if canonical_json_bytes(identity) != canonical_json_bytes(
+            preflight.get("identity")
+        ):
+            raise CampaignError("live identity differs from accepted preflight")
+        return identity
+    except (CampaignError, PreparationError) as error:
+        raise CampaignPhaseError("per_process_identity_drift") from error
+
+
+def _host_identity_projection(capture: dict[str, object]) -> dict[str, object]:
+    """Project one host capture to facts that must not change in a session."""
+    validate_capture(capture)
+    host = capture["host"]
+    frequency = host["frequency"]
+    frequency_cpus = [
+        {
+            key: value
+            for key, value in record.items()
+            if key != "current_khz"
+        }
+        for record in frequency["cpus"]
+    ]
+    stable_host_fields = (
+        "cpu",
+        "topology",
+        "memory",
+        "os",
+        "virtualization",
+        "clocksource",
+        "boot_id_sha256",
+        "powercap",
+        "kernel_controls",
+        "tools",
+        "packages",
+    )
+    return {
+        "frequency": {
+            "boost": frequency["boost"],
+            "cpus": frequency_cpus,
+        },
+        "host": {field: host[field] for field in stable_host_fields},
+        "repository": capture["repository"],
+    }
+
+
+def validate_host_transition(
+    before: dict[str, object],
+    after: dict[str, object],
+    *,
+    expected_boot_id_sha256: str,
+) -> None:
+    """Require stable boot, topology, ABI, controls, tools, and repository."""
+    if (
+        before.get("phase") != "campaign"
+        or after.get("phase") != "campaign"
+        or before.get("host", {}).get("boot_id_sha256")
+        != expected_boot_id_sha256
+        or after.get("host", {}).get("boot_id_sha256")
+        != expected_boot_id_sha256
+    ):
+        raise CampaignError("session boot identity differs")
+    if canonical_json_bytes(_host_identity_projection(before)) != (
+        canonical_json_bytes(_host_identity_projection(after))
+    ):
+        raise CampaignError("session host identity differs")
+
+
+def _file_sha256(path: Path) -> str:
+    """Return the SHA-256 of one retained regular evidence file."""
+    return hashlib.sha256(_read_regular_bytes(path)).hexdigest()
+
+
+def _run_measurement_session(
+    *,
+    session_directory: Path,
+    session_runner: CommandRunner,
+    command: tuple[str, ...],
+    repository_root: Path,
+) -> SimpleNamespace:
+    """Open only the child publication boundary while its session runs."""
+    descriptor = os.open(
+        session_directory,
+        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+    )
+    try:
+        status = os.fstat(descriptor)
+        if not stat.S_ISDIR(status.st_mode):
+            raise CampaignError("session output boundary is invalid")
+        os.fchmod(descriptor, 0o1733)
+        return session_runner(command, repository_root, timeout=35)
+    finally:
+        try:
+            os.fchmod(descriptor, 0o700)
+        finally:
+            os.close(descriptor)
+
+
+def _primary_session_command(
+    *,
+    repository_root: Path,
+    campaign_root: Path,
+    target_user: str,
+    cpu: int,
+    sibling: int,
+    seed: int,
+    process_path: Path,
+    restoration_path: Path,
+) -> tuple[str, ...]:
+    """Construct one exact ordinary measurement-session command."""
+    return (
+        "/usr/bin/timeout",
+        "--foreground",
+        "--kill-after=5s",
+        "--preserve-status",
+        "--signal=TERM",
+        "20s",
+        "/usr/bin/bash",
+        str(repository_root / "tools/target0/measurement_session.sh"),
+        "--cpu",
+        str(cpu),
+        "--sibling",
+        str(sibling),
+        "--target-user",
+        target_user,
+        "--restoration-record",
+        str(restoration_path),
+        "--",
+        str(campaign_root / "inputs/xoas-target0-qualification-probe"),
+        "--cpu",
+        str(cpu),
+        "--warmup-rounds",
+        "5",
+        "--rounds",
+        "30",
+        "--iterations",
+        "16777216",
+        "--seed",
+        str(seed),
+        "--output",
+        str(process_path),
+    )
+
+
+def execute_primary_processes(
+    *,
+    campaign_root: Path,
+    repository_root: Path,
+    target_user: str,
+    source_root: Path,
+    command_runner: CommandRunner,
+    session_runner: CommandRunner,
+    captured_at_utc: Callable[[], str],
+) -> list[dict[str, object]]:
+    """Run and validate five ordered primary measurement processes once."""
+    if target_user == "root" or re.fullmatch(
+        r"[a-z_][a-z0-9_-]*",
+        target_user,
+    ) is None:
+        raise CampaignError("target user is invalid")
+    resolved_campaign_root = campaign_root.resolve(strict=True)
+    if campaign_root.is_symlink() or not resolved_campaign_root.is_dir():
+        raise CampaignError("campaign root is invalid")
+    if any(
+        os.path.lexists(resolved_campaign_root / name)
+        for name in ("acceptance.json", "campaign.json", "rejection.json")
+    ):
+        raise CampaignError("campaign root is already terminal")
+    preflight = _load_canonical_json_object(
+        resolved_campaign_root / "preflight.json",
+        canonicalizer=canonical_json_bytes,
+    )
+    selection = _load_canonical_json_object(
+        resolved_campaign_root / "core-selection.json",
+        canonicalizer=canonical_json_bytes,
+    )
+    if preflight.get("status") != "accepted":
+        raise CampaignError("campaign preflight is not accepted")
+    try:
+        campaign_id = preflight["campaign_id"]
+        expected_commit = preflight["identity"]["repository"]["expected_commit"]
+        expected_boot_id = preflight["identity"]["boot_id_sha256"]
+        cpu = selection["cpu"]
+        sibling = selection["sibling"]
+    except (KeyError, TypeError) as error:
+        raise CampaignError("accepted preflight is incomplete") from error
+    if preflight["identity"]["selected_core"] != {
+        "cpu": cpu,
+        "sibling": sibling,
+    }:
+        raise CampaignError("preflight core identity differs")
+    summaries: list[dict[str, object]] = []
+    try:
+        for process_index in range(1, 6):
+            process_directory = (
+                resolved_campaign_root / f"process-{process_index:02d}"
+            )
+            process_directory.mkdir(mode=0o700, parents=False, exist_ok=False)
+            _fsync_directory(resolved_campaign_root)
+            host_before = build_capture(
+                phase="campaign",
+                source_root=source_root,
+                command_runner=command_runner,
+                captured_at_utc=captured_at_utc(),
+                repository_root=repository_root,
+            )
+            thermal_before = capture_thermal_state(source_root)
+            if thermal_before["status"] != "passed":
+                raise CampaignPhaseError("thermal_precondition_failure")
+            identity = collect_retained_live_identity(
+                campaign_root=resolved_campaign_root,
+                repository_root=repository_root,
+                expected_commit=expected_commit,
+                selected_cpu=cpu,
+                sibling=sibling,
+                boot_id_sha256=host_before["host"]["boot_id_sha256"],
+                command_runner=command_runner,
+            )
+            identity_path = process_directory / "identity-before.json"
+            host_before_path = process_directory / "host-before.json"
+            thermal_before_path = process_directory / "thermal-before.json"
+            _publish_new_json(identity_path, identity)
+            _publish_new_json(host_before_path, host_before)
+            _publish_new_json(thermal_before_path, thermal_before)
+            seed = derive_process_seed(campaign_id, process_index)
+            process_path = process_directory / "process.json"
+            restoration_path = process_directory / "restoration.json"
+            command = _primary_session_command(
+                repository_root=repository_root,
+                campaign_root=resolved_campaign_root,
+                target_user=target_user,
+                cpu=cpu,
+                sibling=sibling,
+                seed=seed,
+                process_path=process_path,
+                restoration_path=restoration_path,
+            )
+            result = _run_measurement_session(
+                session_directory=process_directory,
+                session_runner=session_runner,
+                command=command,
+                repository_root=repository_root,
+            )
+            try:
+                restoration = _load_regular_json_object(restoration_path)
+                validate_restoration_record(
+                    restoration,
+                    expected_command_status=result.returncode,
+                )
+            except CampaignError as error:
+                raise CampaignPhaseError(
+                    "restoration_failure",
+                    command_status=result.returncode,
+                ) from error
+            host_after = build_capture(
+                phase="campaign",
+                source_root=source_root,
+                command_runner=command_runner,
+                captured_at_utc=captured_at_utc(),
+                repository_root=repository_root,
+            )
+            thermal_after = capture_thermal_state(source_root)
+            host_after_path = process_directory / "host-after.json"
+            thermal_after_path = process_directory / "thermal-after.json"
+            _publish_new_json(host_after_path, host_after)
+            _publish_new_json(thermal_after_path, thermal_after)
+            if result.returncode != 0:
+                raise CampaignPhaseError(
+                    "process_execution_failure",
+                    command_status=result.returncode,
+                )
+            if thermal_after["status"] != "passed":
+                raise CampaignPhaseError(
+                    "thermal_precondition_failure",
+                    command_status=result.returncode,
+                )
+            try:
+                validate_host_transition(
+                    host_before,
+                    host_after,
+                    expected_boot_id_sha256=expected_boot_id,
+                )
+            except CampaignError as error:
+                raise CampaignPhaseError(
+                    "per_process_identity_drift",
+                    command_status=result.returncode,
+                ) from error
+            process_record = _load_regular_json_object(process_path)
+            try:
+                process_summary = validate_process_record(
+                    process_record,
+                    repository_root
+                    / "schemas/target0-host-qualification-v1.schema.json",
+                    expected_cpu=cpu,
+                    expected_seed=seed,
+                )
+            except ProcessValidationError as error:
+                raise CampaignPhaseError(
+                    error.code,
+                    command_status=result.returncode,
+                ) from error
+            summaries.append(
+                {
+                    "accepted": True,
+                    "evidence": {
+                        "host_after_sha256": _file_sha256(host_after_path),
+                        "host_before_sha256": _file_sha256(host_before_path),
+                        "identity_sha256": _file_sha256(identity_path),
+                        "process_sha256": _file_sha256(process_path),
+                        "restoration_sha256": _file_sha256(restoration_path),
+                    },
+                    "process_index": process_index,
+                    "restored": True,
+                    "seed": seed,
+                    "statistics": process_summary["statistics"],
+                }
+            )
+        return summaries
+    except CampaignPhaseError as error:
+        _write_rejection(
+            resolved_campaign_root,
+            error.code,
+            phase="primary",
+            command_status=error.command_status,
+        )
+        raise
+    except Exception as error:
+        _write_rejection(
+            resolved_campaign_root,
+            "unexpected_internal_failure",
+            phase="primary",
+        )
+        raise CampaignPhaseError("unexpected_internal_failure") from error
+
+
+def _pmu_directory_name(event_specification: str, required: bool) -> str:
+    """Return one fixed safe evidence directory for a PMU event request."""
+    if required:
+        return "required"
+    return "optional-" + event_specification.strip("/").replace("/", "-")
+
+
+def _pmu_session_command(
+    *,
+    repository_root: Path,
+    campaign_root: Path,
+    target_user: str,
+    cpu: int,
+    sibling: int,
+    seed: int,
+    event_specification: str,
+    process_path: Path,
+    restoration_path: Path,
+    perf_output_path: Path,
+) -> tuple[str, ...]:
+    """Construct one exact privileged-perf measurement-session command."""
+    return (
+        "/usr/bin/timeout",
+        "--foreground",
+        "--kill-after=5s",
+        "--preserve-status",
+        "--signal=TERM",
+        "20s",
+        "/usr/bin/bash",
+        str(repository_root / "tools/target0/measurement_session.sh"),
+        "--cpu",
+        str(cpu),
+        "--sibling",
+        str(sibling),
+        "--target-user",
+        target_user,
+        "--restoration-record",
+        str(restoration_path),
+        "--execution-mode",
+        "privileged-perf",
+        "--perf-output",
+        str(perf_output_path),
+        "--perf-events",
+        event_specification,
+        "--",
+        str(campaign_root / "inputs/xoas-target0-qualification-probe"),
+        "--cpu",
+        str(cpu),
+        "--warmup-rounds",
+        "5",
+        "--rounds",
+        "30",
+        "--iterations",
+        "16777216",
+        "--seed",
+        str(seed),
+        "--output",
+        str(process_path),
+    )
+
+
+def execute_pmu_sessions(
+    *,
+    campaign_root: Path,
+    repository_root: Path,
+    target_user: str,
+    source_root: Path,
+    command_runner: CommandRunner,
+    session_runner: CommandRunner,
+    captured_at_utc: Callable[[], str],
+) -> dict[str, object]:
+    """Run one required and eight separate optional PMU sessions in order."""
+    resolved_campaign_root = campaign_root.resolve(strict=True)
+    if any(
+        not (resolved_campaign_root / f"process-{index:02d}").is_dir()
+        for index in range(1, 6)
+    ):
+        raise CampaignError("primary process evidence is incomplete")
+    if os.path.lexists(resolved_campaign_root / "rejection.json"):
+        raise CampaignError("rejected campaign cannot run PMU sessions")
+    preflight = _load_canonical_json_object(
+        resolved_campaign_root / "preflight.json",
+        canonicalizer=canonical_json_bytes,
+    )
+    selection = _load_canonical_json_object(
+        resolved_campaign_root / "core-selection.json",
+        canonicalizer=canonical_json_bytes,
+    )
+    try:
+        campaign_id = preflight["campaign_id"]
+        expected_commit = preflight["identity"]["repository"]["expected_commit"]
+        expected_boot_id = preflight["identity"]["boot_id_sha256"]
+        cpu = selection["cpu"]
+        sibling = selection["sibling"]
+    except (KeyError, TypeError) as error:
+        raise CampaignError("accepted preflight is incomplete") from error
+    pmu_root = resolved_campaign_root / "pmu"
+    pmu_root.mkdir(mode=0o700, parents=False, exist_ok=False)
+    _fsync_directory(resolved_campaign_root)
+    requests = [
+        ("cycles,instructions", tuple(REQUIRED_PERF_EVENTS), True),
+        *((event, (event,), False) for event in OPTIONAL_PERF_EVENTS),
+    ]
+    required_summary: dict[str, object] | None = None
+    optional_summaries: list[dict[str, object]] = []
+    seed = derive_process_seed(campaign_id, 1)
+    try:
+        for event_specification, expected_events, required in requests:
+            session_directory = pmu_root / _pmu_directory_name(
+                event_specification,
+                required,
+            )
+            session_directory.mkdir(mode=0o700, parents=False, exist_ok=False)
+            _fsync_directory(pmu_root)
+            host_before = build_capture(
+                phase="campaign",
+                source_root=source_root,
+                command_runner=command_runner,
+                captured_at_utc=captured_at_utc(),
+                repository_root=repository_root,
+            )
+            thermal_before = capture_thermal_state(source_root)
+            if thermal_before["status"] != "passed":
+                raise CampaignPhaseError("thermal_precondition_failure")
+            identity = collect_retained_live_identity(
+                campaign_root=resolved_campaign_root,
+                repository_root=repository_root,
+                expected_commit=expected_commit,
+                selected_cpu=cpu,
+                sibling=sibling,
+                boot_id_sha256=host_before["host"]["boot_id_sha256"],
+                command_runner=command_runner,
+            )
+            identity_path = session_directory / "identity-before.json"
+            host_before_path = session_directory / "host-before.json"
+            thermal_before_path = session_directory / "thermal-before.json"
+            _publish_new_json(identity_path, identity)
+            _publish_new_json(host_before_path, host_before)
+            _publish_new_json(thermal_before_path, thermal_before)
+            process_path = session_directory / "process.json"
+            restoration_path = session_directory / "restoration.json"
+            perf_output_path = session_directory / "perf-stat.txt"
+            command = _pmu_session_command(
+                repository_root=repository_root,
+                campaign_root=resolved_campaign_root,
+                target_user=target_user,
+                cpu=cpu,
+                sibling=sibling,
+                seed=seed,
+                event_specification=event_specification,
+                process_path=process_path,
+                restoration_path=restoration_path,
+                perf_output_path=perf_output_path,
+            )
+            result = _run_measurement_session(
+                session_directory=session_directory,
+                session_runner=session_runner,
+                command=command,
+                repository_root=repository_root,
+            )
+            try:
+                restoration = _load_regular_json_object(restoration_path)
+                validate_restoration_record(
+                    restoration,
+                    expected_command_status=result.returncode,
+                )
+            except CampaignError as error:
+                raise CampaignPhaseError(
+                    "restoration_failure",
+                    command_status=result.returncode,
+                ) from error
+            host_after = build_capture(
+                phase="campaign",
+                source_root=source_root,
+                command_runner=command_runner,
+                captured_at_utc=captured_at_utc(),
+                repository_root=repository_root,
+            )
+            thermal_after = capture_thermal_state(source_root)
+            _publish_new_json(session_directory / "host-after.json", host_after)
+            _publish_new_json(
+                session_directory / "thermal-after.json",
+                thermal_after,
+            )
+            if thermal_after["status"] != "passed":
+                raise CampaignPhaseError(
+                    "thermal_precondition_failure",
+                    command_status=result.returncode,
+                )
+            try:
+                validate_host_transition(
+                    host_before,
+                    host_after,
+                    expected_boot_id_sha256=expected_boot_id,
+                )
+            except CampaignError as error:
+                raise CampaignPhaseError(
+                    "per_process_identity_drift",
+                    command_status=result.returncode,
+                ) from error
+            process_record = _load_regular_json_object(process_path)
+            try:
+                validate_process_record(
+                    process_record,
+                    repository_root
+                    / "schemas/target0-host-qualification-v1.schema.json",
+                    expected_cpu=cpu,
+                    expected_seed=seed,
+                )
+            except ProcessValidationError as error:
+                raise CampaignPhaseError(
+                    error.code,
+                    command_status=result.returncode,
+                ) from error
+            try:
+                raw_perf = _read_regular_bytes(perf_output_path).decode("utf-8")
+                events = parse_perf_stat(raw_perf, expected_events)
+                status = (
+                    "unsupported"
+                    if events[0]["status"] == "unsupported"
+                    else "passed"
+                )
+                pmu_record = {
+                    "command_exit_status": result.returncode,
+                    "events": events,
+                    "failure_reasons": [],
+                    "manifest_version": "xoas.target0-pmu-session.v1",
+                    "performance_claim": False,
+                    "required": required,
+                    "restored": True,
+                    "status": status,
+                }
+                validate_pmu_record(pmu_record, required=required)
+            except (CampaignError, UnicodeDecodeError) as error:
+                code = (
+                    "required_pmu_failure"
+                    if required
+                    else "evidence_inventory_failure"
+                )
+                raise CampaignPhaseError(
+                    code,
+                    command_status=result.returncode,
+                ) from error
+            pmu_record_path = session_directory / "pmu.json"
+            _publish_new_json(pmu_record_path, pmu_record)
+            if required:
+                required_summary = {
+                    "events": events,
+                    "evidence_sha256": _file_sha256(pmu_record_path),
+                    "restored": True,
+                    "status": "passed",
+                }
+            else:
+                optional_summaries.append(
+                    {
+                        "event": event_specification,
+                        "evidence_sha256": _file_sha256(pmu_record_path),
+                        "record": events[0],
+                        "restored": True,
+                        "status": events[0]["status"],
+                    }
+                )
+        if required_summary is None or len(optional_summaries) != 8:
+            raise CampaignPhaseError("evidence_inventory_failure")
+        return {
+            "optional": optional_summaries,
+            "required": required_summary,
+        }
+    except CampaignPhaseError as error:
+        _write_rejection(
+            resolved_campaign_root,
+            error.code,
+            phase="pmu",
+            command_status=error.command_status,
+        )
+        raise
+    except Exception as error:
+        _write_rejection(
+            resolved_campaign_root,
+            "unexpected_internal_failure",
+            phase="pmu",
+        )
+        raise CampaignPhaseError("unexpected_internal_failure") from error
+
+
+def validate_run_authority(
+    *,
+    target_user: str,
+    effective_uid: int,
+    user_lookup: Callable[[str], UserRecord],
+) -> None:
+    """Require a root operator and one existing non-root execution user."""
+    if effective_uid != 0:
+        raise CampaignError("campaign run requires effective UID zero")
+    if target_user == "root" or re.fullmatch(
+        r"[a-z_][a-z0-9_-]*",
+        target_user,
+    ) is None:
+        raise CampaignError("target user is invalid")
+    try:
+        user = user_lookup(target_user)
+    except KeyError as error:
+        raise CampaignError("target user does not exist") from error
+    if user.pw_uid == 0:
+        raise CampaignError("target user resolves to root")
+
+
+def run_campaign_command(
+    command: tuple[str, ...],
+    working_directory: Path | None = None,
+    *,
+    environment: dict[str, str] | None = None,
+    timeout: int = 30,
+    repository_root: Path,
+    delegate: CommandRunner = run_command,
+) -> SimpleNamespace:
+    """Run Git safely against only the exact root-owned campaign checkout."""
+    if command and command[0] in {"git", "/usr/bin/git"} and (
+        working_directory is not None
+    ):
+        try:
+            resolved_repository = repository_root.resolve(strict=True)
+            resolved_working_directory = working_directory.resolve(strict=True)
+        except OSError as error:
+            raise CampaignError("campaign Git boundary is unavailable") from error
+        if (
+            repository_root.is_symlink()
+            or resolved_working_directory != resolved_repository
+        ):
+            raise CampaignError("campaign Git boundary differs")
+        command = (
+            command[0],
+            "-c",
+            f"safe.directory={resolved_repository}",
+            *command[1:],
+        )
+    return delegate(
+        command,
+        working_directory,
+        environment=environment,
+        timeout=timeout,
+    )
+
+
+def execute_run(
+    options: argparse.Namespace,
+    *,
+    source_root: Path,
+    command_runner: CommandRunner,
+    session_runner: CommandRunner,
+    captured_at_utc: Callable[[], str],
+    effective_uid: int,
+    user_lookup: Callable[[str], UserRecord],
+) -> dict[str, object]:
+    """Execute the controlled primary and PMU phases exactly once."""
+    if options.command != "run":
+        raise CampaignError("operator command is not run")
+    validate_run_authority(
+        target_user=options.target_user,
+        effective_uid=effective_uid,
+        user_lookup=user_lookup,
+    )
+    campaign_root = options.campaign_directory.resolve(strict=True)
+    if options.campaign_directory.is_symlink() or not campaign_root.is_dir():
+        raise CampaignError("campaign root is invalid")
+    if any(
+        os.path.lexists(campaign_root / name)
+        for name in (
+            "acceptance.json",
+            "campaign.json",
+            "pmu",
+            "process-01",
+            "process-02",
+            "process-03",
+            "process-04",
+            "process-05",
+            "rejection.json",
+        )
+    ):
+        raise CampaignError("campaign root is not pristine after preflight")
+    processes = execute_primary_processes(
+        campaign_root=campaign_root,
+        repository_root=options.repository_root,
+        target_user=options.target_user,
+        source_root=source_root,
+        command_runner=command_runner,
+        session_runner=session_runner,
+        captured_at_utc=captured_at_utc,
+    )
+    pmu = execute_pmu_sessions(
+        campaign_root=campaign_root,
+        repository_root=options.repository_root,
+        target_user=options.target_user,
+        source_root=source_root,
+        command_runner=command_runner,
+        session_runner=session_runner,
+        captured_at_utc=captured_at_utc,
+    )
+    return {"pmu": pmu, "processes": processes}
 
 
 def collect_live_identity(
@@ -967,24 +1867,42 @@ def main(arguments: Sequence[str] | None = None) -> int:
     """Run one closed operator command and return a stable public status."""
     options = parse_arguments(arguments)
     try:
-        execute_preflight(
-            options,
-            source_root=Path("/"),
-            allowed_root=Path("/var/tmp"),
-            install_prefix=Path("/opt/xoas/target0-v1"),
-            home_directory=Path.home(),
-            command_runner=run_command,
-            captured_at_utc=_utc_now(),
-        )
+        if options.command == "preflight":
+            execute_preflight(
+                options,
+                source_root=Path("/"),
+                allowed_root=Path("/var/tmp"),
+                install_prefix=Path("/opt/xoas/target0-v1"),
+                home_directory=Path.home(),
+                command_runner=run_command,
+                captured_at_utc=_utc_now(),
+            )
+        else:
+            campaign_command_runner = functools.partial(
+                run_campaign_command,
+                repository_root=options.repository_root,
+            )
+            execute_run(
+                options,
+                source_root=Path("/"),
+                command_runner=campaign_command_runner,
+                session_runner=run_command,
+                captured_at_utc=_utc_now,
+                effective_uid=os.geteuid(),
+                user_lookup=pwd.getpwnam,
+            )
         return 0
     except CampaignPhaseError as error:
         print(
-            f"qualification campaign preflight failed: {error.code}",
+            f"qualification campaign {options.command} failed: {error.code}",
             file=sys.stderr,
         )
         return 2
     except (CampaignError, CaptureError, PreparationError, OSError):
-        print("qualification campaign preflight failed", file=sys.stderr)
+        print(
+            f"qualification campaign {options.command} failed",
+            file=sys.stderr,
+        )
         return 2
 
 

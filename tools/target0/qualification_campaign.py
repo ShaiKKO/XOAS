@@ -32,6 +32,15 @@ class CampaignError(RuntimeError):
     """Report a condition that makes a qualification campaign inadmissible."""
 
 
+class ProcessValidationError(CampaignError):
+    """Report one closed primary-process rejection category."""
+
+    def __init__(self, code: str) -> None:
+        """Retain one operator-visible process rejection code."""
+        self.code = code
+        super().__init__(code)
+
+
 def _fraction_record(value: Fraction) -> dict[str, int]:
     """Return one exact reduced rational record."""
     return {
@@ -107,6 +116,79 @@ def process_statistics(
     }
 
 
+def validate_process_record(
+    record: dict[str, object],
+    schema_path: Path,
+    *,
+    expected_cpu: int,
+    expected_seed: int,
+) -> dict[str, object]:
+    """Validate one primary process and return its exact statistics."""
+    try:
+        from jsonschema import Draft202012Validator
+        from jsonschema.exceptions import SchemaError, ValidationError
+
+        if schema_path.is_symlink():
+            raise ProcessValidationError("process_schema_failure")
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        if not isinstance(schema, dict) or schema.get("$id") != (
+            "https://xoas.dev/schemas/target0-host-qualification-v1.schema.json"
+        ):
+            raise ProcessValidationError("process_schema_failure")
+        Draft202012Validator.check_schema(schema)
+        Draft202012Validator(schema).validate(record)
+    except ProcessValidationError:
+        raise
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ProcessValidationError("process_schema_failure") from error
+    except (SchemaError, ValidationError) as error:
+        raise ProcessValidationError("process_schema_failure") from error
+    if (
+        isinstance(expected_cpu, bool)
+        or not isinstance(expected_cpu, int)
+        or expected_cpu < 0
+        or isinstance(expected_seed, bool)
+        or not isinstance(expected_seed, int)
+        or not 0 <= expected_seed <= (1 << 64) - 1
+    ):
+        raise ProcessValidationError("process_schema_failure")
+    if record["requested_cpu"] != expected_cpu or record["affinity_cpus"] != [
+        expected_cpu
+    ]:
+        raise ProcessValidationError("sample_bound_or_migration_failure")
+    if record["seed"] != expected_seed:
+        raise ProcessValidationError("sample_bound_or_migration_failure")
+    if (
+        record["status"] != "passed"
+        or record["failure_reasons"] != []
+        or record["max_observed_threads"] != 1
+    ):
+        raise ProcessValidationError("sample_bound_or_migration_failure")
+    samples = record["samples"]
+    elapsed_nanoseconds: list[int] = []
+    aggregate_checksum = 0
+    for round_index, sample in enumerate(samples):
+        if (
+            sample["round"] != round_index
+            or sample["observed_cpu_start"] != expected_cpu
+            or sample["observed_cpu_end"] != expected_cpu
+        ):
+            raise ProcessValidationError("sample_bound_or_migration_failure")
+        elapsed_ns = sample["elapsed_ns"]
+        if not 20_000_000 <= elapsed_ns <= 200_000_000:
+            raise ProcessValidationError("sample_bound_or_migration_failure")
+        elapsed_nanoseconds.append(elapsed_ns)
+        aggregate_checksum = (
+            aggregate_checksum + int(sample["checksum"], 16)
+        ) & ((1 << 64) - 1)
+    if int(record["checksum"], 16) != aggregate_checksum:
+        raise ProcessValidationError("sample_bound_or_migration_failure")
+    return {
+        "sample_count": len(elapsed_nanoseconds),
+        "statistics": process_statistics(elapsed_nanoseconds),
+    }
+
+
 def parse_perf_stat(
     raw_text: str,
     expected_events: Sequence[str],
@@ -129,20 +211,26 @@ def parse_perf_stat(
         if value_text == "<not supported>":
             value: int | str | None = None
             status = "unsupported"
+            retained_running_percentage: str | None = None
         elif re.fullmatch(r"[0-9]+", value_text) is not None:
             value = int(value_text)
             status = "supported"
+            retained_running_percentage = running_percentage
         elif re.fullmatch(r"[0-9]+\.[0-9]+", value_text) is not None:
             value = value_text
             status = "supported"
+            retained_running_percentage = running_percentage
         else:
             raise CampaignError("perf-stat value is invalid")
-        if re.fullmatch(r"[0-9]+(?:\.[0-9]+)?", running_percentage) is None:
+        if status == "supported" and re.fullmatch(
+            r"[0-9]+(?:\.[0-9]+)?",
+            running_percentage,
+        ) is None:
             raise CampaignError("perf-stat running percentage is invalid")
         records.append(
             {
                 "event": event,
-                "running_percentage": running_percentage,
+                "running_percentage": retained_running_percentage,
                 "status": status,
                 "value": value,
             }
@@ -238,7 +326,10 @@ def _require_git_object(value: object, description: str) -> str:
 def _validate_package_record(record: object, description: str) -> None:
     """Validate one nonempty package name and exact-version record."""
     package = _require_exact_keys(record, {"name", "version"}, description)
-    if any(not isinstance(package[field], str) or not package[field] for field in package):
+    if any(
+        not isinstance(package[field], str) or not package[field]
+        for field in package
+    ):
         raise CampaignError(f"{description} value is invalid")
 
 
@@ -703,7 +794,7 @@ def validate_pmu_record(
     if event_record["status"] == "supported":
         if record["status"] != "passed" or command_exit_status != 0:
             raise CampaignError("supported optional PMU record differs")
-    elif record["status"] != "unsupported" or command_exit_status == 0:
+    elif record["status"] != "unsupported":
         raise CampaignError("unsupported optional PMU status differs")
 
 

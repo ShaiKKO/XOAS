@@ -32,6 +32,12 @@ add_test(
     "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_test.py"
     -k QualificationCampaignPerfTest)
 add_test(
+  NAME target0-qualification-campaign-process
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_test.py"
+    -k QualificationCampaignProcessTest)
+add_test(
   NAME target0-qualification-campaign-records
   COMMAND
     "${Python3_EXECUTABLE}"
@@ -55,6 +61,12 @@ add_test(
     "${Python3_EXECUTABLE}"
     "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_runner_test.py"
     -k QualificationCampaignPreflightTest)
+add_test(
+  NAME target0-qualification-campaign-primary
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_runner_test.py"
+    -k QualificationCampaignPrimaryProcessTest)
 add_test(
   NAME target0-qualification-campaign-sessions
   COMMAND
@@ -132,6 +144,7 @@ set_tests_properties(
   target0-qualification-campaign-pmu
   target0-qualification-campaign-identity
   target0-qualification-campaign-preflight
+  target0-qualification-campaign-process
   target0-qualification-campaign-records
   target0-qualification-campaign-schema
   target0-qualification-campaign-sessions
@@ -143,3 +156,7 @@ set_tests_properties(
   target0-qualification-bundle-preflight
   target0-qualification-bundle-schema
   PROPERTIES TIMEOUT 60)
+
+set_tests_properties(
+  target0-qualification-campaign-primary
+  PROPERTIES TIMEOUT 180)

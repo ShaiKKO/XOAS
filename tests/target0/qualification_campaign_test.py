@@ -152,7 +152,7 @@ class QualificationCampaignPerfTest(unittest.TestCase):
                 },
                 {
                     "event": "instructions",
-                    "running_percentage": "100.00",
+                    "running_percentage": None,
                     "status": "unsupported",
                     "value": None,
                 },
@@ -609,6 +609,9 @@ class QualificationCampaignRecordTest(unittest.TestCase):
             "status": "unsupported",
         }
         campaign.validate_pmu_record(optional_unsupported, required=False)
+        successful_unsupported = copy.deepcopy(optional_unsupported)
+        successful_unsupported["command_exit_status"] = 0
+        campaign.validate_pmu_record(successful_unsupported, required=False)
 
         mutations = []
         nonunit_required = copy.deepcopy(required_record)
@@ -626,9 +629,6 @@ class QualificationCampaignRecordTest(unittest.TestCase):
         estimated_optional = copy.deepcopy(optional_unsupported)
         estimated_optional["events"][0]["value"] = 1
         mutations.append((estimated_optional, False))
-        successful_unsupported = copy.deepcopy(optional_unsupported)
-        successful_unsupported["command_exit_status"] = 0
-        mutations.append((successful_unsupported, False))
 
         for mutation, required in mutations:
             with self.subTest(mutation=mutation, required=required):
@@ -700,6 +700,106 @@ class QualificationCampaignRecordTest(unittest.TestCase):
             )
             with self.assertRaises(RuntimeError):
                 campaign.build_raw_inventory(campaign_root)
+
+
+class QualificationCampaignProcessTest(unittest.TestCase):
+    """Verify one primary process before it can enter campaign statistics."""
+
+    @staticmethod
+    def process_record(cpu: int = 4, seed: int = 123) -> dict[str, object]:
+        """Return one complete stable 30-sample process fixture."""
+        samples = [
+            {
+                "checksum": f"{round_index + 1:016x}",
+                "elapsed_ns": 100_000_000,
+                "involuntary_context_switches": 0,
+                "observed_cpu_end": cpu,
+                "observed_cpu_start": cpu,
+                "round": round_index,
+                "voluntary_context_switches": 0,
+            }
+            for round_index in range(30)
+        ]
+        aggregate_checksum = sum(range(1, 31))
+        return {
+            "affinity_cpus": [cpu],
+            "checksum": f"{aggregate_checksum:016x}",
+            "failure_reasons": [],
+            "iterations": 16_777_216,
+            "manifest_version": "xoas.target0-qualification-process.v1",
+            "max_observed_threads": 1,
+            "performance_claim": False,
+            "process_context_switches": {
+                "involuntary_delta": 0,
+                "voluntary_delta": 0,
+            },
+            "process_id": 100,
+            "requested_cpu": cpu,
+            "retained_rounds": 30,
+            "samples": samples,
+            "seed": seed,
+            "status": "passed",
+            "timer_clock": "CLOCK_MONOTONIC_RAW",
+            "timer_overhead_ns": [10] * 10_000,
+            "warmup_checksum": "0123456789abcdef",
+            "warmup_rounds": 5,
+        }
+
+    def test_process_validator_accepts_exact_record_and_statistics(self) -> None:
+        """A complete stable record must produce exact campaign statistics."""
+        campaign = load_campaign_module()
+        record = self.process_record()
+
+        summary = campaign.validate_process_record(
+            record,
+            SCHEMA_PATH.parent / "target0-host-qualification-v1.schema.json",
+            expected_cpu=4,
+            expected_seed=123,
+        )
+
+        self.assertEqual(summary["sample_count"], 30)
+        self.assertEqual(
+            summary["statistics"]["mad_ratio"],
+            "0.000000000000",
+        )
+        self.assertEqual(
+            summary["statistics"]["p99_ratio"],
+            "1.000000000000",
+        )
+
+    def test_process_validator_rejects_every_load_bearing_mutation(self) -> None:
+        """Bounds, migration, threads, checksum, and schema must fail closed."""
+        campaign = load_campaign_module()
+        mutations: list[dict[str, object]] = []
+        for elapsed_ns in (19_000_000, 201_000_000):
+            changed = copy.deepcopy(self.process_record())
+            changed["samples"][0]["elapsed_ns"] = elapsed_ns
+            mutations.append(changed)
+        migrated = copy.deepcopy(self.process_record())
+        migrated["samples"][0]["observed_cpu_end"] = 5
+        mutations.append(migrated)
+        threaded = copy.deepcopy(self.process_record())
+        threaded["max_observed_threads"] = 2
+        threaded["status"] = "failed"
+        threaded["failure_reasons"] = ["thread_count_changed"]
+        mutations.append(threaded)
+        checksum = copy.deepcopy(self.process_record())
+        checksum["checksum"] = "0000000000000000"
+        mutations.append(checksum)
+        unknown = copy.deepcopy(self.process_record())
+        unknown["unknown"] = False
+        mutations.append(unknown)
+
+        for mutation in mutations:
+            with self.subTest(mutation=mutation):
+                with self.assertRaises(RuntimeError):
+                    campaign.validate_process_record(
+                        mutation,
+                        SCHEMA_PATH.parent
+                        / "target0-host-qualification-v1.schema.json",
+                        expected_cpu=4,
+                        expected_seed=123,
+                    )
 
 
 if __name__ == "__main__":
