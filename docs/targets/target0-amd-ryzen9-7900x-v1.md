@@ -129,16 +129,18 @@ source/build evidence were recovered, rechecked, and re-indexed. This event was
 not executed by the qualification session controller, was not an approved
 campaign boundary, and does not satisfy either campaign or reboot gate.
 
-The physical host has Python 3.14.4 while XOAS configuration pins Python
-3.12.3 exactly. The full repository CMake quality suite therefore stops during
-configuration on this host. A direct repository-policy diagnostic additionally
-found that host ShellCheck 0.11 reports SC2329 for functions invoked indirectly
-by the existing measurement-session traps, while the pinned development lane is
-green. The narrow native preparation path preserved `gpu-2` as the quality
-authority and proved the physical host's supported interpreted/native subset
-through five bundle compatibility checks. These differences are not product
-evidence and are not reasons to weaken the repository toolchain lock or
-suppress the rule broadly.
+The system Python remains 3.14.4. On 2026-08-30, the user explicitly approved
+an isolated XOAS quality-toolchain supplement: Python 3.12.3, Doxygen 1.9.8,
+and ShellCheck 0.9.0 below `/opt/xoas/development`, with only a versioned
+`python3.12` link and no system-tool replacement. At clean `main` commit
+`93f164cb6caedc6d4da8eca7315ccba9d9c80506`, the host passed both complete
+50-test Debug and Release quality aggregates, explicit 50/50 replays for each,
+and the final 3/3 sanitizer replay. Exact provenance and executable digests are
+recorded in
+[`../adr/IDR-0004-wineth-quality-toolchain.md`](../adr/IDR-0004-wineth-quality-toolchain.md).
+This closes the physical-host repository-quality gap without changing native
+artifact authority, measurement qualification, campaign, reboot, or
+performance state.
 
 ## Qualification-tool deployment state
 

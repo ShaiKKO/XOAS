@@ -8,6 +8,12 @@
 
 **Implementation owner:** Head engineering and integration agent
 
+**Supplemental decision:**
+[`../../adr/IDR-0004-wineth-quality-toolchain.md`](../../adr/IDR-0004-wineth-quality-toolchain.md)
+supersedes only this design's prohibition on a supplemental physical-host
+quality environment. Native qualification-artifact authority and every
+measurement boundary in this design remain unchanged.
+
 **Controlling plan:**
 [`../plans/2026-08-29-amd-target0-host-qualification.md`](../plans/2026-08-29-amd-target0-host-qualification.md)
 

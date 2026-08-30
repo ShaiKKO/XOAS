@@ -36,7 +36,8 @@ Approved proposals override the affected sections of lower-authority documents o
 |---|---|---|
 | [`../adr/IDR-0001-engineering-quality-system.md`](../adr/IDR-0001-engineering-quality-system.md) | Accepted and implemented; enforced on protected `main` | LLVM-derived source standard, pinned Clang-native gates, protected `main`, generated/vendor boundaries, and staged rollout |
 | [`../adr/IDR-0002-target0-qualification-tool-deployment.md`](../adr/IDR-0002-target0-qualification-tool-deployment.md) | Accepted; native deployment/cross-host verification passed at `a312aa2`, integrated by PR #4 at `a51a7f9` | Separate `gpu-2` quality and physical native-build authority, closed dual-build evidence bundle, replica verification, and no campaign authority |
-| [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Accepted; implementation at `db0eb87` and exact-commit quality at `7b486e1` complete; deployment and live execution pending | Closed two-phase qualification campaign, exact identity/statistical evidence, and dedicated privileged-PMU boundary |
+| [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Accepted; implementation at `db0eb87`, exact-commit quality at `7b486e1`, and attempt 1 retained as `restoration_failure` | Closed two-phase qualification campaign, exact identity/statistical evidence, and dedicated privileged-PMU boundary |
+| [`../adr/IDR-0004-wineth-quality-toolchain.md`](../adr/IDR-0004-wineth-quality-toolchain.md) | Accepted and verified at clean `93f164c` | Isolated Python 3.12.3, Doxygen 1.9.8, and ShellCheck 0.9.0 quality lane on `wineth-ubuntu`; no measurement or qualification authority |
 
 Use the next unused `../adr/IDR-####-short-title.md` number for a durable, semantics-neutral implementation decision.
 
