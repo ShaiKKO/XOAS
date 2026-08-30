@@ -845,10 +845,11 @@ qualification plan. Tasks 1–4 provide the process contract, deterministic
 probe, non-secret host capture/core selector, fixture-verified reversible
 session controller, closed physical-host pre-state, exact installed support
 closure, and verified versioned baseline artifacts. The qualification-tool
-deployment plan is complete: exact implementation `a312aa2` passed full
-`gpu-2` quality, physical dual-build and compatibility verification, and
-matching fresh physical/`gpu-2` replica verification. Its canonical receipt is
-repository-bound while full bundles remain external private evidence. Baseline
+deployment plan is complete: exact implementation `a312aa2` established the
+path after full `gpu-2` quality, physical dual-build and compatibility
+verification, and matching physical/`gpu-2` replica verification. The current
+canonical receipt binds the replacement `a396f64` bundle and fresh cross-host
+verification while full bundles remain external private evidence. Baseline
 numerical admission remains open. The repository-owned campaign contract,
 dedicated privileged-PMU session mode, read-only preflight, five-process/PMU
 orchestration, deterministic finalization, fresh replay verifier, and
