@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import re
 import shutil
 import stat
 import subprocess
@@ -39,6 +40,44 @@ BUNDLE_EXAMPLE_PATH = (
 TOOLCHAIN_LOCK_PATH = (
     REPOSITORY_ROOT / "toolchains/target0-amd-ryzen9-7900x-v1.lock.json"
 )
+NONFINITE_JSON_TOKENS = {
+    "nan": b"NaN",
+    "positive_infinity": b"Infinity",
+    "negative_infinity": b"-Infinity",
+    "overflow": b"1e309",
+}
+
+
+def canonical_json_bytes(record: object) -> bytes:
+    """Return the normative canonical JSON encoding for one test record."""
+    return (
+        json.dumps(
+            record,
+            allow_nan=False,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+        + "\n"
+    ).encode("utf-8")
+
+
+def replace_json_number(
+    content: bytes,
+    key: str,
+    replacement: bytes,
+) -> bytes:
+    """Replace one numeric JSON member with an explicit test token."""
+    pattern = rb'("' + key.encode("ascii") + rb'":)-?\d+'
+    updated, replacement_count = re.subn(
+        pattern,
+        rb"\g<1>" + replacement,
+        content,
+        count=1,
+    )
+    if replacement_count != 1:
+        raise AssertionError(f"numeric JSON member is missing: {key}")
+    return updated
 
 
 def load_runner_module() -> ModuleType:
@@ -355,10 +394,21 @@ class PrimarySessionRunner:
             process_record["failure_reasons"] = ["thread_count_changed"]
         elif inject and self.mutation == "checksum":
             process_record["checksum"] = "0000000000000000"
-        process_path.write_text(
-            json.dumps(process_record, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        process_bytes = canonical_json_bytes(process_record)
+        if inject and self.mutation == "noncanonical_process":
+            process_bytes = (json.dumps(process_record, indent=2) + "\n").encode(
+                "utf-8"
+            )
+        if inject and self.mutation is not None and self.mutation.startswith(
+            "nonfinite_process_"
+        ):
+            token_name = self.mutation.removeprefix("nonfinite_process_")
+            process_bytes = replace_json_number(
+                process_bytes,
+                "iterations",
+                NONFINITE_JSON_TOKENS[token_name],
+            )
+        process_path.write_bytes(process_bytes)
         state = {
             "boost": 1,
             "energy_performance_preference": "balance_performance",
@@ -407,14 +457,23 @@ class PrimarySessionRunner:
                     "sys/class/hwmon/hwmon0/temp1_crit",
                     "45500\n",
                 )
-        restoration_path.write_text(
-            json.dumps(
-                restoration,
-                indent=2,
+        restoration_bytes = canonical_json_bytes(restoration)
+        if inject and self.mutation == "noncanonical_restoration":
+            restoration_bytes = (
+                json.dumps(restoration, indent=2) + "\n"
+            ).encode("utf-8")
+        if inject and self.mutation is not None and self.mutation.startswith(
+            "nonfinite_restoration_"
+        ):
+            token_name = self.mutation.removeprefix(
+                "nonfinite_restoration_"
             )
-            + "\n",
-            encoding="utf-8",
-        )
+            restoration_bytes = replace_json_number(
+                restoration_bytes,
+                "cpu",
+                NONFINITE_JSON_TOKENS[token_name],
+            )
+        restoration_path.write_bytes(restoration_bytes)
         return SimpleNamespace(returncode=return_status, stdout="", stderr="")
 
 
@@ -471,9 +530,8 @@ class PmuSessionRunner:
         process_path = Path(child[child.index("--output") + 1])
         if stat.S_IMODE(process_path.parent.stat().st_mode) != 0o1733:
             raise AssertionError("PMU child output boundary is not writable")
-        process_path.write_text(
-            json.dumps(make_primary_process_record(cpu, seed), indent=2) + "\n",
-            encoding="utf-8",
+        process_path.write_bytes(
+            canonical_json_bytes(make_primary_process_record(cpu, seed))
         )
         requested_events = events.split(",")
         unsupported = any(
@@ -505,8 +563,8 @@ class PmuSessionRunner:
         }
         post_state = dict(state)
         post_state["selected_cpu_interrupts"] = 101
-        restoration_path.write_text(
-            json.dumps(
+        restoration_path.write_bytes(
+            canonical_json_bytes(
                 {
                     "boost_unchanged": True,
                     "command_exit_status": command_status,
@@ -521,11 +579,8 @@ class PmuSessionRunner:
                     "restored": True,
                     "sibling": sibling,
                     "status": "restored",
-                },
-                indent=2,
+                }
             )
-            + "\n",
-            encoding="utf-8",
         )
         return SimpleNamespace(returncode=command_status, stdout="", stderr="")
 
@@ -1979,6 +2034,13 @@ class QualificationCampaignPrimaryProcessTest(unittest.TestCase):
 
             tamper_names = (
                 "raw-process-byte",
+                "noncanonical-process",
+                "noncanonical-restoration",
+                *(f"nonfinite-process-{name}" for name in NONFINITE_JSON_TOKENS),
+                *(
+                    f"nonfinite-restoration-{name}"
+                    for name in NONFINITE_JSON_TOKENS
+                ),
                 "core-selection",
                 "preflight-load",
                 "preflight-session-decision",
@@ -2000,6 +2062,65 @@ class QualificationCampaignPrimaryProcessTest(unittest.TestCase):
                     if tamper_name == "raw-process-byte":
                         process_path = attempt / "process-01/process.json"
                         process_path.write_bytes(process_path.read_bytes() + b" ")
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name in {
+                        "noncanonical-process",
+                        "noncanonical-restoration",
+                    }:
+                        evidence_name = (
+                            "process.json"
+                            if tamper_name == "noncanonical-process"
+                            else "restoration.json"
+                        )
+                        evidence_path = attempt / "process-01" / evidence_name
+                        evidence_record = json.loads(
+                            evidence_path.read_text(encoding="utf-8")
+                        )
+                        evidence_path.write_text(
+                            json.dumps(evidence_record, indent=2) + "\n",
+                            encoding="utf-8",
+                        )
+                        campaign_path = attempt / "campaign.json"
+                        campaign_record = json.loads(
+                            campaign_path.read_text(encoding="utf-8")
+                        )
+                        digest_field = (
+                            "process_sha256"
+                            if tamper_name == "noncanonical-process"
+                            else "restoration_sha256"
+                        )
+                        campaign_record["processes"][0]["evidence"][
+                            digest_field
+                        ] = hashlib.sha256(evidence_path.read_bytes()).hexdigest()
+                        write_canonical_json(campaign_path, campaign_record)
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name.startswith("nonfinite-"):
+                        _, evidence_kind, token_name = tamper_name.split("-", 2)
+                        evidence_name = f"{evidence_kind}.json"
+                        evidence_path = attempt / "process-01" / evidence_name
+                        numeric_key = (
+                            "iterations"
+                            if evidence_kind == "process"
+                            else "cpu"
+                        )
+                        evidence_path.write_bytes(
+                            replace_json_number(
+                                evidence_path.read_bytes(),
+                                numeric_key,
+                                NONFINITE_JSON_TOKENS[token_name],
+                            )
+                        )
+                        campaign_path = attempt / "campaign.json"
+                        campaign_record = json.loads(
+                            campaign_path.read_text(encoding="utf-8")
+                        )
+                        digest_field = f"{evidence_kind}_sha256"
+                        campaign_record["processes"][0]["evidence"][
+                            digest_field
+                        ] = hashlib.sha256(
+                            evidence_path.read_bytes()
+                        ).hexdigest()
+                        write_canonical_json(campaign_path, campaign_record)
                         rebind_disposable_terminal(attempt)
                     elif tamper_name == "core-selection":
                         selection_path = attempt / "core-selection.json"
@@ -2152,6 +2273,16 @@ class QualificationCampaignPrimaryProcessTest(unittest.TestCase):
             failure_cases = (
                 ("process_execution", "process_execution_failure"),
                 ("invalid_schema", "process_schema_failure"),
+                ("noncanonical_process", "process_schema_failure"),
+                ("noncanonical_restoration", "restoration_failure"),
+                *(
+                    (f"nonfinite_process_{name}", "process_schema_failure")
+                    for name in NONFINITE_JSON_TOKENS
+                ),
+                *(
+                    (f"nonfinite_restoration_{name}", "restoration_failure")
+                    for name in NONFINITE_JSON_TOKENS
+                ),
                 ("duration_low", "sample_bound_or_migration_failure"),
                 ("duration_high", "sample_bound_or_migration_failure"),
                 ("migration", "sample_bound_or_migration_failure"),

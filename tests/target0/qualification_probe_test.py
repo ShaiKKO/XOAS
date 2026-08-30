@@ -15,6 +15,20 @@ import unittest
 from jsonschema import Draft202012Validator
 
 
+def canonical_json_bytes(record: object) -> bytes:
+    """Return the normative canonical JSON encoding for one test record."""
+    return (
+        json.dumps(
+            record,
+            allow_nan=False,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+        + "\n"
+    ).encode("utf-8")
+
+
 def parse_arguments() -> argparse.Namespace:
     """Parse paths supplied by CTest without consuming unittest options."""
     parser = argparse.ArgumentParser(add_help=False)
@@ -40,11 +54,13 @@ class QualificationProbeTest(unittest.TestCase):
         cls.temporary_directory = tempfile.TemporaryDirectory()
         cls.working_directory = Path(cls.temporary_directory.name)
         cls.records = []
+        cls.output_paths = []
         for process_index in range(2):
             output_path = cls.working_directory / f"process-{process_index}.json"
             completed = cls.run_probe(output_path)
             if completed.returncode != 0:
                 raise AssertionError(completed.stderr)
+            cls.output_paths.append(output_path)
             cls.records.append(
                 json.loads(output_path.read_text(encoding="utf-8"))
             )
@@ -125,6 +141,15 @@ class QualificationProbeTest(unittest.TestCase):
         self.assertEqual(record["max_observed_threads"], 1)
         self.assertEqual(len(record["timer_overhead_ns"]), 10000)
         self.assertEqual(record["samples"][0]["checksum"], "b6347d16b98f0445")
+
+    def test_valid_run_emits_exact_canonical_json_bytes(self) -> None:
+        """The native producer must retain the normative byte representation."""
+        for output_path, record in zip(self.output_paths, self.records):
+            with self.subTest(output=output_path.name):
+                self.assertEqual(
+                    output_path.read_bytes(),
+                    canonical_json_bytes(record),
+                )
 
     def test_same_seed_preserves_deterministic_fields(self) -> None:
         """Timing and scheduler noise must not change workload identity."""

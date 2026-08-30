@@ -410,11 +410,13 @@ def _load_canonical_json_object(
         record = json.loads(content.decode("utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         raise CampaignError("retained JSON input is unreadable") from error
-    if (
-        not isinstance(record, dict)
-        or not callable(canonicalizer)
-        or canonicalizer(record) != content
-    ):
+    if not isinstance(record, dict) or not callable(canonicalizer):
+        raise CampaignError("retained JSON input is not canonical")
+    try:
+        canonical_content = canonicalizer(record)
+    except (TypeError, ValueError) as error:
+        raise CampaignError("retained JSON input is not canonical") from error
+    if canonical_content != content:
         raise CampaignError("retained JSON input is not canonical")
     return record
 
@@ -443,18 +445,6 @@ def _load_digest_bound_json_object(
             os.close(descriptor)
     if digest.hexdigest() != expected_sha256 or not isinstance(record, dict):
         raise CampaignError("digest-bound JSON input differs")
-    return record
-
-
-def _load_regular_json_object(path: Path) -> dict[str, object]:
-    """Load one retained regular JSON object without requiring canonical bytes."""
-    try:
-        content = _read_regular_bytes(path)
-        record = json.loads(content.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as error:
-        raise CampaignError("retained JSON record is unreadable") from error
-    if not isinstance(record, dict):
-        raise CampaignError("retained JSON record is not an object")
     return record
 
 
@@ -810,7 +800,10 @@ def execute_primary_processes(
                 repository_root=repository_root,
             )
             try:
-                restoration = _load_regular_json_object(restoration_path)
+                restoration = _load_canonical_json_object(
+                    restoration_path,
+                    canonicalizer=canonical_json_bytes,
+                )
                 validate_restoration_record(
                     restoration,
                     expected_command_status=result.returncode,
@@ -853,8 +846,11 @@ def execute_primary_processes(
                     "per_process_identity_drift",
                     command_status=result.returncode,
                 ) from error
-            process_record = _load_regular_json_object(process_path)
             try:
+                process_record = _load_canonical_json_object(
+                    process_path,
+                    canonicalizer=canonical_json_bytes,
+                )
                 process_summary = validate_process_record(
                     process_record,
                     repository_root
@@ -865,6 +861,11 @@ def execute_primary_processes(
             except ProcessValidationError as error:
                 raise CampaignPhaseError(
                     error.code,
+                    command_status=result.returncode,
+                ) from error
+            except CampaignError as error:
+                raise CampaignPhaseError(
+                    "process_schema_failure",
                     command_status=result.returncode,
                 ) from error
             summaries.append(
@@ -1062,7 +1063,10 @@ def execute_pmu_sessions(
                 repository_root=repository_root,
             )
             try:
-                restoration = _load_regular_json_object(restoration_path)
+                restoration = _load_canonical_json_object(
+                    restoration_path,
+                    canonicalizer=canonical_json_bytes,
+                )
                 validate_restoration_record(
                     restoration,
                     expected_command_status=result.returncode,
@@ -1101,8 +1105,11 @@ def execute_pmu_sessions(
                     "per_process_identity_drift",
                     command_status=result.returncode,
                 ) from error
-            process_record = _load_regular_json_object(process_path)
             try:
+                process_record = _load_canonical_json_object(
+                    process_path,
+                    canonicalizer=canonical_json_bytes,
+                )
                 validate_process_record(
                     process_record,
                     repository_root
@@ -1113,6 +1120,11 @@ def execute_pmu_sessions(
             except ProcessValidationError as error:
                 raise CampaignPhaseError(
                     error.code,
+                    command_status=result.returncode,
+                ) from error
+            except CampaignError as error:
+                raise CampaignPhaseError(
+                    "process_schema_failure",
                     command_status=result.returncode,
                 ) from error
             try:

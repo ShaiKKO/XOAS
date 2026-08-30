@@ -230,9 +230,8 @@ The candidate remains unqualified until all applicable gates close:
 
 1. resolve the open M0/M2 dependency for independent numerical admission of
    every applicable baseline adapter;
-2. repair and test the real-session governor/EPP restoration order, resolve the
-   retained-JSON canonical-encoding deviation, and redeploy a fresh exact-commit
-   bundle;
+2. physically verify the repaired governor/EPP restoration order from exact
+   source `c9af373`, then build and cross-verify a fresh exact-commit bundle;
 3. pass a new read-only preflight and a separately authorized campaign-one
    attempt from a new immutable root;
 4. pass non-claiming smoke, PMU, and noise characterization;

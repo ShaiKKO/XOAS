@@ -1100,8 +1100,15 @@ def _load_campaign_json(
         raise CampaignError("campaign JSON evidence is unreadable") from error
     if not isinstance(record, dict):
         raise CampaignError("campaign JSON evidence is not an object")
-    if canonical and _canonical_campaign_json(record) != content:
-        raise CampaignError("campaign JSON evidence is not canonical")
+    if canonical:
+        try:
+            canonical_content = _canonical_campaign_json(record)
+        except (TypeError, ValueError) as error:
+            raise CampaignError(
+                "campaign JSON evidence is not canonical"
+            ) from error
+        if canonical_content != content:
+            raise CampaignError("campaign JSON evidence is not canonical")
     return record
 
 
@@ -1818,7 +1825,7 @@ def _validate_raw_campaign(
         )
         process_path = directory / "process.json"
         restoration_path = directory / "restoration.json"
-        process = _load_campaign_json(process_path, canonical=False)
+        process = _load_campaign_json(process_path, canonical=True)
         seed = derive_process_seed(campaign_manifest["campaign_id"], process_index)
         summary = validate_process_record(
             process,
@@ -1826,7 +1833,7 @@ def _validate_raw_campaign(
             expected_cpu=expected_cpu,
             expected_seed=seed,
         )
-        restoration = _load_campaign_json(restoration_path, canonical=False)
+        restoration = _load_campaign_json(restoration_path, canonical=True)
         validate_restoration_record(restoration, expected_command_status=0)
         if (
             restoration["cpu"] != expected_cpu
@@ -1876,7 +1883,7 @@ def _validate_raw_campaign(
             expected_cpu=expected_cpu,
             expected_sibling=expected_sibling,
         )
-        process = _load_campaign_json(directory / "process.json", canonical=False)
+        process = _load_campaign_json(directory / "process.json", canonical=True)
         validate_process_record(
             process,
             process_schema,
@@ -1887,7 +1894,7 @@ def _validate_raw_campaign(
         validate_pmu_record(pmu_record, required=required)
         restoration = _load_campaign_json(
             directory / "restoration.json",
-            canonical=False,
+            canonical=True,
         )
         validate_restoration_record(
             restoration,

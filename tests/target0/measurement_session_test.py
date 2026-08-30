@@ -17,6 +17,20 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT_PATH = REPOSITORY_ROOT / "tools/target0/measurement_session.sh"
 
 
+def canonical_json_bytes(record: object) -> bytes:
+    """Return the normative canonical JSON encoding for one test record."""
+    return (
+        json.dumps(
+            record,
+            allow_nan=False,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+        + "\n"
+    ).encode("utf-8")
+
+
 def write_text(root: Path, relative_path: str, content: str) -> None:
     """Write one controlled sysfs or procfs fixture value."""
     path = root / relative_path
@@ -287,6 +301,58 @@ exec "$@"
         self.assertEqual(record["pre_state"], record["post_state"])
         self.assertIs(record["boost_unchanged"], True)
         self.assertNotIn("xoas-test", json.dumps(record))
+
+    def test_restoration_record_uses_exact_canonical_json_bytes(self) -> None:
+        """Restoration evidence must use the normative byte representation."""
+        completed = self.run_session(("/usr/bin/true",))
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        retained_bytes = self.record_path.read_bytes()
+        self.assertEqual(
+            retained_bytes,
+            canonical_json_bytes(json.loads(retained_bytes.decode("utf-8"))),
+        )
+
+    def test_restores_sibling_then_governor_then_energy_preference(self) -> None:
+        """Restoration must follow the complete amd-pstate dependency order."""
+        traced_command = self.command(("/usr/bin/true",))
+        traced_command.insert(1, "-x")
+        completed = subprocess.run(
+            traced_command,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            env=self.environment(),
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        governor_path = (
+            self.fixture_root
+            / "sys/devices/system/cpu/cpu4/cpufreq/scaling_governor"
+        )
+        preference_path = (
+            self.fixture_root
+            / "sys/devices/system/cpu/cpu4/cpufreq/energy_performance_preference"
+        )
+        sibling_path = (
+            self.fixture_root / "sys/devices/system/cpu/cpu16/online"
+        )
+        sibling_restore = f"+ writeValue {sibling_path} 1"
+        governor_restore = (
+            f"+ writeValue {governor_path} powersave"
+        )
+        preference_restore = (
+            f"+ writeValue {preference_path} balance_performance"
+        )
+        sibling_index = completed.stderr.rfind(sibling_restore)
+        governor_index = completed.stderr.rfind(governor_restore)
+        preference_index = completed.stderr.rfind(preference_restore)
+        self.assertNotEqual(sibling_index, -1, completed.stderr)
+        self.assertNotEqual(governor_index, -1, completed.stderr)
+        self.assertNotEqual(preference_index, -1, completed.stderr)
+        self.assertLess(sibling_index, governor_index)
+        self.assertLess(governor_index, preference_index)
 
     def test_privileged_perf_mode_demotes_child_and_restores_exact_state(
         self,

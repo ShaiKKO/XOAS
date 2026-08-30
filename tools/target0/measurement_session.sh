@@ -131,31 +131,25 @@ writeRestorationRecord() {
   fi
 
   if ! {
-    printf '{\n'
-    printf '  "manifest_version": "xoas.target0-measurement-session-restoration.v1",\n'
-    printf '  "performance_claim": false,\n'
-    printf '  "cpu": %s,\n' "$cpu"
-    printf '  "sibling": %s,\n' "$sibling"
-    printf '  "status": "%s",\n' "$sessionOutcome"
-    printf '  "command_exit_status": %s,\n' "$commandExitStatus"
-    printf '  "restored": %s,\n' "$restored"
-    printf '  "boost_unchanged": %s,\n' "$boostUnchanged"
-    printf '  "pre_state": {\n'
-    printf '    "sibling_online": %s,\n' "$preSiblingOnline"
-    printf '    "governor": "%s",\n' "$preGovernor"
-    printf '    "energy_performance_preference": "%s",\n' "$prePreference"
-    printf '    "boost": %s,\n' "$preBoost"
-    printf '    "selected_cpu_interrupts": %s\n' "$preInterrupts"
-    printf '  },\n'
-    printf '  "post_state": {\n'
-    printf '    "sibling_online": %s,\n' "$postSiblingOnline"
-    printf '    "governor": "%s",\n' "$postGovernor"
-    printf '    "energy_performance_preference": "%s",\n' "$postPreference"
-    printf '    "boost": %s,\n' "$postBoost"
-    printf '    "selected_cpu_interrupts": %s\n' "$postInterrupts"
-    printf '  },\n'
-    printf '  "failure_reasons": %s\n' "$failureReasons"
-    printf '}\n'
+    printf '{"boost_unchanged":%s,' "$boostUnchanged"
+    printf '"command_exit_status":%s,' "$commandExitStatus"
+    printf '"cpu":%s,' "$cpu"
+    printf '"failure_reasons":%s,' "$failureReasons"
+    printf '"manifest_version":"xoas.target0-measurement-session-restoration.v1",'
+    printf '"performance_claim":false,'
+    printf '"post_state":{"boost":%s,' "$postBoost"
+    printf '"energy_performance_preference":"%s",' "$postPreference"
+    printf '"governor":"%s",' "$postGovernor"
+    printf '"selected_cpu_interrupts":%s,' "$postInterrupts"
+    printf '"sibling_online":%s},' "$postSiblingOnline"
+    printf '"pre_state":{"boost":%s,' "$preBoost"
+    printf '"energy_performance_preference":"%s",' "$prePreference"
+    printf '"governor":"%s",' "$preGovernor"
+    printf '"selected_cpu_interrupts":%s,' "$preInterrupts"
+    printf '"sibling_online":%s},' "$preSiblingOnline"
+    printf '"restored":%s,' "$restored"
+    printf '"sibling":%s,' "$sibling"
+    printf '"status":"%s"}\n' "$sessionOutcome"
   } >"$recordTemporaryPath"; then
     return 1
   fi
@@ -181,13 +175,13 @@ finishSession() {
       restorationSucceeded=0
     fi
   fi
-  if ((preferenceChanged)); then
-    if ! writeValue "$preferencePath" "$prePreference"; then
+  if ((governorChanged)); then
+    if ! writeValue "$governorPath" "$preGovernor"; then
       restorationSucceeded=0
     fi
   fi
-  if ((governorChanged)); then
-    if ! writeValue "$governorPath" "$preGovernor"; then
+  if ((preferenceChanged)); then
+    if ! writeValue "$preferencePath" "$prePreference"; then
       restorationSucceeded=0
     fi
   fi

@@ -901,8 +901,19 @@ instead of pre-state `balance_performance`. Rejection SHA-256 is
 `e6458e2dac1097fa5649371c0815403708c7985da0b80d2ebf5c8b049efc5868`.
 A bounded recovery restored only EPP, and independent live identity and stable
 host-state replay then matched preflight. The root is immutable and will not be
-retried. Steps 3–5 are acceptance-path work and remain open for a future new
-attempt after the controller and evidence-encoding defects are closed.
+retried. Red subject `485eb6b` subsequently captured exact canonical-byte and
+restoration-order regressions. Exact repair subject `93e9070` restores sibling,
+governor, then EPP; makes native process and Bash restoration records compact,
+sorted, and newline-terminated; and makes both runner and fresh verifier reject
+noncanonical forms. Independent review then found a non-finite classification
+gap; red subject `c68474c` and repair `c9af373` prove `NaN`, positive/negative
+infinity, and overflowed syntax now reach the closed process/restoration
+rejection classes. The final source subject passed complete Debug and Release
+50/50 suites, isolated sanitizer 3/3, and repository policy on
+`wineth-ubuntu`, and follow-up review reported no remaining finding. Physical
+restoration proof, a new exact-commit bundle/replica, and a new preflight remain
+open. Steps 3–5 are acceptance-path work for a separately authorized new
+attempt.
 
 - [ ] **Step 3: Fresh-verify the finalized evidence**
 
