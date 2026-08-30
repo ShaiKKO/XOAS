@@ -2414,6 +2414,38 @@
       "docs/architecture/proposals/AR-0001-target-0-host-qualification.md",
       "docs/architecture/proposals/AR-0002-amd-target-baseline-admission.md"
     ],
+    "tool_deployment": {
+      "state": "passed",
+      "evidence_path": "benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json",
+      "evidence_sha256": "0d62ab0c143fa224d31e4cde925e4c30a5a512c5cd391c4d8cd030b6608572ff",
+      "bundle_id": "target0-qualification-tools-a312aa2bbbb403b3",
+      "bundle_manifest_sha256": "0d62ab0c143fa224d31e4cde925e4c30a5a512c5cd391c4d8cd030b6608572ff",
+      "inventory_sha256": "4ead541d5c43be871833509a561fb4c170ec83d0f297343f8dd6e78058407b20",
+      "executable_sha256": "2b2352baf105ccb2b2ef3a1bb89046fc7a8259224f0c928747f473d11e215b8f",
+      "executable_identity_sha256": "a976d18ae90df3d008749683592f9cc7663b7e94d667d5e3eb78654344b2ad25",
+      "implementation_commit": "a312aa2bbbb403b31ffb67cf40200da063527a4f",
+      "implementation_tree": "b7279b22e40c848da7aecd7f3e4197a6857aa85f",
+      "provisioning_configuration_sha256": "810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3",
+      "source_count": 11,
+      "compiler_sha256": "412bbe8c60571a1eb06f48fde89635033621caeb01a9b4ee76d46711bae8e932",
+      "linker_sha256": "6a65863a9eba1af6b6e8969f8e96a5ad4df0e8b705f98491a28b1790ce35718c",
+      "dual_build_identical": true,
+      "compatibility_test_count": 5,
+      "compatibility_tests_passed": true,
+      "physical_verification": "passed",
+      "development_replica_verification": "passed",
+      "replica_digest_match": true,
+      "external_storage": {
+        "physical": "external_private_evidence_root",
+        "development": "external_private_evidence_root"
+      },
+      "physical_boot_id_sha256": "e30d0884ab780b4d7fc18787fc7f4bf55132119a9762d34f0ef489211c2b3dea",
+      "campaign_executed": false,
+      "qualification_claim": false,
+      "reboot_executed": false,
+      "host_control_mutation": false,
+      "performance_claim": false
+    },
     "required_gates": [
       {
         "id": "closed_host_capture",
@@ -2439,6 +2471,11 @@
         "id": "baseline_artifact_hashes",
         "state": "passed",
         "evidence": "All 288 installed regular files, 11 symlinks, compiler identities, symbols, loader traces, and pkg-config prefixes were retained and indexed."
+      },
+      {
+        "id": "qualification_tool_deployment",
+        "state": "passed",
+        "evidence": "benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json"
       },
       {
         "id": "baseline_numerical_admission",

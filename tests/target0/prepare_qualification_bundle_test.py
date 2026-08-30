@@ -1771,7 +1771,7 @@ class PrepareQualificationBundleFinalizationTest(unittest.TestCase):
                 if path.is_file()
             )
             for forbidden in (
-                "80.158.7.144",
+                "XOAS_PRIVATE_ENDPOINT",
                 "wineth",
                 "/Users/",
                 "/home/",

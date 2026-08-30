@@ -10,7 +10,8 @@
 
 **Task 4 evidence implementation:** `9d44f6431ebdaea60c796292e9da071f0f49522b`
 
-**Qualification-tool repository implementation:** `af34d0d`
+**Qualification-tool implementation subject:**
+`a312aa2bbbb403b31ffb67cf40200da063527a4f`
 
 **Controlling plan:**
 [`2026-08-29-amd-target0-host-qualification.md`](../superpowers/plans/2026-08-29-amd-target0-host-qualification.md)
@@ -133,11 +134,11 @@ The physical host has Python 3.14.4 while XOAS configuration pins Python
 configuration on this host. A direct repository-policy diagnostic additionally
 found that host ShellCheck 0.11 reports SC2329 for functions invoked indirectly
 by the existing measurement-session traps, while the pinned development lane is
-green. The narrow native preparation implementation preserves `gpu-2` as the
-quality authority and does not run the physical host's full CMake/policy lane.
-Its physical Python compatibility is still unproven until an accepted bundle
-is produced. These differences are not product evidence and are not reasons to
-weaken the repository toolchain lock or suppress the rule broadly.
+green. The narrow native preparation path preserved `gpu-2` as the quality
+authority and proved the physical host's supported interpreted/native subset
+through five bundle compatibility checks. These differences are not product
+evidence and are not reasons to weaken the repository toolchain lock or
+suppress the rule broadly.
 
 ## Qualification-tool deployment state
 
@@ -149,12 +150,31 @@ requires byte equality, inspects the ELF/runtime closure, runs the interpreted
 and native compatibility suite, and publishes write-once acceptance or, after
 a safe staging root exists, closed rejection evidence.
 
-The equivalent staged implementation tree passed all eight targeted tests on
-`gpu-2`, including the checkout-before-output regression. The exact branch
-subject has not yet passed the complete Debug/Release quality proof. No native
-bundle has been attempted on this host, no replica has been verified on
-`gpu-2`, and no source, installed baseline, measurement control, campaign,
-reboot, qualification state, or performance evidence changed.
+Exact implementation subject `a312aa2bbbb403b31ffb67cf40200da063527a4f`
+passed 38/38 Debug tests, 38/38 Release tests, 3/3 isolated sanitizer tests,
+repository policy, formatting, documentation, and Clang-Tidy on a clean
+`gpu-2` checkout. A clean physical checkout at tree
+`b7279b22e40c848da7aecd7f3e4197a6857aa85f` produced the accepted bundle
+`target0-qualification-tools-a312aa2bbbb403b3`: both native builds were
+byte-identical and all five compatibility checks passed.
+
+Fresh physical and `gpu-2` verifiers matched bundle-manifest SHA-256
+`0d62ab0c143fa224d31e4cde925e4c30a5a512c5cd391c4d8cd030b6608572ff`,
+inventory SHA-256
+`4ead541d5c43be871833509a561fb4c170ec83d0f297343f8dd6e78058407b20`,
+executable SHA-256
+`2b2352baf105ccb2b2ef3a1bb89046fc7a8259224f0c928747f473d11e215b8f`,
+and normalized executable-identity SHA-256
+`a976d18ae90df3d008749683592f9cc7663b7e94d667d5e3eb78654344b2ad25`.
+The canonical non-secret receipt is
+[`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json).
+The accepted bundles remain external private evidence roots; Git contains no
+ELF executable, raw log, access metadata, network coordinate, or external
+evidence-root path.
+
+No measurement session, host-control mutation, `perf` campaign, controlled
+reboot, target qualification, or performance claim occurred. The rejected
+`bc800ff` build attempt remains retained as non-claiming failure evidence.
 
 ## Deferred comparator boundaries
 
@@ -170,16 +190,14 @@ inapplicability and does not remove oneMKL from the admitted policy.
 
 The candidate remains unqualified until all applicable gates close:
 
-1. pass independent numerical admission for every applicable baseline adapter;
-2. prove the exact repository implementation under the complete development
-   quality contract, then produce matching accepted physical and `gpu-2`
-   qualification-tool bundles;
-3. prove the real physical-host measurement session restores exact state;
-4. pass non-claiming smoke, PMU, and noise characterization;
-5. complete campaign one;
-6. obtain separate approval for the exact controlled reboot action;
-7. complete campaign two under a distinct controlled boot identity;
-8. reconcile both campaigns and complete the accepted review model.
+1. resolve the open M0/M2 dependency for independent numerical admission of
+   every applicable baseline adapter;
+2. prove the real physical-host measurement session restores exact state;
+3. pass non-claiming smoke, PMU, and noise characterization;
+4. complete campaign one;
+5. obtain separate approval for the exact controlled reboot action;
+6. complete campaign two under a distinct controlled boot identity;
+7. reconcile both campaigns and complete the accepted review model.
 
 No final compatibility digest is computed here. M1 owns the versioned
 canonical binary identity.

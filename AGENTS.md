@@ -120,7 +120,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
 - `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented and Tasks 5–7 remain open.
-- `docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md` — implemented repository-side native preparation/bundle plan; exact-subject quality proof and physical execution remain open.
+- `docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md` — executed native preparation/bundle deployment plan; exact implementation `a312aa2` and the accepted non-claiming deployment receipt are verified.
 - `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate capture and verified provisioning evidence, explicit gaps, and remaining gates; it is not measurement qualification.
 - `toolchains/target0-amd-ryzen9-7900x-v1.lock.json` — exact installed support-package closure, source/build commands, artifact hashes, validation evidence, and rollback boundary for the physical candidate.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, the historical unqualified `gpu-2` capture, and the explicitly unqualified physical AMD candidate manifest. The directory contains no executable benchmark harness or measured performance result.
@@ -129,6 +129,7 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `schemas/target0-host-qualification-v1.schema.json` — closed fixed-process qualification schema; real instances are build-tree test artifacts, not performance claims.
 - `schemas/target0-toolchain-lock-v1.schema.json` — closed physical-target provisioning, source, validation, artifact, and rollback contract.
 - `schemas/target0-qualification-tool-bundle-v1.schema.json` — closed non-claiming native deployment-bundle contract for checkout, toolchain, dual build, ELF/runtime, and compatibility evidence.
+- `benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json` and its adjacent digest record — canonical accepted deployment receipt for exact implementation `a312aa2`; full bundles remain in external private evidence roots.
 - `tools/target0/` — non-product Target 0 qualification tooling: the deterministic native CPU probe, non-secret host capture/core selector, reversible measurement-session controller, native bundle preparer, and fresh-process verifier.
 - `tests/target0/` — behavioral, negative, deterministic, schema-closure, fixture-capture, signal, apply-failure, exact-restoration, compile-contract, ELF/runtime, inventory, and replica-verification tests for qualification tooling.
 
@@ -189,14 +190,14 @@ files and configuration SHA-256
 `810c21d5891b67e7aaccd4992318ad7dd86902070aa947baa817ef7ea5914de3`.
 These artifacts are not numerically admitted and the host remains unqualified.
 The host exposes Python 3.14.4, while repository configuration requires Python
-3.12.3 exactly. The repository now has a narrow native preparation tool that
-preserves `gpu-2` as the full quality authority instead of running the physical
-host's complete CMake/policy lane. Its exact implementation subject still needs
-the complete development quality proof, and physical Python compatibility must
-be established by an accepted native bundle before campaign work. A direct
-policy diagnostic also found a ShellCheck 0.11 SC2329 difference from the
-pinned development lane; do not weaken the repository policy to make the
-physical host appear green.
+3.12.3 exactly. The narrow native preparation and verifier surface passed on
+that host at exact implementation `a312aa2`; the same subject passed the full
+Debug, Release, and sanitizer quality contract on `gpu-2`. This preserves
+`gpu-2` as the full quality authority instead of running the physical host's
+complete CMake/policy lane. A direct policy diagnostic also found a ShellCheck
+0.11 SC2329 difference from the pinned development lane; do not weaken the
+repository policy or infer that the physical host's complete repository
+toolchain is green.
 
 ### Commands currently verified
 
@@ -214,7 +215,16 @@ python3 -m json.tool schemas/development-toolchain-v1.schema.json >/dev/null
 python3 -m json.tool schemas/target0-toolchain-lock-v1.schema.json >/dev/null
 python3 -m json.tool toolchains/gpu-2-development-toolchain-v1.lock.json >/dev/null
 python3 -m json.tool toolchains/target0-amd-ryzen9-7900x-v1.lock.json >/dev/null
+python3 -m json.tool benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json >/dev/null
+python3 -m json.tool benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json >/dev/null
 find benchmarks/manifests -name '*.json' -print0 | xargs -0 -n1 python3 -m json.tool >/dev/null
+```
+
+From the deployment-evidence directory, the sha256sum-compatible receipt check
+is verified with:
+
+```bash
+shasum -a 256 -c qualification-tools-v1.sha256
 ```
 
 On `gpu-2`, the following version checks are verified:
@@ -428,11 +438,12 @@ The tests cover exact CLI inputs, checkout/lock/target/compiler/linker failure,
 checkout-before-output ordering, fixed compile-contract drift, dual-build byte
 equality, ELF/runtime authentication, compatibility status/logs, canonical
 finalization, closed rejection, inventory mutation, and fresh-process replay.
-They do not create an accepted physical bundle or authorize campaign work.
+These tests do not themselves create accepted physical evidence or authorize
+campaign work. The accepted native deployment is recorded separately by the
+repository receipt below.
 
-The physical preparation interface is implemented but remains **unavailable
-for operator use** until the exact pushed subject passes the complete `gpu-2`
-quality proof and the review checkpoint in its controlling plan:
+The physical preparation interface was verified on the physical candidate at
+exact implementation subject `a312aa2bbbb403b31ffb67cf40200da063527a4f`:
 
 ```text
 python3 tools/target0/prepare_qualification_bundle.py
@@ -442,12 +453,7 @@ python3 tools/target0/prepare_qualification_bundle.py
   --output-directory /var/tmp/xoas-target0-qualification-tools.ATTEMPT
 ```
 
-The later approved deployment slice may invoke it to obtain native proof; until
-that invocation produces an accepted bundle, this is not a verified
-physical-host command.
-
 Every option is mandatory; the output must be a new canonical immediate child
-of `/var/tmp`. After an accepted physical attempt, verify each retained replica
 in a fresh process with:
 
 ```text
@@ -456,9 +462,14 @@ python3 tools/target0/verify_qualification_bundle.py
   --schema schemas/target0-qualification-tool-bundle-v1.schema.json
 ```
 
-The physical and `gpu-2` inventory and normalized executable-identity digests
-must match before Task 5 core selection. Compatibility-test timings are not
-campaign or benchmark samples.
+For accepted bundle `target0-qualification-tools-a312aa2bbbb403b3`, physical
+and `gpu-2` fresh-process verification matched the bundle manifest, inventory,
+executable, and normalized executable-identity digests; the physical build also
+passed 5/5 compatibility checks. The canonical non-secret receipt is
+`benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`.
+This closes deployment only. Compatibility-test timings are not campaign or
+benchmark samples, and the command provides no measurement-session, reboot,
+qualification, or performance authority.
 
 The only approved quality-build cleanup command is:
 
@@ -799,12 +810,13 @@ The M0 critical path is continued execution of the physical AMD Target 0
 qualification plan. Tasks 1–4 provide the process contract, deterministic
 probe, non-secret host capture/core selector, fixture-verified reversible
 session controller, closed physical-host pre-state, exact installed support
-closure, and verified versioned baseline artifacts. The repository now
-implements the native qualification-tool preparation, closed evidence bundle,
-and fresh replica verifier through `af34d0d`; full exact-subject quality proof,
-physical execution, and matching `gpu-2` replica evidence remain open. Baseline
-numerical admission, real measurement controls, campaigns, and qualification
-also remain open. The pinned JITSpMM revision has no license statement;
+closure, and verified versioned baseline artifacts. The qualification-tool
+deployment plan is complete: exact implementation `a312aa2` passed full
+`gpu-2` quality, physical dual-build and compatibility verification, and
+matching fresh physical/`gpu-2` replica verification. Its canonical receipt is
+repository-bound while full bundles remain external private evidence. Baseline
+numerical admission, real measurement controls, controlled campaigns, and
+qualification remain open. The pinned JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound
 benchmark evidence belong on that selected measurement host. Obtain the

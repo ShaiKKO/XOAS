@@ -1,6 +1,6 @@
 # IDR-0002: Target 0 Qualification-Tool Deployment
 
-**Status:** Accepted and repository-implemented; physical deployment pending
+**Status:** Accepted; native deployment and cross-host verification passed
 
 **Written-spec approval:** Approved by the user on 2026-08-29.
 
@@ -168,8 +168,9 @@ cannot authenticate physical-host-native emitted bytes.
 The target-native artifact has replayable source, checkout, toolchain, ELF,
 runtime, compatibility, and inventory evidence. The fixed compile contract is
 intentionally duplicated outside CMake, so repository tests must continue to
-reject drift. Full bundle replication is an operator step and must finish
-before campaign one.
+reject drift. The required full-bundle replication completed for implementation
+subject `a312aa2`; any later campaign commit must independently satisfy the same
+fresh-verification prerequisite before campaign one.
 
 This decision does not change Target 0, numerical semantics, benchmark gates,
 public ABI, canonical plan identity, cache invalidation, IR ownership, or
@@ -188,10 +189,17 @@ ctest --preset dev-debug \
   --output-on-failure
 ```
 
-The exact subject must then pass the complete Debug and Release quality
-aggregates on `gpu-2`. Repository implementation evidence is not physical
-deployment evidence; the physical command and cross-host verification remain
-pending until separately recorded in M0 acceptance.
+Implementation subject `a312aa2bbbb403b31ffb67cf40200da063527a4f`
+passed the complete Debug and Release CTest surfaces plus the isolated
+ASan/UBSan gates on `gpu-2`. A clean physical checkout at that subject produced
+an accepted native bundle after two byte-identical builds and five passing
+compatibility checks. Fresh physical and `gpu-2` verifiers returned matching
+manifest, inventory, executable, and normalized executable-identity digests.
+The compact non-secret receipt is retained in
+[`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json).
+
+This closes deployment compatibility only. It is not campaign, benchmark,
+qualification, reboot, or performance evidence.
 
 ## Reversal and invalidation
 

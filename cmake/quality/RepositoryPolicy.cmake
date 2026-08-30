@@ -23,6 +23,14 @@ function(xoasDecodeHex encodedContent outputVariable)
   set(${outputVariable} "${decodedContent}" PARENT_SCOPE)
 endfunction()
 
+function(xoasServerCoordinateExpression outputVariable)
+  set(ipv4Octet "[0-9][0-9]?[0-9]?")
+  string(CONCAT serverCoordinateExpression
+         "\"" "${ipv4Octet}\\." "${ipv4Octet}\\."
+         "${ipv4Octet}\\." "${ipv4Octet}" "\"")
+  set(${outputVariable} "${serverCoordinateExpression}" PARENT_SCOPE)
+endfunction()
+
 function(xoasContentRuleIdentities content outputVariable)
   set(ruleIdentities)
   if(content MATCHES "gh[pousr]_[A-Za-z0-9]+" OR
@@ -30,6 +38,11 @@ function(xoasContentRuleIdentities content outputVariable)
      content MATCHES "AKIA[0-9A-Z]+" OR
      content MATCHES "-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----")
     list(APPEND ruleIdentities xoas-secret-pattern)
+  endif()
+
+  xoasServerCoordinateExpression(serverCoordinateExpression)
+  if(content MATCHES "${serverCoordinateExpression}")
+    list(APPEND ruleIdentities xoas-server-coordinate)
   endif()
 
   string(CONCAT todoMarker "TO" "DO")
@@ -252,6 +265,7 @@ endforeach()
 set(schemaScript [=[
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -261,17 +275,41 @@ from jsonschema import Draft202012Validator
 
 root = Path(sys.argv[1])
 git = sys.argv[2]
-tracked_json = subprocess.run(
-    [git, "-C", str(root), "ls-files", "*.json"],
+tracked_paths = set(subprocess.run(
+    [git, "-C", str(root), "ls-files"],
     check=True,
     capture_output=True,
     text=True,
-).stdout.splitlines()
+).stdout.splitlines())
+tracked_json = sorted(
+    path for path in tracked_paths if path.endswith(".json")
+)
 documents = {}
 for relative_path in tracked_json:
     documents[relative_path] = json.loads(
         (root / relative_path).read_text(encoding="utf-8")
     )
+
+deployment_receipt_path = (
+    "benchmarks/evidence/target0-amd-ryzen9-7900x-v1/"
+    "qualification-tools-v1.json"
+)
+deployment_digest_path = (
+    "benchmarks/evidence/target0-amd-ryzen9-7900x-v1/"
+    "qualification-tools-v1.sha256"
+)
+target0_manifest_path = (
+    "benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json"
+)
+for required_path in (
+    deployment_receipt_path,
+    deployment_digest_path,
+    target0_manifest_path,
+):
+    if required_path not in tracked_paths:
+        raise RuntimeError(
+            f"required Target 0 deployment evidence is not tracked: {required_path}"
+        )
 
 schema_instances = {
     "schemas/branch-protection-v1.schema.json": [
@@ -294,6 +332,7 @@ schema_instances = {
     ],
     "schemas/target0-host-qualification-v1.schema.json": [],
     "schemas/target0-qualification-tool-bundle-v1.schema.json": [
+        deployment_receipt_path,
         "tests/target0/fixtures/qualification-tool-bundle-v1.example.json"
     ],
 }
@@ -315,6 +354,162 @@ for schema_path, instance_paths in schema_instances.items():
     validator = Draft202012Validator(schema)
     for instance_path in instance_paths:
         validator.validate(documents[instance_path])
+
+deployment_receipt = documents[deployment_receipt_path]
+deployment_receipt_bytes = (root / deployment_receipt_path).read_bytes()
+canonical_receipt_bytes = (
+    json.dumps(
+        deployment_receipt,
+        allow_nan=False,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ) + "\n"
+).encode("utf-8")
+if deployment_receipt_bytes != canonical_receipt_bytes:
+    raise RuntimeError("Target 0 deployment receipt is not canonical JSON")
+
+digest_lines = (root / deployment_digest_path).read_text(
+    encoding="utf-8"
+).splitlines()
+if len(digest_lines) != 5:
+    raise RuntimeError("Target 0 deployment digest record has the wrong shape")
+receipt_digest_fields = digest_lines[0].split("  ", maxsplit=1)
+if receipt_digest_fields != [
+    hashlib.sha256(deployment_receipt_bytes).hexdigest(),
+    "qualification-tools-v1.json",
+]:
+    raise RuntimeError("Target 0 deployment receipt digest differs")
+digest_annotations = {}
+for line in digest_lines[1:]:
+    if not line.startswith("# ") or "=" not in line:
+        raise RuntimeError("Target 0 deployment digest annotation is malformed")
+    name, value = line.removeprefix("# ").split("=", maxsplit=1)
+    if name in digest_annotations or re.fullmatch(r"[0-9a-f]{64}", value) is None:
+        raise RuntimeError("Target 0 deployment digest annotation is invalid")
+    digest_annotations[name] = value
+if set(digest_annotations) != {
+    "executable_identity_sha256",
+    "executable_sha256",
+    "inventory_sha256",
+    "physical_boot_id_sha256",
+}:
+    raise RuntimeError("Target 0 deployment digest annotations differ")
+
+target0_manifest = documents[target0_manifest_path]
+deployment = target0_manifest["qualification"].get("tool_deployment")
+required_deployment_fields = {
+    "bundle_id",
+    "bundle_manifest_sha256",
+    "campaign_executed",
+    "compatibility_test_count",
+    "compatibility_tests_passed",
+    "compiler_sha256",
+    "development_replica_verification",
+    "dual_build_identical",
+    "evidence_path",
+    "evidence_sha256",
+    "executable_identity_sha256",
+    "executable_sha256",
+    "external_storage",
+    "host_control_mutation",
+    "implementation_commit",
+    "implementation_tree",
+    "inventory_sha256",
+    "linker_sha256",
+    "performance_claim",
+    "physical_boot_id_sha256",
+    "physical_verification",
+    "provisioning_configuration_sha256",
+    "qualification_claim",
+    "reboot_executed",
+    "replica_digest_match",
+    "source_count",
+    "state",
+}
+if not isinstance(deployment, dict) or set(deployment) != required_deployment_fields:
+    raise RuntimeError("Target 0 deployment manifest record is not closed")
+receipt_digest = hashlib.sha256(deployment_receipt_bytes).hexdigest()
+expected_deployment_bindings = {
+    "bundle_id": deployment_receipt["bundle_id"],
+    "bundle_manifest_sha256": receipt_digest,
+    "evidence_path": deployment_receipt_path,
+    "evidence_sha256": receipt_digest,
+    "executable_identity_sha256": digest_annotations[
+        "executable_identity_sha256"
+    ],
+    "executable_sha256": deployment_receipt["build"]["executable_sha256"],
+    "implementation_commit": deployment_receipt["repository"]["actual_commit"],
+    "implementation_tree": deployment_receipt["repository"]["tree"],
+    "inventory_sha256": digest_annotations["inventory_sha256"],
+    "compiler_sha256": deployment_receipt["toolchain"]["compiler"]["sha256"],
+    "linker_sha256": deployment_receipt["toolchain"]["linker"]["sha256"],
+    "physical_boot_id_sha256": digest_annotations["physical_boot_id_sha256"],
+    "provisioning_configuration_sha256": deployment_receipt[
+        "provisioning_lock"
+    ]["configuration_sha256"],
+    "source_count": len(deployment_receipt["sources"]),
+}
+for field, expected_value in expected_deployment_bindings.items():
+    if deployment[field] != expected_value:
+        raise RuntimeError(f"Target 0 deployment {field} differs")
+if deployment["executable_sha256"] != digest_annotations["executable_sha256"]:
+    raise RuntimeError("Target 0 deployment executable digest record differs")
+compatibility_tests = deployment_receipt["compatibility_tests"]
+if (
+    deployment["state"] != "passed"
+    or deployment["dual_build_identical"] is not True
+    or deployment_receipt["build"]["identical"] is not True
+    or deployment["compatibility_test_count"] != len(compatibility_tests)
+    or deployment["compatibility_tests_passed"] is not True
+    or any(
+        test["status"] != "passed" or test["exit_status"] != 0
+        for test in compatibility_tests
+    )
+    or deployment["physical_verification"] != "passed"
+    or deployment["development_replica_verification"] != "passed"
+    or deployment["replica_digest_match"] is not True
+    or deployment["external_storage"] != {
+        "development": "external_private_evidence_root",
+        "physical": "external_private_evidence_root",
+    }
+):
+    raise RuntimeError("Target 0 deployment verification state differs")
+for forbidden_claim in (
+    "campaign_executed",
+    "host_control_mutation",
+    "performance_claim",
+    "qualification_claim",
+    "reboot_executed",
+):
+    if deployment[forbidden_claim] is not False:
+        raise RuntimeError(
+            f"Target 0 deployment improperly changes {forbidden_claim}"
+        )
+if (
+    target0_manifest["status"] != "candidate_unqualified"
+    or target0_manifest["target0_measurement_qualified"] is not False
+    or target0_manifest["performance_claim"] is not False
+    or target0_manifest["qualification"]["gate_decision"] != "open"
+    or target0_manifest["qualification"]["campaigns"] != []
+):
+    raise RuntimeError("Target 0 deployment changed qualification authority")
+deployment_gates = [
+    gate for gate in target0_manifest["qualification"]["required_gates"]
+    if gate["id"] == "qualification_tool_deployment"
+]
+if (
+    len(deployment_gates) != 1
+    or deployment_gates[0]["state"] != "passed"
+    or deployment_gates[0]["evidence"] != deployment_receipt_path
+):
+    raise RuntimeError("Target 0 deployment gate evidence differs")
+baseline_admission_gates = [
+    gate for gate in target0_manifest["qualification"]["required_gates"]
+    if gate["id"] == "baseline_numerical_admission"
+]
+if len(baseline_admission_gates) != 1 or baseline_admission_gates[0]["state"] != "pending":
+    raise RuntimeError("Target 0 baseline numerical-admission dependency changed")
 
 target0_lock = documents["toolchains/target0-amd-ryzen9-7900x-v1.lock.json"]
 prestate = target0_lock["apt"]["prestate"]
@@ -500,6 +695,22 @@ if(secretStatus EQUAL 0)
           "${secretOutput}")
 elseif(NOT secretStatus EQUAL 1)
   message(FATAL_ERROR "xoas-secret-pattern: scan failed: ${secretError}")
+endif()
+
+xoasServerCoordinateExpression(serverCoordinateExpression)
+execute_process(
+  COMMAND "${XOAS_GIT}" grep -n -I -E "${serverCoordinateExpression}" -- .
+  WORKING_DIRECTORY "${XOAS_REPOSITORY_ROOT}"
+  RESULT_VARIABLE serverCoordinateStatus
+  OUTPUT_VARIABLE serverCoordinateOutput
+  ERROR_VARIABLE serverCoordinateError)
+if(serverCoordinateStatus EQUAL 0)
+  message(FATAL_ERROR
+          "xoas-server-coordinate: tracked server coordinate detected:\n"
+          "${serverCoordinateOutput}")
+elseif(NOT serverCoordinateStatus EQUAL 1)
+  message(FATAL_ERROR
+          "xoas-server-coordinate: scan failed: ${serverCoordinateError}")
 endif()
 
 string(CONCAT todoMarker "TO" "DO")
