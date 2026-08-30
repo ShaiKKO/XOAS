@@ -80,7 +80,7 @@ any existing applicable comparator.
 | Target capture and reversible controls | [`../../tools/target0/capture_host.py`](../../tools/target0/capture_host.py), [`../../tools/target0/measurement_session.sh`](../../tools/target0/measurement_session.sh), and fixture tests | Task 2 implemented at `864f7fa` and repository-root integration repaired at `b7371ae`; no real measurement control was changed |
 | Physical candidate and provisioning lock | [`../targets/target0-amd-ryzen9-7900x-v1.md`](../targets/target0-amd-ryzen9-7900x-v1.md), [`../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`](../../benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json), and closed lock/schema | Task 3 resolved exact pre-state at `ee57ff5`; Task 4 installed and verified the 26-package closure plus AOCL-BLAS, OpenBLAS, and LIBXSMM against clean subject `16d698d`, with repository evidence committed at `9d44f64`; the candidate remains unqualified |
 | Qualification-tool deployment implementation | [`../../tools/target0/prepare_qualification_bundle.py`](../../tools/target0/prepare_qualification_bundle.py), [`../../tools/target0/verify_qualification_bundle.py`](../../tools/target0/verify_qualification_bundle.py), the closed [`../../schemas/target0-qualification-tool-bundle-v1.schema.json`](../../schemas/target0-qualification-tool-bundle-v1.schema.json), accepted [`../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json`](../../benchmarks/evidence/target0-amd-ryzen9-7900x-v1/qualification-tools-v1.json), and [`../adr/IDR-0002-target0-qualification-tool-deployment.md`](../adr/IDR-0002-target0-qualification-tool-deployment.md) | Exact implementation subject `a312aa2bbbb403b31ffb67cf40200da063527a4f` passed Debug 38/38, Release 38/38, and sanitizer 3/3 on `gpu-2`, establishing the deployment path. At clean source `a396f64`, the replacement physical host bundle produced byte-identical dual builds, passed 5/5 compatibility tests, and matched fresh physical and `gpu-2` verification for the manifest, inventory, executable, and normalized executable-identity digests. The current receipt binds that replacement. Deployment is closed without campaign, qualification, reboot, host-control, or performance authority. |
-| Target qualification campaign runner | [`../../schemas/target0-qualification-campaign-v1.schema.json`](../../schemas/target0-qualification-campaign-v1.schema.json), [`../../tools/target0/qualification_campaign.py`](../../tools/target0/qualification_campaign.py), [`../../tools/target0/run_qualification_campaign.py`](../../tools/target0/run_qualification_campaign.py), [`../../tools/target0/verify_qualification_campaign.py`](../../tools/target0/verify_qualification_campaign.py), and [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Implementation Tasks 1–6 plus source-clean runner/verifier execution are committed through `db0eb87`; exact clean evidence subject `7b486e1` passed complete Debug and Release quality on `gpu-2`. Replacement bundle and preflight passed at source `1141713c`; campaign-one attempt 1 was retained as `restoration_failure` before PMU after CPU 2 EPP failed to restore, and bounded recovery returned exact pre-state. Repair reds are at `485eb6b` and `c68474c`; exact reviewed repair `c9af373` passed complete Debug and Release 50/50 suites, sanitizer 3/3, and repository policy on `wineth-ubuntu`. At clean merged source `a396f64`, a bounded physical restoration-only cycle passed and the fresh native bundle passed physical plus byte-identical `gpu-2` verification. Replacement preflight, accepted campaign one, reboot, qualification, and performance claims remain open. |
+| Target qualification campaign runner | [`../../schemas/target0-qualification-campaign-v1.schema.json`](../../schemas/target0-qualification-campaign-v1.schema.json), [`../../tools/target0/qualification_campaign.py`](../../tools/target0/qualification_campaign.py), [`../../tools/target0/run_qualification_campaign.py`](../../tools/target0/run_qualification_campaign.py), [`../../tools/target0/verify_qualification_campaign.py`](../../tools/target0/verify_qualification_campaign.py), and [`../adr/IDR-0003-target0-qualification-campaign-runner.md`](../adr/IDR-0003-target0-qualification-campaign-runner.md) | Implementation Tasks 1–6 plus source-clean runner/verifier execution are committed through `db0eb87`; exact clean evidence subject `7b486e1` passed complete Debug and Release quality on `gpu-2`. Replacement bundle and preflight passed at source `1141713c`; campaign-one attempt 1 was retained as `restoration_failure` before PMU after CPU 2 EPP failed to restore, and bounded recovery returned exact pre-state. Repair reds are at `485eb6b` and `c68474c`; exact reviewed repair `c9af373` passed complete Debug and Release 50/50 suites, sanitizer 3/3, and repository policy on `wineth-ubuntu`. At clean merged source `a396f64`, a bounded physical restoration-only cycle passed, the fresh native bundle passed physical plus byte-identical `gpu-2` verification, and replacement Task 9 preflight independently accepted CPU 1/sibling 13. Accepted campaign one, reboot, qualification, and performance claims remain open. |
 
 ## Exit-gate statement
 
@@ -300,11 +300,29 @@ normalized executable-identity SHA-256 values are
 and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
 The complete bundle was copied byte-for-byte to `gpu-2`. A fresh verifier in a
 clean checkout at the same exact source accepted identical manifest,
-inventory, executable, and normalized executable-identity digests. No
-replacement preflight, campaign, PMU phase, qualification, or performance
-claim occurred. This proof neither authorized nor performed a controlled
-campaign reboot; the incidental administrator reboot remains non-campaign
-evidence.
+inventory, executable, and normalized executable-identity digests.
+
+### Replacement campaign-one preflight
+
+The physical host remained clean and detached at exact source `a396f64` and
+tree `7388f3a2b72ccac2352560c48d2e7eb310712330`. Fresh bundle verification
+passed before the new read-only preflight. The canonical preflight SHA-256 is
+`08a3253b44a2bc1c0dc89abd3463c20def73e0fc313ac468441b9ce65c31935e`;
+the core-selection SHA-256 is
+`718350bb2ff003000e1ed7ffd1f331fe0c52671cd56d21f3a5dde307bcead803`.
+It selected CPU 1 and SMT sibling 13 at preferred rank 216 after a
+60.001218589-second interrupt window with delta 1,988. Eligibility passed at
+load `0.12`, three expected and zero root/unexpected sessions, bare metal,
+TSC, cycles/instructions availability, and no thermal alarm, fault, or
+threshold violation.
+
+Independent replay verified the exact six-file root, canonical JSON, every
+digest, all 115 inventory entries, 18 sources, toolchain, lock, boot,
+repository, topology, and deterministic selection. A separate read-only
+engineering review reported no critical, important, or minor finding. No host
+control, campaign process, PMU phase, qualification, controlled campaign
+reboot, or performance claim occurred. The incidental administrator reboot
+remains non-campaign evidence.
 
 ### External corpus evidence
 
@@ -374,8 +392,8 @@ The benchmark-result example is synthetic and explicitly non-claiming.
 
 ## Review
 
-- Head engineering self-review: performed incrementally against the exact Task 4 provisioning subject `16d698d`, installed lock, live artifact hashes, retained upstream logs, build-plan M0 requirements, and the active AMD qualification plan. The deployment review examined exact subject `a312aa2`, its source and subprocess boundaries, canonical closed receipt, native dual-build/runtime evidence, compatibility results, and fresh cross-host verifier equality. Campaign-runner review examined exact subject `db0eb87`, privilege separation, identity/statistical closure, restoration dominance, deterministic selector replay, canonical write-once finalization, fresh verification, re-bound semantic tampering, and source-clean CLI execution. Earlier M0 integration self-review remains bound to `3d635d3`.
-- Independent implementation-quality review: a read-only engineering-agent review of `a8d5065..82ed387` found no critical issue, one important non-finite evidence-classification gap, and one minor restoration-order assertion gap. Red `c68474c` and repair `c9af373` resolved both; follow-up review of `82ed387..c9af373` reported no remaining critical, important, or minor finding. This is implementation review, not the independent final M0 acceptance review.
+- Head engineering self-review: performed incrementally against the exact Task 4 provisioning subject `16d698d`, installed lock, live artifact hashes, retained upstream logs, build-plan M0 requirements, and the active AMD qualification plan. The deployment review examined exact subject `a312aa2`, its source and subprocess boundaries, canonical closed receipt, native dual-build/runtime evidence, compatibility results, and fresh cross-host verifier equality. Campaign-runner review examined exact subject `db0eb87`, privilege separation, identity/statistical closure, restoration dominance, deterministic selector replay, canonical write-once finalization, fresh verification, re-bound semantic tampering, and source-clean CLI execution. Replacement-preflight replay examined its exact file set, canonical bytes, digests, eligibility, identity closure, deterministic selection, and negative claim boundary. Earlier M0 integration self-review remains bound to `3d635d3`.
+- Independent implementation-quality review: a read-only engineering-agent review of `a8d5065..82ed387` found no critical issue, one important non-finite evidence-classification gap, and one minor restoration-order assertion gap. Red `c68474c` and repair `c9af373` resolved both; follow-up review of `82ed387..c9af373` reported no remaining critical, important, or minor finding. A separate read-only review independently replayed the replacement preflight's exact six-file root, canonical encoding, digests, eligibility, bundle/source/toolchain/lock/boot bindings, core selection, and non-claiming boundary and reported no critical, important, or minor finding. These are implementation and evidence reviews, not the independent final M0 acceptance review.
 - Architecture approval: AR-0001 Option 2 approved by the user on 2026-08-28 and integrated at `6904d49e4978f48d9ca3c5db29fac59bbc3233c6`.
 
 Self-review is not represented as independent review.
@@ -389,7 +407,7 @@ Self-review is not represented as independent review.
 5. Corpus supports are specified but not materialized by code; no canonical support digests exist.
 6. Independent implementation-quality review of this repair is closed, but independent final M0 acceptance review remains absent. Task 6 self-review is not substituted for final acceptance.
 7. The qualification plan says Task 7 may set qualification true only when every requirement and review gate passes, while the candidate manifest defers `baseline_numerical_admission` to M2 and M1 is blocked on M0. This dependency conflict must be resolved explicitly before the Task 7 decision; it does not block Task 5 infrastructure qualification.
-8. Campaign-one attempt 1 proved a physical restoration defect: restoring EPP before the governor leaves EPP at `performance` on the `amd-pstate-epp` target. Test-first source repair through `c9af373` restores sibling, governor, then EPP, and the bounded physical restoration-only cycle at `a396f64` passed. The fresh physical-native bundle also passed byte-identical `gpu-2` verification. A replacement preflight and separately authorized campaign attempt remain open. The retained rejection is terminal.
+8. Campaign-one attempt 1 proved a physical restoration defect: restoring EPP before the governor leaves EPP at `performance` on the `amd-pstate-epp` target. Test-first source repair through `c9af373` restores sibling, governor, then EPP, and the bounded physical restoration-only cycle at `a396f64` passed. The fresh physical-native bundle also passed byte-identical `gpu-2` verification, and the replacement read-only preflight independently accepted. A separately authorized campaign attempt remains open. The retained rejection is terminal.
 9. The normative campaign-runner design requires every retained JSON file to use canonical compact encoding. Source repair through `c9af373` makes the native probe and Bash restoration record canonical and maps noncanonical/non-finite bytes to the closed rejection classes in both consumers. The rejected live files remain immutable noncanonical failure evidence; the correction requires a new bundle and new root.
 10. The Task 8 branch had already been squash-merged and deleted under the repository branch-cleanup policy. The user approved proceeding with `gpu-2` as the second host and a clean detached checkout at exact protected-main ancestor `a396f64` rather than recreating the deleted branch. Exact commit, tree, source, and clean-state identity were unchanged; the active plan now records this implementation-neutral execution variance without relaxing future evidence gates.
 
@@ -409,10 +427,10 @@ exact-commit repository-quality gates, physical restoration-only proof, and
 fresh cross-host deployment are closed through `a396f64`.
 Next:
 
-1. execute and independently review a new read-only preflight;
-2. obtain explicit authority for one new campaign-one attempt. The retained
+1. obtain explicit authority for one new campaign-one attempt in the exact
+   independently accepted replacement-preflight root. The retained
    rejected root is never reused, rewritten, or retried;
-3. stop again before any controlled reboot unless campaign one is accepted and
+2. stop again before any controlled reboot unless campaign one is accepted and
    separate reboot authority is granted.
 
 The reviewed engineering-quality-gates plan is now unblocked as independent development-environment work, but it cannot substitute for the measurement-host critical path or authorize M1 product code.
