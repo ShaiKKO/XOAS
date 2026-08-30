@@ -204,9 +204,23 @@ and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
 The complete bundle was subsequently copied byte-for-byte to `gpu-2`. A fresh
 verifier in a clean checkout at the same exact source accepted it with matching
 manifest, inventory, executable, and normalized executable-identity digests.
-This closes replacement deployment only; no preflight, campaign execution, PMU
-collection, controlled campaign reboot, qualification, or performance claim
-occurred.
+This closed replacement deployment only. A subsequent read-only preflight from
+the same clean detached source and accepted bundle produced canonical
+preflight SHA-256
+`08a3253b44a2bc1c0dc89abd3463c20def73e0fc313ac468441b9ce65c31935e`
+and core-selection SHA-256
+`718350bb2ff003000e1ed7ffd1f331fe0c52671cd56d21f3a5dde307bcead803`.
+It selected CPU 1 and SMT sibling 13 after a 60.001218589-second interrupt
+window and passed load, session, thermal, bare-metal, clocksource, PMU,
+repository, bundle, source, toolchain, lock, and boot eligibility. Independent
+replay verified the exact six-file root and deterministic decision; separate
+review reported no critical, important, or minor finding.
+
+This closes replacement preflight only. No campaign execution, host-control
+change, PMU collection, controlled campaign reboot, qualification, or
+performance claim occurred. A live attempt still requires separate authority
+and must continue in the exact accepted Task 9 root. A different root requires
+a new read-only preflight and independent review before mutation.
 
 ## Reversal and migration
 

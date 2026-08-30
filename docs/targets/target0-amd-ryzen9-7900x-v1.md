@@ -244,10 +244,28 @@ The complete bundle was copied byte-for-byte to `gpu-2`, where a fresh verifier
 in a clean checkout at the same exact source returned accepted with identical
 manifest, inventory, executable, and normalized executable-identity digests.
 This closes physical restoration validation and fresh cross-host deployment.
-No replacement preflight, new campaign, PMU collection, qualification
-decision, or performance claim exists. This proof neither authorized nor
-performed a controlled campaign reboot; the incidental administrator reboot
-remains non-campaign evidence.
+
+## Replacement campaign-one preflight
+
+On 2026-08-30, the physical checkout was clean and detached at the exact bundle
+source and tree. Fresh bundle verification passed before a new read-only
+preflight. The accepted preflight SHA-256 is
+`08a3253b44a2bc1c0dc89abd3463c20def73e0fc313ac468441b9ce65c31935e`;
+the core-selection SHA-256 is
+`718350bb2ff003000e1ed7ffd1f331fe0c52671cd56d21f3a5dde307bcead803`.
+The selector chose logical CPU 1 and SMT sibling 13 at preferred rank 216 over
+60.001218589 seconds with interrupt delta 1,988. Eligibility retained load
+`0.12`, three expected and zero root/unexpected sessions, TSC, bare metal,
+cycles/instructions availability, and 14 thermal sensors with zero alarms,
+faults, or threshold violations.
+
+Independent replay matched the exact six-file root, canonical bytes, every
+recorded digest, all 115 bundle-inventory entries, 18 sources, toolchain,
+provisioning lock, boot, clean repository identity, topology, and deterministic
+selection. A separate read-only engineering review found no critical,
+important, or minor issue. No host control, campaign process, PMU collection,
+qualification decision, controlled campaign reboot, or performance claim
+occurred. The incidental administrator reboot remains non-campaign evidence.
 
 ## Deferred comparator boundaries
 
@@ -265,8 +283,9 @@ The candidate remains unqualified until all applicable gates close:
 
 1. resolve the open M0/M2 dependency for independent numerical admission of
    every applicable baseline adapter;
-2. pass a new read-only preflight and a separately authorized campaign-one
-   attempt from a new immutable root;
+2. obtain separate authority and execute campaign one in the exact accepted
+   replacement-preflight root; rerun and review preflight before using any
+   different root;
 3. pass non-claiming smoke, PMU, and noise characterization;
 4. obtain separate approval for the exact controlled reboot action only after
    campaign one is accepted;

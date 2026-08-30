@@ -834,13 +834,13 @@ receipt.
 - Produces: accepted `preflight.json` and `core-selection.json` without host
   mutation.
 
-- [ ] **Step 1: Prove the replacement physical checkout and bundle are unchanged**
+- [x] **Step 1: Prove the replacement physical checkout and bundle are unchanged**
 
 Re-run the clean checkout and fresh bundle verifier commands.
 Confirm the one-minute load is below `0.5`, the development user is the only
 expected interactive user, and the exclusive-use window remains valid.
 
-- [ ] **Step 2: Run the replacement read-only preflight**
+- [x] **Step 2: Run the replacement read-only preflight**
 
 Set one new nonexisting campaign-root name below `/var/tmp` and run the exact
 `preflight` interface from the approved spec with campaign ID
@@ -849,7 +849,7 @@ Set one new nonexisting campaign-root name below `/var/tmp` and run the exact
 Expected: the runner observes exactly 60 seconds of interrupts, selects the
 core deterministically, and writes only preflight and selection records.
 
-- [ ] **Step 3: Independently review the replacement preflight before mutation**
+- [x] **Step 3: Independently review the replacement preflight before mutation**
 
 Recompute every digest and inspect load, session eligibility, thermal state,
 boot identity, core/sibling topology, preferred-core rank, interrupt delta,
@@ -866,10 +866,34 @@ and deterministic CPU 2/sibling 14 selection SHA-256
 No host control changed during preflight.
 
 That preflight is terminal evidence for the rejected attempt and does not
-authorize reuse with repaired source. Current replacement Task 8 bundle source
-`a396f642d5c2ec6ed670cc2341170ec7d9f1a886` passed physical and `gpu-2`
-verification, but replacement Task 9 has not run. It has no preflight root,
-preflight digest, or core-selection digest.
+authorize reuse with repaired source.
+
+Replacement Task 9 ran on 2026-08-30 from the current Task 8 bundle at clean
+detached source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886` and tree
+`7388f3a2b72ccac2352560c48d2e7eb310712330`. Fresh verification first matched
+the accepted bundle-manifest, inventory, executable, and normalized
+executable-identity digests. The read-only preflight then accepted with
+preflight SHA-256
+`08a3253b44a2bc1c0dc89abd3463c20def73e0fc313ac468441b9ce65c31935e`
+and core-selection SHA-256
+`718350bb2ff003000e1ed7ffd1f331fe0c52671cd56d21f3a5dde307bcead803`.
+It selected CPU 1 and SMT sibling 13 at preferred-core rank 216 after a
+60.001218589-second observation with interrupt delta 1,988. Eligibility
+recorded one-minute load `0.12`, three expected and zero root/unexpected
+sessions, bare metal, TSC, cycles/instructions availability, and no thermal
+alarm, fault, or threshold violation.
+
+Independent replay verified the exact six-file, non-symlink root; canonical
+bytes for all five JSON records; all recorded file and identity digests; the
+18-source, compiler, linker, provisioning-lock, clean-checkout, boot, topology,
+and deterministic-selector bindings. The expected deployment-bundle
+authentication input is present; no campaign acceptance/rejection marker,
+campaign manifest, process directory, PMU, qualification, or performance
+evidence exists. A separate read-only engineering review reported no critical,
+important, or minor finding. No host control changed during preflight. Task 9
+is closed; Task 10 still requires separate live-attempt authority and must
+continue in this exact accepted preflight root. Creating a different root
+requires rerunning Task 9 and replacing the documented digests.
 
 ---
 
@@ -877,7 +901,8 @@ preflight digest, or core-selection digest.
 
 **Files:**
 
-- Create externally: complete immutable campaign-one raw evidence root.
+- Continue externally: the exact accepted Task 9 attempt root, which becomes
+  the complete immutable campaign-one raw evidence root.
 - Create:
   `benchmarks/evidence/target0-amd-ryzen9-7900x-v1/campaign-01.json`
 - Create:
@@ -895,13 +920,13 @@ preflight digest, or core-selection digest.
 - Produces: accepted or rejected campaign-one evidence and an exact stopping
   handoff at Task 6 Step 1.
 
-- [x] **Step 1: Run the controlled phase exactly once**
+#### Historical attempt 1 controlled phase
 
 Invoke the approved `run` interface as root with the exact repository root,
 campaign directory, and external target username.
 Do not retry a failed process or rejected campaign.
 
-- [x] **Step 2: Verify restoration immediately**
+#### Historical attempt 1 restoration result
 
 Before interpreting timing, independently require the sibling, governor, EPP,
 boost, boot, checkout, and identity states to equal their accepted pre-state.
@@ -924,8 +949,8 @@ gap; red subject `c68474c` and repair `c9af373` prove `NaN`, positive/negative
 infinity, and overflowed syntax now reach the closed process/restoration
 rejection classes. The final source subject passed complete Debug and Release
 50/50 suites, isolated sanitizer 3/3, and repository policy on
-`wineth-ubuntu`, and follow-up review reported no remaining finding. Physical
-At that checkpoint, physical restoration proof, a new exact-commit
+`wineth-ubuntu`, and follow-up review reported no remaining finding. At that
+checkpoint, physical restoration proof, a new exact-commit
 bundle/replica, and a new preflight remained open. Steps 3–5 are
 acceptance-path work for a separately authorized new attempt.
 
@@ -945,8 +970,34 @@ and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
 The complete bundle was copied byte-for-byte to `gpu-2`. A fresh verifier from
 a clean checkout at the same exact source accepted matching manifest,
 inventory, executable, and normalized executable-identity digests. Task 8
-replacement deployment is closed. Task 9 replacement preflight and every Task
-10 acceptance-path step remain open; no new campaign or PMU phase occurred.
+replacement deployment is closed. Task 9 replacement preflight subsequently
+accepted with SHA-256
+`08a3253b44a2bc1c0dc89abd3463c20def73e0fc313ac468441b9ce65c31935e`
+and CPU 1/sibling 13 selection SHA-256
+`718350bb2ff003000e1ed7ffd1f331fe0c52671cd56d21f3a5dde307bcead803`.
+Every Task 10 acceptance-path step remains open; no new campaign or PMU phase
+occurred.
+
+#### Replacement attempt checklist
+
+This attempt is not authorized yet. When authority is granted, the `run`
+interface must consume the exact accepted Task 9 directory and its existing
+preflight/selection records. Do not copy those records to another directory.
+If the preflight becomes stale or another directory is required, rerun Task 9,
+independently review it, and replace its documented digests before proceeding.
+
+- [ ] **Step 1: Run the controlled phase exactly once**
+
+Invoke the approved `run` interface as root with the exact repository root,
+accepted Task 9 campaign directory, and external target username.
+Do not retry a failed process or rejected campaign.
+
+- [ ] **Step 2: Verify restoration immediately**
+
+Before interpreting timing, independently require the sibling, governor, EPP,
+boost, boot, checkout, and identity states to equal their accepted pre-state.
+A restoration difference is the terminal campaign result and requires a
+bounded recovery decision before another preflight or attempt.
 
 - [ ] **Step 3: Fresh-verify the finalized evidence**
 
@@ -985,7 +1036,7 @@ git commit -m "bench: record Target 0 qualification campaign one"
 git push
 ```
 
-- [x] **Step 6: Stop at the reboot boundary**
+- [ ] **Step 6: Stop at the reboot boundary**
 
 Report the exact campaign-one commit, raw-evidence inventory digest, selected
 core and sibling, process/PMU/restoration results, complete verification,

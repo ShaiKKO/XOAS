@@ -612,10 +612,21 @@ and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
 The complete bundle was copied byte-for-byte to `gpu-2`, where a fresh verifier
 at the same exact source accepted matching manifest, inventory, executable,
 and normalized executable-identity digests. Fresh cross-host deployment is
-therefore closed. No new preflight, Task 5 process, PMU phase, qualification,
-or performance claim occurred. This proof neither authorized nor performed a
+therefore closed.
+
+The replacement read-only preflight subsequently accepted at the same exact
+clean detached source. Its preflight SHA-256 is
+`08a3253b44a2bc1c0dc89abd3463c20def73e0fc313ac468441b9ce65c31935e`
+and its deterministic CPU 1/sibling 13 selection SHA-256 is
+`718350bb2ff003000e1ed7ffd1f331fe0c52671cd56d21f3a5dde307bcead803`.
+Independent replay and separate review verified eligibility, canonical bytes,
+identity, bundle, source, toolchain, lock, boot, and selection closure with no
+finding. No Task 5 process, host control, PMU phase, qualification, or
+performance claim occurred. This proof neither authorized nor performed a
 controlled campaign reboot; the incidental administrator reboot remains
-non-campaign evidence.
+non-campaign evidence. A new Task 5 attempt still requires separate authority
+and must continue in the exact accepted preflight root. A different root
+requires rerunning and independently reviewing the preflight first.
 
 Before each qualification process, independently recompute and retain the
 accepted executable, compiler, linker, fixed source set, provisioning lock,
