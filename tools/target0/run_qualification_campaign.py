@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from collections.abc import Callable, Sequence
 import datetime
+from decimal import Decimal
 import functools
 import hashlib
 import json
@@ -45,16 +46,21 @@ from qualification_campaign import (
     build_identity_record,
     build_raw_inventory,
     derive_process_seed,
+    evaluate_preflight,
+    finalize_campaign,
     parse_perf_stat,
+    validate_campaign_manifest,
     validate_pmu_record,
     validate_process_record,
     validate_restoration_record,
+    verify_finalized_campaign,
 )
 
 
 _CAMPAIGN_REJECTION_CODES = frozenset(
     {
         "bundle_verification_failure",
+        "campaign_threshold_failure",
         "core_selection_failure",
         "evidence_inventory_failure",
         "exclusive_use_failure",
@@ -182,7 +188,7 @@ def _write_rejection(
     """Publish one closed rejection after retaining all prior diagnostics."""
     if reason_code not in _CAMPAIGN_REJECTION_CODES:
         reason_code = "unexpected_internal_failure"
-    if phase not in {"preflight", "primary", "pmu"}:
+    if phase not in {"finalization", "preflight", "primary", "pmu"}:
         phase = "preflight"
     inventory = build_raw_inventory(campaign_root)
     rejection = {
@@ -377,6 +383,12 @@ def observe_core_selection(
             after_interrupts=after_interrupts,
             window_seconds=60,
         )
+        selection["interrupts_after"] = {
+            str(cpu): total for cpu, total in sorted(after_interrupts.items())
+        }
+        selection["interrupts_before"] = {
+            str(cpu): total for cpu, total in sorted(before_interrupts.items())
+        }
         selection["observed_window_ns"] = observed_window_ns
         return selection
     except (CaptureError, OSError) as error:
@@ -1172,6 +1184,99 @@ def execute_pmu_sessions(
         raise CampaignPhaseError("unexpected_internal_failure") from error
 
 
+def build_campaign_manifest(
+    *,
+    campaign_root: Path,
+    processes: list[dict[str, object]],
+    pmu: dict[str, object],
+    completed_at_utc: str,
+) -> dict[str, object]:
+    """Assemble one compact campaign manifest from validated raw summaries."""
+    preflight = _load_canonical_json_object(
+        campaign_root / "preflight.json",
+        canonicalizer=canonical_json_bytes,
+    )
+    selection = _load_canonical_json_object(
+        campaign_root / "core-selection.json",
+        canonicalizer=canonical_json_bytes,
+    )
+    identity = preflight["identity"]
+    eligibility = preflight["eligibility"]
+    interactive_sessions = eligibility["interactive_sessions"]
+    strict_mad_process_count = sum(
+        Decimal(process["statistics"]["mad_ratio"]) <= Decimal("0.005")
+        for process in processes
+    )
+    return {
+        "acceptance": {
+            "all_mad_at_most_0_010": all(
+                Decimal(process["statistics"]["mad_ratio"])
+                <= Decimal("0.010")
+                for process in processes
+            ),
+            "all_p99_at_most_1_02": all(
+                Decimal(process["statistics"]["p99_ratio"])
+                <= Decimal("1.02")
+                for process in processes
+            ),
+            "all_restored": all(
+                process["restored"] is True for process in processes
+            ),
+            "process_count": len(processes),
+            "required_pmu_accepted": pmu["required"]["status"] == "passed",
+            "retained_sample_count": sum(
+                process["statistics"]["sample_count"]
+                for process in processes
+            ),
+            "status": "passed",
+            "strict_mad_process_count": strict_mad_process_count,
+        },
+        "bundle": identity["bundle"],
+        "campaign_id": preflight["campaign_id"],
+        "campaign_number": preflight["campaign_number"],
+        "completed_at_utc": completed_at_utc,
+        "controlled_reboot_preceded_campaign": (
+            preflight["campaign_number"] == 2
+        ),
+        "created_at_utc": preflight["captured_at_utc"],
+        "evidence_inventory_sha256": "0" * 64,
+        "external_retention": "external_private_evidence_root",
+        "manifest_version": "xoas.target0-qualification-campaign.v1",
+        "performance_claim": False,
+        "pmu": pmu,
+        "preflight": {
+            "bare_metal": eligibility["bare_metal"],
+            "clocksource": eligibility["clocksource"],
+            "exclusive_use_confirmed": eligibility[
+                "exclusive_use_confirmed"
+            ],
+            "interactive_sessions": {
+                field: interactive_sessions[field]
+                for field in ("expected", "root", "total", "unexpected")
+            },
+            "load_average_1m": eligibility["load_average_1m"],
+            "required_pmu_available": eligibility["required_pmu_available"],
+            "thermal": eligibility["thermal"],
+        },
+        "processes": processes,
+        "provisioning_lock": identity["provisioning_lock"],
+        "qualification_claim": False,
+        "repository": identity["repository"],
+        "selected_core": {
+            field: selection[field]
+            for field in (
+                "cpu",
+                "interrupt_delta",
+                "preferred_core_ranking",
+                "sibling",
+                "window_seconds",
+            )
+        },
+        "status": "passed",
+        "target_id": preflight["target_id"],
+    }
+
+
 def validate_run_authority(
     *,
     target_user: str,
@@ -1285,7 +1390,43 @@ def execute_run(
         session_runner=session_runner,
         captured_at_utc=captured_at_utc,
     )
-    return {"pmu": pmu, "processes": processes}
+    campaign_manifest = build_campaign_manifest(
+        campaign_root=campaign_root,
+        processes=processes,
+        pmu=pmu,
+        completed_at_utc=captured_at_utc(),
+    )
+    campaign_schema = (
+        options.repository_root
+        / "schemas/target0-qualification-campaign-v1.schema.json"
+    )
+    try:
+        validate_campaign_manifest(campaign_manifest, campaign_schema)
+    except CampaignError as error:
+        _write_rejection(
+            campaign_root,
+            "campaign_threshold_failure",
+            phase="finalization",
+        )
+        raise CampaignPhaseError("campaign_threshold_failure") from error
+    try:
+        acceptance = finalize_campaign(
+            campaign_root,
+            campaign_manifest,
+            campaign_schema,
+        )
+    except CampaignError as error:
+        _write_rejection(
+            campaign_root,
+            "evidence_inventory_failure",
+            phase="finalization",
+        )
+        raise CampaignPhaseError("evidence_inventory_failure") from error
+    return {
+        "acceptance": acceptance,
+        "pmu": pmu,
+        "processes": processes,
+    }
 
 
 def collect_live_identity(
@@ -1725,75 +1866,6 @@ def capture_interactive_sessions(
         "status": status,
         "total": total,
         "unexpected": unexpected,
-    }
-
-
-def evaluate_preflight(
-    *,
-    host_capture: dict[str, object],
-    thermal: dict[str, object],
-    sessions: dict[str, object],
-    exclusive_use_confirmed: bool,
-) -> dict[str, object]:
-    """Evaluate every independent read-only campaign preflight predicate."""
-    try:
-        host = host_capture["host"]
-        load_average = host["load"]["load_average"]
-        load_average_1m = load_average[0]
-        virtualization_kind = host["virtualization"]["kind"]
-        clocksource = host["clocksource"]["current"]
-        perf = host["perf"]
-        repository_clean = (
-            host_capture["repository"]["tree_state"] == "clean"
-        )
-        thermal_summary = thermal["summary"]
-        session_summary = {
-            field: sessions[field]
-            for field in ("total", "expected", "root", "unexpected")
-        }
-    except (AttributeError, KeyError, IndexError, TypeError) as error:
-        raise CampaignError("preflight input is incomplete") from error
-    if (
-        isinstance(load_average_1m, bool)
-        or not isinstance(load_average_1m, (int, float))
-        or load_average_1m < 0
-    ):
-        raise CampaignError("preflight load average is invalid")
-    failure_reasons: list[str] = []
-    if exclusive_use_confirmed is not True:
-        failure_reasons.append("exclusive_use_unconfirmed")
-    if load_average_1m >= 0.5:
-        failure_reasons.append("load_average_too_high")
-    if sessions.get("status") != "passed":
-        failure_reasons.append("interactive_sessions_ineligible")
-    if thermal.get("status") != "passed":
-        failure_reasons.append("thermal_state_ineligible")
-    bare_metal = virtualization_kind == "none"
-    if not bare_metal:
-        failure_reasons.append("virtualization_detected")
-    if clocksource != "tsc":
-        failure_reasons.append("clocksource_ineligible")
-    required_pmu_available = (
-        perf.get("cycles_available") is True
-        and perf.get("instructions_available") is True
-    )
-    if not required_pmu_available:
-        failure_reasons.append("required_pmu_unavailable")
-    if not repository_clean:
-        failure_reasons.append("repository_dirty")
-    return {
-        "bare_metal": bare_metal,
-        "clocksource": clocksource,
-        "exclusive_use_confirmed": exclusive_use_confirmed,
-        "failure_reasons": failure_reasons,
-        "interactive_sessions": session_summary,
-        "load_average_1m": load_average_1m,
-        "manifest_version": "xoas.target0-campaign-preflight.v1",
-        "performance_claim": False,
-        "repository_clean": repository_clean,
-        "required_pmu_available": required_pmu_available,
-        "status": "passed" if not failure_reasons else "failed",
-        "thermal": dict(thermal_summary),
     }
 
 

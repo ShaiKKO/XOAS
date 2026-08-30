@@ -73,16 +73,23 @@ _REJECTION_REASONS = frozenset(
 )
 _RETAINED_SOURCE_PATHS = (
     "schemas/target0-host-qualification-v1.schema.json",
+    "schemas/target0-qualification-campaign-v1.schema.json",
     "schemas/target0-qualification-tool-bundle-v1.schema.json",
     "schemas/target0-toolchain-lock-v1.schema.json",
     "tests/target0/capture_host_test.py",
+    "tests/target0/fixtures/qualification-campaign-v1.example.json",
     "tests/target0/measurement_session_test.py",
+    "tests/target0/qualification_campaign_runner_test.py",
+    "tests/target0/qualification_campaign_test.py",
     "tests/target0/qualification_probe_test.py",
     "tools/target0/capture_host.py",
     "tools/target0/measurement_session.sh",
     "tools/target0/prepare_qualification_bundle.py",
+    "tools/target0/qualification_campaign.py",
     "tools/target0/qualification_probe.cpp",
+    "tools/target0/run_qualification_campaign.py",
     "tools/target0/verify_qualification_bundle.py",
+    "tools/target0/verify_qualification_campaign.py",
 )
 
 
@@ -1205,6 +1212,9 @@ def run_compatibility_tests(
     required_repository_paths = (
         "tools/target0/prepare_qualification_bundle.py",
         "tools/target0/capture_host.py",
+        "tools/target0/qualification_campaign.py",
+        "tools/target0/run_qualification_campaign.py",
+        "tools/target0/verify_qualification_campaign.py",
         "tools/target0/measurement_session.sh",
         "tests/target0/capture_host_test.py",
         "tests/target0/measurement_session_test.py",
@@ -1242,6 +1252,9 @@ def run_compatibility_tests(
                 "py_compile",
                 "tools/target0/prepare_qualification_bundle.py",
                 "tools/target0/capture_host.py",
+                "tools/target0/qualification_campaign.py",
+                "tools/target0/run_qualification_campaign.py",
+                "tools/target0/verify_qualification_campaign.py",
             ),
         ),
         (

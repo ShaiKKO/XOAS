@@ -23,6 +23,9 @@ sys.dont_write_bytecode = True
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 TARGET0_TOOL_ROOT = REPOSITORY_ROOT / "tools/target0"
 RUNNER_PATH = TARGET0_TOOL_ROOT / "run_qualification_campaign.py"
+CAMPAIGN_VERIFIER_PATH = (
+    TARGET0_TOOL_ROOT / "verify_qualification_campaign.py"
+)
 PREPARATION_PATH = TARGET0_TOOL_ROOT / "prepare_qualification_bundle.py"
 CAPTURE_PATH = TARGET0_TOOL_ROOT / "capture_host.py"
 CAPTURE_TEST_PATH = REPOSITORY_ROOT / "tests/target0/capture_host_test.py"
@@ -544,6 +547,16 @@ def make_identity_repository(
             path.write_bytes((REPOSITORY_ROOT / relative_path).read_bytes())
         else:
             path.write_text(f"fixture:{relative_path}\n", encoding="utf-8")
+    campaign_schema = (
+        repository / "schemas/target0-qualification-campaign-v1.schema.json"
+    )
+    if not campaign_schema.exists():
+        campaign_schema.write_bytes(
+            (
+                REPOSITORY_ROOT
+                / "schemas/target0-qualification-campaign-v1.schema.json"
+            ).read_bytes()
+        )
     repository_lock = (
         repository / "toolchains/target0-amd-ryzen9-7900x-v1.lock.json"
     )
@@ -1428,6 +1441,14 @@ class QualificationCampaignPreflightTest(unittest.TestCase):
         self.assertEqual(waits, [60])
         self.assertEqual(selection["window_seconds"], 60)
         self.assertEqual(selection["observed_window_ns"], 60_000_000_000)
+        self.assertEqual(
+            selection["interrupts_before"],
+            {"0": 10, "1": 20, "2": 30, "3": 40},
+        )
+        self.assertEqual(
+            selection["interrupts_after"],
+            {"0": 15, "1": 22, "2": 30, "3": 40},
+        )
         self.assertEqual(selection["cpu"], 1)
         self.assertEqual(selection["sibling"], 3)
 
@@ -1842,10 +1863,275 @@ class QualificationCampaignPrimaryProcessTest(unittest.TestCase):
                 )
             )
             self.assertFalse((campaign_root / "rejection.json").exists())
-            self.assertFalse((campaign_root / "acceptance.json").exists())
+            self.assertTrue((campaign_root / "acceptance.json").is_file())
+            verified = runner.verify_finalized_campaign(
+                campaign_root,
+                campaign_schema=(
+                    REPOSITORY_ROOT
+                    / "schemas/target0-qualification-campaign-v1.schema.json"
+                ),
+                process_schema=(
+                    REPOSITORY_ROOT
+                    / "schemas/target0-host-qualification-v1.schema.json"
+                ),
+                bundle_schema=BUNDLE_SCHEMA_PATH,
+            )
+            self.assertEqual(verified["status"], "accepted")
+            retained_paths_before = sorted(
+                path.relative_to(campaign_root).as_posix()
+                for path in campaign_root.rglob("*")
+            )
+            verification = subprocess.run(
+                (
+                    sys.executable,
+                    CAMPAIGN_VERIFIER_PATH,
+                    "--campaign-directory",
+                    campaign_root,
+                    "--campaign-schema",
+                    REPOSITORY_ROOT
+                    / "schemas/target0-qualification-campaign-v1.schema.json",
+                    "--process-schema",
+                    REPOSITORY_ROOT
+                    / "schemas/target0-host-qualification-v1.schema.json",
+                    "--bundle-schema",
+                    BUNDLE_SCHEMA_PATH,
+                ),
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(verification.returncode, 0, verification.stderr)
+            self.assertEqual(json.loads(verification.stdout), verified)
+            self.assertEqual(verification.stderr, "")
+            self.assertEqual(
+                sorted(
+                    path.relative_to(campaign_root).as_posix()
+                    for path in campaign_root.rglob("*")
+                ),
+                retained_paths_before,
+            )
+            inventory = json.loads(
+                (campaign_root / "inventory.json").read_text(encoding="utf-8")
+            )
+            inventory_paths = [record["path"] for record in inventory["files"]]
+            self.assertEqual(
+                inventory_paths,
+                sorted(inventory_paths, key=lambda path: path.encode("utf-8")),
+            )
+            with self.assertRaises(RuntimeError):
+                runner.execute_run(
+                    run_options,
+                    source_root=source_root,
+                    command_runner=command_runner,
+                    session_runner=dispatch_session,
+                    captured_at_utc=lambda: "2026-08-29T00:08:00Z",
+                    effective_uid=0,
+                    user_lookup=lambda name: SimpleNamespace(pw_uid=1000),
+                )
+
+            def write_canonical_json(
+                path: Path,
+                record: dict[str, object],
+            ) -> None:
+                """Overwrite one disposable terminal record canonically."""
+                path.write_bytes(runner.canonical_json_bytes(record))
+
+            def rebind_disposable_terminal(attempt: Path) -> None:
+                """Rebind outer digests so semantic tampering reaches replay."""
+                inventory_record = runner.build_raw_inventory(attempt)
+                inventory_path = attempt / "inventory.json"
+                write_canonical_json(inventory_path, inventory_record)
+                campaign_path = attempt / "campaign.json"
+                campaign_record = json.loads(
+                    campaign_path.read_text(encoding="utf-8")
+                )
+                campaign_record["evidence_inventory_sha256"] = hashlib.sha256(
+                    inventory_path.read_bytes()
+                ).hexdigest()
+                write_canonical_json(campaign_path, campaign_record)
+                acceptance_path = attempt / "acceptance.json"
+                acceptance_record = json.loads(
+                    acceptance_path.read_text(encoding="utf-8")
+                )
+                acceptance_record["inventory_sha256"] = hashlib.sha256(
+                    inventory_path.read_bytes()
+                ).hexdigest()
+                acceptance_record["campaign_sha256"] = hashlib.sha256(
+                    campaign_path.read_bytes()
+                ).hexdigest()
+                write_canonical_json(acceptance_path, acceptance_record)
+
+            tamper_names = (
+                "raw-process-byte",
+                "core-selection",
+                "preflight-load",
+                "preflight-session-decision",
+                "thermal-decision",
+                "session-host-identity",
+                "pmu-restoration-core",
+                "added-file",
+                "removed-file",
+                "retained-executable",
+                "retained-bundle-record",
+                "campaign-statistic",
+                "inventory-record",
+                "acceptance-record",
+            )
+            for tamper_name in tamper_names:
+                with self.subTest(tamper=tamper_name):
+                    attempt = fixture_root / f"tamper-{tamper_name}"
+                    shutil.copytree(campaign_root, attempt)
+                    if tamper_name == "raw-process-byte":
+                        process_path = attempt / "process-01/process.json"
+                        process_path.write_bytes(process_path.read_bytes() + b" ")
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "core-selection":
+                        selection_path = attempt / "core-selection.json"
+                        selection_record = json.loads(
+                            selection_path.read_text(encoding="utf-8")
+                        )
+                        selected_cpu = str(selection_record["cpu"])
+                        selection_record["interrupts_after"][selected_cpu] += 1
+                        write_canonical_json(selection_path, selection_record)
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "preflight-load":
+                        preflight_path = attempt / "preflight.json"
+                        preflight_record = json.loads(
+                            preflight_path.read_text(encoding="utf-8")
+                        )
+                        preflight_record["host_capture"]["host"]["load"][
+                            "load_average"
+                        ][0] = 0.75
+                        write_canonical_json(preflight_path, preflight_record)
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "preflight-session-decision":
+                        preflight_path = attempt / "preflight.json"
+                        preflight_record = json.loads(
+                            preflight_path.read_text(encoding="utf-8")
+                        )
+                        sessions = preflight_record["interactive_sessions"]
+                        sessions["expected"] += 1
+                        sessions["total"] += 1
+                        write_canonical_json(preflight_path, preflight_record)
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "thermal-decision":
+                        thermal_path = (
+                            attempt / "process-01/thermal-before.json"
+                        )
+                        thermal_record = json.loads(
+                            thermal_path.read_text(encoding="utf-8")
+                        )
+                        sensor = thermal_record["sensors"][0]
+                        sensor["critical_millidegrees_c"] = sensor[
+                            "input_millidegrees_c"
+                        ]
+                        write_canonical_json(thermal_path, thermal_record)
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "session-host-identity":
+                        for host_name in ("host-before.json", "host-after.json"):
+                            host_path = attempt / "process-01" / host_name
+                            host_record = json.loads(
+                                host_path.read_text(encoding="utf-8")
+                            )
+                            host_record["repository"]["commit"] = "2" * 40
+                            write_canonical_json(host_path, host_record)
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "pmu-restoration-core":
+                        restoration_path = (
+                            attempt / "pmu/required/restoration.json"
+                        )
+                        restoration_record = json.loads(
+                            restoration_path.read_text(encoding="utf-8")
+                        )
+                        restoration_record["cpu"] += 1000
+                        write_canonical_json(
+                            restoration_path,
+                            restoration_record,
+                        )
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "added-file":
+                        (attempt / "unexpected.bin").write_bytes(b"unexpected")
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "removed-file":
+                        (attempt / "process-01/thermal-after.json").unlink()
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "retained-executable":
+                        executable = (
+                            attempt
+                            / "inputs/xoas-target0-qualification-probe"
+                        )
+                        executable.write_bytes(executable.read_bytes() + b"drift")
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "retained-bundle-record":
+                        bundle_record = attempt / "inputs/bundle.json"
+                        bundle_record.write_bytes(bundle_record.read_bytes() + b" ")
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "campaign-statistic":
+                        campaign_path = attempt / "campaign.json"
+                        campaign_record = json.loads(
+                            campaign_path.read_text(encoding="utf-8")
+                        )
+                        campaign_record["processes"][0]["statistics"][
+                            "minimum_ns"
+                        ] = 99_000_000
+                        write_canonical_json(campaign_path, campaign_record)
+                        rebind_disposable_terminal(attempt)
+                    elif tamper_name == "inventory-record":
+                        inventory_path = attempt / "inventory.json"
+                        inventory_record = json.loads(
+                            inventory_path.read_text(encoding="utf-8")
+                        )
+                        inventory_record["files"][0]["sha256"] = "0" * 64
+                        write_canonical_json(inventory_path, inventory_record)
+                        campaign_path = attempt / "campaign.json"
+                        campaign_record = json.loads(
+                            campaign_path.read_text(encoding="utf-8")
+                        )
+                        campaign_record["evidence_inventory_sha256"] = (
+                            hashlib.sha256(inventory_path.read_bytes()).hexdigest()
+                        )
+                        write_canonical_json(campaign_path, campaign_record)
+                        acceptance_path = attempt / "acceptance.json"
+                        acceptance_record = json.loads(
+                            acceptance_path.read_text(encoding="utf-8")
+                        )
+                        acceptance_record["inventory_sha256"] = hashlib.sha256(
+                            inventory_path.read_bytes()
+                        ).hexdigest()
+                        acceptance_record["campaign_sha256"] = hashlib.sha256(
+                            campaign_path.read_bytes()
+                        ).hexdigest()
+                        write_canonical_json(acceptance_path, acceptance_record)
+                    else:
+                        acceptance_path = attempt / "acceptance.json"
+                        acceptance_record = json.loads(
+                            acceptance_path.read_text(encoding="utf-8")
+                        )
+                        acceptance_record["process_count"] = 4
+                        write_canonical_json(acceptance_path, acceptance_record)
+                    with self.assertRaises(RuntimeError):
+                        runner.verify_finalized_campaign(
+                            attempt,
+                            campaign_schema=(
+                                REPOSITORY_ROOT
+                                / "schemas"
+                                / "target0-qualification-campaign-v1.schema.json"
+                            ),
+                            process_schema=(
+                                REPOSITORY_ROOT
+                                / "schemas/target0-host-qualification-v1.schema.json"
+                            ),
+                            bundle_schema=BUNDLE_SCHEMA_PATH,
+                        )
             primary_template = fixture_root / "primary-template"
             shutil.copytree(campaign_root, primary_template)
             shutil.rmtree(primary_template / "pmu")
+            for terminal_name in (
+                "acceptance.json",
+                "campaign.json",
+                "inventory.json",
+            ):
+                (primary_template / terminal_name).unlink()
 
             failure_cases = (
                 ("process_execution", "process_execution_failure"),

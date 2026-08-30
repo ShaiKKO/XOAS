@@ -311,6 +311,21 @@ for required_path in (
             f"required Target 0 deployment evidence is not tracked: {required_path}"
         )
 
+campaign_contract_paths = {
+    "schemas/target0-qualification-campaign-v1.schema.json",
+    "tests/target0/fixtures/qualification-campaign-v1.example.json",
+    "tests/target0/qualification_campaign_runner_test.py",
+    "tests/target0/qualification_campaign_test.py",
+    "tools/target0/qualification_campaign.py",
+    "tools/target0/run_qualification_campaign.py",
+    "tools/target0/verify_qualification_campaign.py",
+}
+missing_campaign_paths = sorted(campaign_contract_paths - tracked_paths)
+if missing_campaign_paths:
+    raise RuntimeError(
+        f"required Target 0 campaign paths are not tracked: {missing_campaign_paths}"
+    )
+
 schema_instances = {
     "schemas/branch-protection-v1.schema.json": [
         "docs/engineering/main-branch-protection-v1.json"

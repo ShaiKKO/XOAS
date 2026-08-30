@@ -18,6 +18,7 @@ add_custom_target(
     "${CMAKE_CURRENT_SOURCE_DIR}/prepare_qualification_bundle.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/run_qualification_campaign.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/verify_qualification_campaign.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/verify_qualification_bundle.py"
   COMMAND
     "${XOAS_SHELLCHECK_EXECUTABLE}"
@@ -25,5 +26,8 @@ add_custom_target(
   COMMENT "Checking Target 0 host qualification tools"
   VERBATIM)
 
+add_dependencies(
+  target0-host-tools
+  xoas-target0-qualification-probe)
 add_dependencies(repository-policy target0-host-tools)
 add_dependencies(quality target0-host-tools)

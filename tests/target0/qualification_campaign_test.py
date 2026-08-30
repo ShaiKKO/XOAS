@@ -7,6 +7,7 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 from types import ModuleType
@@ -23,6 +24,9 @@ SCHEMA_PATH = (
 EXAMPLE_PATH = (
     REPOSITORY_ROOT
     / "tests/target0/fixtures/qualification-campaign-v1.example.json"
+)
+VERIFIER_PATH = (
+    REPOSITORY_ROOT / "tools/target0/verify_qualification_campaign.py"
 )
 
 
@@ -241,6 +245,9 @@ class QualificationCampaignSchemaTest(unittest.TestCase):
             "1.030000000000"
         )
         mutations.append(inconsistent_decision)
+        reversed_time = copy.deepcopy(example)
+        reversed_time["completed_at_utc"] = "2026-08-29T19:59:59Z"
+        mutations.append(reversed_time)
 
         validator = Draft202012Validator(schema)
         for mutation in mutations:
@@ -800,6 +807,60 @@ class QualificationCampaignProcessTest(unittest.TestCase):
                         expected_cpu=4,
                         expected_seed=123,
                     )
+
+
+class QualificationCampaignVerifierCliTest(unittest.TestCase):
+    """Verify the closed fresh-process verifier command surface."""
+
+    def test_verifier_help_and_required_arguments_are_read_only(self) -> None:
+        """The verifier must expose only four required path arguments."""
+        self.assertTrue(VERIFIER_PATH.is_file())
+        help_result = subprocess.run(
+            (sys.executable, VERIFIER_PATH, "--help"),
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        missing_result = subprocess.run(
+            (sys.executable, VERIFIER_PATH),
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(help_result.returncode, 0, help_result.stderr)
+        self.assertIn("--campaign-directory", help_result.stdout)
+        self.assertIn("--campaign-schema", help_result.stdout)
+        self.assertIn("--process-schema", help_result.stdout)
+        self.assertIn("--bundle-schema", help_result.stdout)
+        self.assertEqual(missing_result.returncode, 2)
+
+    def test_verifier_failure_exposes_only_one_generic_diagnostic(self) -> None:
+        """A failed fresh replay must not disclose internal path diagnostics."""
+        result = subprocess.run(
+            (
+                sys.executable,
+                VERIFIER_PATH,
+                "--campaign-directory",
+                "/does/not/exist",
+                "--campaign-schema",
+                "/does/not/exist",
+                "--process-schema",
+                "/does/not/exist",
+                "--bundle-schema",
+                "/does/not/exist",
+            ),
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(
+            result.stderr,
+            "qualification campaign verification failed\n",
+        )
 
 
 if __name__ == "__main__":

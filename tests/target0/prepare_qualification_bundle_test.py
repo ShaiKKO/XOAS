@@ -1477,6 +1477,9 @@ class PrepareQualificationBundleInspectionTest(unittest.TestCase):
                     "py_compile",
                     "tools/target0/prepare_qualification_bundle.py",
                     "tools/target0/capture_host.py",
+                    "tools/target0/qualification_campaign.py",
+                    "tools/target0/run_qualification_campaign.py",
+                    "tools/target0/verify_qualification_campaign.py",
                 ),
             ),
             (

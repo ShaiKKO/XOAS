@@ -38,6 +38,12 @@ add_test(
     "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_test.py"
     -k QualificationCampaignProcessTest)
 add_test(
+  NAME target0-qualification-campaign-verifier-cli
+  COMMAND
+    "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/qualification_campaign_test.py"
+    -k QualificationCampaignVerifierCliTest)
+add_test(
   NAME target0-qualification-campaign-records
   COMMAND
     "${Python3_EXECUTABLE}"
@@ -150,6 +156,7 @@ set_tests_properties(
   target0-qualification-campaign-sessions
   target0-qualification-campaign-statistics
   target0-qualification-campaign-thermal
+  target0-qualification-campaign-verifier-cli
   target0-qualification-bundle-build
   target0-qualification-bundle-finalization
   target0-qualification-bundle-inspection
