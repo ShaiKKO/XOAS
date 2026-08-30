@@ -120,9 +120,9 @@ The initial benchmark envelope is `M,K` from 4 to 256, `N` from 1 to 64, densiti
 - `docs/milestones/M0-implementation-plan.md` — executable M0 plan and commit boundaries.
 - `docs/milestones/M0-acceptance.md` — open M0 evidence/gap record.
 - `docs/milestones/status.md` — canonical frontier ledger.
-- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented and Tasks 5–7 remain open.
+- `docs/superpowers/plans/2026-08-29-amd-target0-host-qualification.md` — active physical-host qualification plan; Tasks 1–4 are implemented, Task 5 attempt 1 is a retained restoration rejection, and Tasks 5–7 remain open.
 - `docs/superpowers/plans/2026-08-29-target0-qualification-tool-deployment.md` — executed native preparation/bundle deployment plan; exact implementation `a312aa2` and the accepted non-claiming deployment receipt are verified.
-- `docs/superpowers/plans/2026-08-29-target0-qualification-campaign-runner.md` — active campaign-runner plan; implementation Tasks 1–7 passed exact-commit quality through `7b486e1`, while replacement bundle, preflight, and campaign one remain open.
+- `docs/superpowers/plans/2026-08-29-target0-qualification-campaign-runner.md` — active campaign-runner plan; implementation Tasks 1–7 passed exact-commit quality through `7b486e1`, Tasks 8–9 closed at source `1141713c`, and Task 10 attempt 1 is retained as `restoration_failure` before PMU.
 - `docs/targets/target0-amd-ryzen9-7900x-v1.md` — physical-candidate capture and verified provisioning evidence, explicit gaps, and remaining gates; it is not measurement qualification.
 - `toolchains/target0-amd-ryzen9-7900x-v1.lock.json` — exact installed support-package closure, source/build commands, artifact hashes, validation evidence, and rollback boundary for the physical candidate.
 - `benchmarks/manifests/` — synthetic result example, frozen synthetic/application/holdout corpus manifests, the historical unqualified `gpu-2` capture, and the explicitly unqualified physical AMD candidate manifest. The directory contains no executable benchmark harness or measured performance result.
@@ -844,10 +844,18 @@ orchestration, deterministic finalization, fresh replay verifier, and
 source-clean CLI execution are implemented through `db0eb87`. Exact clean
 subject `7b486e1` passed the complete Debug and Release quality aggregates and
 explicit 50/50 CTest replays, isolated 3/3 sanitizer gate, repository policy,
-and source-clean checkout assertion on `gpu-2`. A replacement native bundle,
-physical preflight, controlled campaign one, and qualification remain open. No
-live campaign session or reboot has occurred. The pinned
-JITSpMM revision has no license statement;
+and source-clean checkout assertion on `gpu-2`. A replacement bundle and
+matching replica then passed at exact source `1141713c`; the physical preflight
+accepted CPU 2/sibling 14. Campaign-one attempt 1 stopped during primary
+process 1 with retained `restoration_failure`: sibling, governor, and boost
+restored, but EPP remained `performance` instead of `balance_performance`.
+Bounded one-field recovery restored exact pre-state and independent live
+identity replay passed. No PMU phase, accepted campaign receipt, reboot,
+qualification, or performance claim occurred. Before a new attempt, require a
+test-first restoration-order repair, resolution of the canonical-JSON evidence
+deviation, complete exact-commit `gpu-2` quality, a new native bundle/replica,
+a new read-only preflight, and separate live-attempt authority. Never reuse or
+rewrite the rejected root. The pinned JITSpMM revision has no license statement;
 its adapter and any use remain blocked and deferred to M2 without removing it
 from the admitted comparator set. PMU evidence, noise checks, and target-bound
 benchmark evidence belong on that selected measurement host. Obtain the

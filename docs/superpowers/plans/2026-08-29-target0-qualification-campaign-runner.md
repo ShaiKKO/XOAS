@@ -762,7 +762,7 @@ covered by a quality check.
 - Produces: physical-authoritative accepted executable and matching development
   replica for the campaign commit.
 
-- [ ] **Step 1: Advance both host checkouts to the exact pushed commit**
+- [x] **Step 1: Advance both host checkouts to the exact pushed commit**
 
 On each host require:
 
@@ -773,7 +773,7 @@ test -z "$(git status --porcelain=v1 --untracked-files=all)"
 
 Do not proceed on a detached, dirty, divergent, or unpushed subject.
 
-- [ ] **Step 2: Prepare a new physical bundle**
+- [x] **Step 2: Prepare a new physical bundle**
 
 From `/home/shaik/XOAS`:
 
@@ -793,7 +793,7 @@ xoasBundleRoot="/var/tmp/xoas-target0-qualification-tools.${xoasCampaignCommit}-
 Expected: dual build, compatibility tests, inventory, and fresh verification
 accept the new exact-commit source set.
 
-- [ ] **Step 3: Copy and independently verify the complete replica**
+- [x] **Step 3: Copy and independently verify the complete replica**
 
 Use the externally authorized byte-copy transport without recording its access
 coordinates.
@@ -802,7 +802,7 @@ the replica.
 Require identical manifest, inventory, executable, and normalized executable
 identity SHA-256 values.
 
-- [ ] **Step 4: Bind the replacement receipt and re-run policy**
+- [x] **Step 4: Bind the replacement receipt and re-run policy**
 
 Update the compact non-secret deployment receipt and target manifest without
 claiming campaign execution or qualification.
@@ -826,13 +826,13 @@ receipt.
 - Produces: accepted `preflight.json` and `core-selection.json` without host
   mutation.
 
-- [ ] **Step 1: Prove the physical checkout and bundle are unchanged**
+- [x] **Step 1: Prove the physical checkout and bundle are unchanged**
 
 Re-run the clean checkout and fresh bundle verifier commands.
 Confirm the one-minute load is below `0.5`, the development user is the only
 expected interactive user, and the exclusive-use window remains valid.
 
-- [ ] **Step 2: Run the read-only preflight**
+- [x] **Step 2: Run the read-only preflight**
 
 Set one new nonexisting campaign-root name below `/var/tmp` and run the exact
 `preflight` interface from the approved spec with campaign ID
@@ -841,12 +841,21 @@ Set one new nonexisting campaign-root name below `/var/tmp` and run the exact
 Expected: the runner observes exactly 60 seconds of interrupts, selects the
 core deterministically, and writes only preflight and selection records.
 
-- [ ] **Step 3: Independently review preflight before mutation**
+- [x] **Step 3: Independently review preflight before mutation**
 
 Recompute every digest and inspect load, session eligibility, thermal state,
 boot identity, core/sibling topology, preferred-core rank, interrupt delta,
 bundle identity, source set, compiler, linker, lock, and clean checkout.
 Reject the attempt rather than overriding a failed precondition.
+
+Task 8 replacement bundle source
+`1141713c3448eaaa392e09ace8924ebcaf0e38bd` passed physical dual build,
+5/5 compatibility checks, matching physical/`gpu-2` fresh verification, and
+repository receipt integration. Task 9 accepted preflight SHA-256
+`c36ab9293eb622e17ee4e6869d12a8ce49a9994340203e6594dbb760b44a8abb`
+and deterministic CPU 2/sibling 14 selection SHA-256
+`200b5f84aab4d32e097982f27b1e89b0cd7b5b4e3b4ccd54363645c197a36ed1`.
+No host control changed during preflight.
 
 ---
 
@@ -872,18 +881,28 @@ Reject the attempt rather than overriding a failed precondition.
 - Produces: accepted or rejected campaign-one evidence and an exact stopping
   handoff at Task 6 Step 1.
 
-- [ ] **Step 1: Run the controlled phase exactly once**
+- [x] **Step 1: Run the controlled phase exactly once**
 
 Invoke the approved `run` interface as root with the exact repository root,
 campaign directory, and external target username.
 Do not retry a failed process or rejected campaign.
 
-- [ ] **Step 2: Verify restoration immediately**
+- [x] **Step 2: Verify restoration immediately**
 
 Before interpreting timing, independently require the sibling, governor, EPP,
 boost, boot, checkout, and identity states to equal their accepted pre-state.
 A restoration difference is the terminal campaign result and requires a
 bounded recovery decision before any new attempt.
+
+Attempt 1 reached the physical host exactly once and terminated during primary
+process 1 with controller exit 70 and closed `restoration_failure`. The probe
+returned 0; sibling, governor, and boost restored; EPP remained `performance`
+instead of pre-state `balance_performance`. Rejection SHA-256 is
+`e6458e2dac1097fa5649371c0815403708c7985da0b80d2ebf5c8b049efc5868`.
+A bounded recovery restored only EPP, and independent live identity and stable
+host-state replay then matched preflight. The root is immutable and will not be
+retried. Steps 3–5 are acceptance-path work and remain open for a future new
+attempt after the controller and evidence-encoding defects are closed.
 
 - [ ] **Step 3: Fresh-verify the finalized evidence**
 
@@ -922,7 +941,7 @@ git commit -m "bench: record Target 0 qualification campaign one"
 git push
 ```
 
-- [ ] **Step 6: Stop at the reboot boundary**
+- [x] **Step 6: Stop at the reboot boundary**
 
 Report the exact campaign-one commit, raw-evidence inventory digest, selected
 core and sibling, process/PMU/restoration results, complete verification,

@@ -172,9 +172,45 @@ The accepted bundles remain external private evidence roots; Git contains no
 ELF executable, raw log, access metadata, network coordinate, or external
 evidence-root path.
 
-No measurement session, host-control mutation, `perf` campaign, controlled
-reboot, target qualification, or performance claim occurred. The rejected
-`bc800ff` build attempt remains retained as non-claiming failure evidence.
+## Campaign-one rejected attempt
+
+On 2026-08-30, the accepted replacement bundle and read-only preflight were
+used for campaign-one attempt 1 at exact source commit
+`1141713c3448eaaa392e09ace8924ebcaf0e38bd` and tree
+`c8f17838c6bb54ae278fd4d1e06b0f64d21493ad`. The preflight selected logical
+CPU 2 and SMT sibling 14 after a 60-second interrupt observation. It accepted
+bare metal, TSC, cycles/instructions availability, one-minute load `0.12`,
+three expected and zero unexpected/root sessions, and zero thermal alarms,
+faults, or threshold violations. Its canonical SHA-256 is
+`c36ab9293eb622e17ee4e6869d12a8ce49a9994340203e6594dbb760b44a8abb`;
+the core-selection SHA-256 is
+`200b5f84aab4d32e097982f27b1e89b0cd7b5b4e3b4ccd54363645c197a36ed1`.
+
+The first primary probe completed with command status 0 and retained 30 valid
+samples, but the session controller returned restoration exit 70. Sibling
+online state, governor, and boost matched pre-state; CPU 2 EPP remained
+`performance` instead of `balance_performance`. The write-once rejection has
+reason `restoration_failure`, phase `primary`, and SHA-256
+`e6458e2dac1097fa5649371c0815403708c7985da0b80d2ebf5c8b049efc5868`.
+The restoration record SHA-256 is
+`415d0e134e1ddef8a3106709cf43b44b2977aa78c6bdaf7fd2ed04aa97fc8086`.
+It binds 11 diagnostic files; no PMU, campaign manifest, inventory, acceptance,
+qualification, or performance record exists.
+
+The controller restores EPP before restoring the governor. On this
+`amd-pstate-epp` host, the subsequent governor transition left EPP at
+`performance`. A bounded recovery wrote only CPU 2 EPP back to its recorded
+pre-state. Independent post-recovery capture matched the accepted sibling 1,
+governor `powersave`, EPP `balance_performance`, boost 1, normalized boot-ID
+SHA-256 `20da156151d62d87c68308e4bf82f1469c0db20c713a4178a0623bcc6d2beb8c`,
+clean checkout, toolchain, source, bundle, and stable host identity. The public
+fresh verifier rejected the root as required. The root is retained externally
+and will not be retried or rewritten.
+
+This is a terminal rejected qualification attempt, not a performance result.
+No `perf` phase, controlled reboot, target qualification, or performance claim
+occurred. The earlier rejected `bc800ff` build attempt also remains retained
+as non-claiming failure evidence.
 
 ## Deferred comparator boundaries
 
@@ -192,10 +228,14 @@ The candidate remains unqualified until all applicable gates close:
 
 1. resolve the open M0/M2 dependency for independent numerical admission of
    every applicable baseline adapter;
-2. prove the real physical-host measurement session restores exact state;
-3. pass non-claiming smoke, PMU, and noise characterization;
-4. complete campaign one;
-5. obtain separate approval for the exact controlled reboot action;
+2. repair and test the real-session governor/EPP restoration order, resolve the
+   retained-JSON canonical-encoding deviation, and redeploy a fresh exact-commit
+   bundle;
+3. pass a new read-only preflight and a separately authorized campaign-one
+   attempt from a new immutable root;
+4. pass non-claiming smoke, PMU, and noise characterization;
+5. obtain separate approval for the exact controlled reboot action only after
+   campaign one is accepted;
 6. complete campaign two under a distinct controlled boot identity;
 7. reconcile both campaigns and complete the accepted review model.
 

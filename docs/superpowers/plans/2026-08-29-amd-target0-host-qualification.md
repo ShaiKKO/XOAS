@@ -567,18 +567,23 @@ which passed the pinned `gpu-2` Debug and Release quality aggregates.
 - Modify: `benchmarks/manifests/target0-amd-ryzen9-7900x-v1.json`
 - Modify: `docs/targets/target0-amd-ryzen9-7900x-v1.md`
 
-Task 5 has not started. Before core selection or any campaign process, require
-an accepted qualification-tool bundle built natively from the clean physical
-checkout at the exact pushed campaign commit. Copy the complete bundle
-byte-for-byte to `gpu-2`, run the fresh-process verifier on both replicas, and
-require identical inventory and normalized executable-identity digests.
+Task 5 attempt 1 is retained as a terminal restoration rejection. Before core
+selection, its accepted qualification-tool bundle was built natively from the
+clean physical checkout at exact source
+`1141713c3448eaaa392e09ace8924ebcaf0e38bd`, copied byte-for-byte to `gpu-2`,
+and independently verified with matching inventory and normalized
+executable-identity digests.
 
 The repository-owned execution mechanism is controlled by the accepted
 [`IDR-0003`](../../adr/IDR-0003-target0-qualification-campaign-runner.md) and
 its [active implementation plan](2026-08-29-target0-qualification-campaign-runner.md).
 Implementation Tasks 1–7 passed complete exact-commit quality at `7b486e1`;
-replacement native bundle deployment and read-only physical preflight remain
-prerequisites. No live campaign session has run.
+replacement native bundle deployment and read-only physical preflight passed.
+The live attempt stopped during primary process 1 before PMU because EPP did
+not restore after the governor transition. Closed rejection SHA-256 is
+`e6458e2dac1097fa5649371c0815403708c7985da0b80d2ebf5c8b049efc5868`.
+Bounded recovery restored exact host pre-state. The rejected root is retained
+and cannot be retried or rewritten.
 
 Before each qualification process, independently recompute and retain the
 accepted executable, compiler, linker, fixed source set, provisioning lock,
@@ -587,13 +592,13 @@ campaign if any identity differs from the accepted bundle or changes between
 processes. Compatibility-test durations retained by the deployment bundle are
 not warmup, retained, PMU, noise, campaign, or benchmark samples.
 
-- [ ] **Step 1: Select the measurement core deterministically**
+- [x] **Step 1: Select the measurement core deterministically**
 
 Capture all physical cores, preferred-core ranks, sibling pairs, L3 groups,
 and a 60-second interrupt delta. Apply the locked selector. Record the chosen
 CPU and sibling; do not hard-code a result before capture.
 
-- [ ] **Step 2: Verify exact pre-session state**
+- [x] **Step 2: Verify exact pre-session state**
 
 Require exclusive-use confirmation, load below `0.5` at one-minute average,
 no unexpected user sessions, no thermal alarm, TSC clocksource, unchanged boot
