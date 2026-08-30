@@ -214,6 +214,40 @@ No `perf` phase, controlled reboot, target qualification, or performance claim
 occurred. The earlier rejected `bc800ff` build attempt also remains retained
 as non-claiming failure evidence.
 
+## Restoration-only repair proof and fresh physical bundle
+
+On 2026-08-30, the repaired session controller was exercised once on this
+physical host at clean merged source
+`a396f642d5c2ec6ed670cc2341170ec7d9f1a886`. This was a bounded
+restoration-only cycle around `/usr/bin/true`, not preflight or a qualification
+campaign. CPU 2 and SMT sibling 14 restored to sibling online 1, governor
+`powersave`, EPP `balance_performance`, and boost 1. The controller returned 0,
+the canonical record reported `restored=true` with no failure reasons, and an
+independent live audit matched every controlled sysfs value. The externally
+retained restoration-record SHA-256 is
+`5b6e2cefbac4c8c96f5228139978f776d55aff0dcffb9dc9fb19812cb50236e7`.
+
+The same clean source produced physical-native qualification bundle
+`target0-qualification-tools-a396f642d5c2ec6e`. Both preparation and a fresh
+physical verifier accepted it. Its authoritative candidate digests are:
+
+- bundle manifest:
+  `15d58e20bbab593bd902782b917b79ba98a03cf1e79c784fbff2c450d23a99a0`;
+- inventory:
+  `44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf`;
+- executable:
+  `db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`;
+- normalized executable identity:
+  `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
+
+This closes physical restoration validation and the physical-native half of
+fresh deployment only. IDR-0002 still requires the complete bundle to be
+copied byte-for-byte to `gpu-2` and independently verified in a clean checkout
+at the same source. No such replica, replacement preflight, new campaign, PMU
+collection, qualification decision, or performance claim exists. This proof
+neither authorized nor performed a controlled campaign reboot; the incidental
+administrator reboot remains non-campaign evidence.
+
 ## Deferred comparator boundaries
 
 The pinned JITSpMM tree contains no license or copyright statement. XOAS does
@@ -230,8 +264,8 @@ The candidate remains unqualified until all applicable gates close:
 
 1. resolve the open M0/M2 dependency for independent numerical admission of
    every applicable baseline adapter;
-2. physically verify the repaired governor/EPP restoration order from exact
-   source `c9af373`, then build and cross-verify a fresh exact-commit bundle;
+2. copy the accepted physical bundle at exact source `a396f64` byte-for-byte to
+   `gpu-2` and pass a fresh independent verifier there;
 3. pass a new read-only preflight and a separately authorized campaign-one
    attempt from a new immutable root;
 4. pass non-claiming smoke, PMU, and noise characterization;

@@ -915,6 +915,24 @@ restoration proof, a new exact-commit bundle/replica, and a new preflight remain
 open. Steps 3–5 are acceptance-path work for a separately authorized new
 attempt.
 
+A bounded restoration-only control cycle later passed on the physical host at
+clean merged source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886`.
+The controller returned 0 around `/usr/bin/true`; a separate live audit matched
+sibling, governor, EPP, and boost to canonical pre-state. The restoration
+record SHA-256 is
+`5b6e2cefbac4c8c96f5228139978f776d55aff0dcffb9dc9fb19812cb50236e7`.
+At that same source, a fresh physical-native bundle passed preparation and
+fresh physical verification with bundle-manifest, inventory, executable, and
+normalized executable-identity SHA-256 values
+`15d58e20bbab593bd902782b917b79ba98a03cf1e79c784fbff2c450d23a99a0`,
+`44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf`,
+`db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`,
+and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
+The byte-identical `gpu-2` replica required by IDR-0002 has not been produced
+or independently verified. Task 9 replacement preflight and every Task 10
+acceptance-path step therefore remain blocked; no new campaign or PMU phase
+occurred.
+
 - [ ] **Step 3: Fresh-verify the finalized evidence**
 
 Run:
@@ -974,5 +992,5 @@ This plan is complete only when:
 - raw evidence, inventory, manifest, acceptance/rejection, and compact Git
   receipt are retained as applicable;
 - no credential or access field is present;
-- no reboot or campaign two has occurred;
+- no controlled campaign reboot or campaign two has occurred;
 - Target 0 and M0 remain open until the separately approved later gates close.

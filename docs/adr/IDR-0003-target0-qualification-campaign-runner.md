@@ -158,7 +158,8 @@ runner published no acceptance. Bounded recovery restored only EPP, after
 which the complete live identity and stable host projection matched preflight.
 The immutable rejection SHA-256 is
 `e6458e2dac1097fa5649371c0815403708c7985da0b80d2ebf5c8b049efc5868`.
-No PMU phase, reboot, qualification decision, or performance claim occurred.
+No PMU phase, controlled campaign reboot, qualification decision, or
+performance claim occurred.
 
 The source correction was implemented test-first. Red subject `485eb6b` added
 exact-byte and restoration-order regressions that failed against the prior
@@ -182,6 +183,28 @@ This closes the source and fixture evidence defects only. Before another
 campaign attempt, physically verify governor/EPP restoration on the designated
 host, build and cross-verify a new exact-commit bundle, pass a new read-only
 preflight, obtain separate attempt authority, and use a new immutable root.
+
+On 2026-08-30, one bounded restoration-only control cycle at clean merged
+source `a396f642d5c2ec6ed670cc2341170ec7d9f1a886` closed the physical repair
+proof without starting preflight or a qualification campaign. CPU 2 and SMT
+sibling 14 entered the approved session around `/usr/bin/true`; the controller
+returned 0 and the independent live audit matched sibling online 1, governor
+`powersave`, EPP `balance_performance`, and boost 1 to the canonical restored
+record. The restoration-record SHA-256 is
+`5b6e2cefbac4c8c96f5228139978f776d55aff0dcffb9dc9fb19812cb50236e7`.
+
+The same clean source produced a new physical-native bundle accepted by both
+the preparation path and a fresh physical verifier. Its bundle-manifest,
+inventory, executable, and normalized executable-identity SHA-256 values are,
+respectively,
+`15d58e20bbab593bd902782b917b79ba98a03cf1e79c784fbff2c450d23a99a0`,
+`44d6ee1eec9791974098ce74c81647d1690bd0aef2bd54822e47635ebad1bbaf`,
+`db82cd647e880b1780c2a5fb9d10f87398b184f35d4e84de9b6855db07fec015`,
+and `753890dc53185727326bc5dba2585a59ed60bdf0465623dec3fb58bf63b388b3`.
+IDR-0002 still requires that complete bundle to be copied byte-for-byte to
+`gpu-2` and independently verified there. That cross-host replica is not
+complete, so this evidence does not authorize preflight, campaign execution,
+PMU collection, reboot, qualification, or a performance claim.
 
 ## Reversal and migration
 
